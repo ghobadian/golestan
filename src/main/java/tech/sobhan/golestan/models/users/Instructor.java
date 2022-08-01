@@ -1,6 +1,8 @@
 package tech.sobhan.golestan.models.users;
 
 import lombok.*;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+import tech.sobhan.golestan.auth.User;
 import tech.sobhan.golestan.enums.Rank;
 
 import javax.persistence.*;
@@ -17,6 +19,19 @@ public class Instructor {
     private Rank rank;
     //todo add user id
 
+
+//    @Override//todo fix later
+//    public String toString() {
+//        JSONObject output = new JSONObject();
+//        JSONObject instructorDetails = new JSONObject();
+//        User user = userRepository.
+//        instructorDetails.put()
+//        output.put("instructor", instructorDetails);
+//        return "Instructor{" +
+//                "id=" + id +
+//                ", rank=" + rank +
+//                '}';
+//    }
 
     @Override
     public boolean equals(Object o) {
