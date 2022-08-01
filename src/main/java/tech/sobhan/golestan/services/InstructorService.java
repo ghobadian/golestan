@@ -20,24 +20,14 @@ import static tech.sobhan.golestan.utils.Util.createLog;
 @Service
 public class InstructorService {
 
-    private final UserRepository userRepository;
     private final ErrorChecker errorChecker;
+    private final RepositoryHandler repositoryHandler;
 
-    private final InstructorRepository instructorRepository;
-    private final StudentRepository studentRepository;
-    private final CourseSectionRepository courseSectionRepository;
-    private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
-
-    public InstructorService(UserRepository userRepository, ErrorChecker errorChecker, InstructorRepository instructorRepository,
-                             StudentRepository studentRepository, CourseSectionRepository courseSectionRepository,
-                             CourseSectionRegistrationRepository courseSectionRegistrationRepository) {
-        this.userRepository = userRepository;
+    public InstructorService(ErrorChecker errorChecker, RepositoryHandler repositoryHandler) {
         this.errorChecker = errorChecker;
-        this.instructorRepository = instructorRepository;
-        this.studentRepository = studentRepository;
-        this.courseSectionRepository = courseSectionRepository;
-        this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
+        this.repositoryHandler = repositoryHandler;
     }
+
 
     public String list(String username, String password) {
         errorChecker.checkIsUser(username, password);
@@ -48,13 +38,15 @@ public class InstructorService {
     }
 
     private List<Instructor> list() {
-        return instructorRepository.findAll();
+        return repositoryHandler.findAllInstructors();
     }
+
+
 
     public Instructor create(Instructor instructor){
         if (instructorExists(list(), instructor)) return null;
         createLog(Instructor.class, instructor.getId());
-        return instructorRepository.save(instructor);
+        return repositoryHandler.saveInstructor(instructor);
     }
 
     private boolean instructorExists(List<Instructor> allInstructors, Instructor instructor) {
@@ -72,12 +64,16 @@ public class InstructorService {
         return read(id).toString();
     }
 
-    private Instructor read(Long id) {
-        return instructorRepository.findById(id).orElseThrow(InstructorNotFoundException::new);
+    private Instructor read(Long instructorId) {
+        return repositoryHandler.findInstructor(instructorId);
     }
 
     public String update(Rank rank, Long id, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
+        return update(rank, id);
+    }
+
+    private String update(Rank rank, Long id) {
         instructorRepository.findById(id).map(instructor -> {
             instructor.setRank(rank);
             return instructorRepository.save(instructor);//todo sus for saveinstructor instead of instructor
@@ -88,11 +84,15 @@ public class InstructorService {
         return "OK";
     }
 
-    public String delete(Long id, String username, String password) {//todo check later
+    public String delete(Long instructorId, String username, String password) {//todo check later
         errorChecker.checkIsAdmin(username, password);
-        Instructor instructor = read(id);
-        List<CourseSection> courseSectionsOfInstructor = courseSectionRepository.findByInstructor(id);//todo delete course section
-        courseSectionRepository.deleteAll(courseSectionRepository.findByInstructor(id));
+        Instructor instructor = repositoryHandler.findInstructor(instructorId);
+        List<CourseSection> courseSectionsOfInstructor = repositoryHandler.findCourseSectionByInstructor(instructorId);
+        for (CourseSection courseSection : courseSectionsOfInstructor) {
+            courseSection
+            courseSection.setInstructor(null);
+        }
+        courseSectionRepository.deleteAll(courseSectionRepository.findByInstructor(instructorId));
         instructorRepository.delete(instructor);
         return "OK";
 //        log.info("Instructor with id of " + id + "deleted successfully.");        //todo add log in all deletes and signups

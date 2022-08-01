@@ -96,7 +96,7 @@ public class StudentService {//todo clean this class
         User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
         return user.getStudent();
     }
-    public String seeScoresInSpecifiedTerm(Long term_id, String username, String password) throws JSONException {
+    public JSONArray seeScoresInSpecifiedTerm(Long term_id, String username, String password) throws JSONException {
         errorChecker.checkIsUser(username, password);
         Long studentId = findStudent(username).getStudentId();
         List<CourseSectionRegistration> courseSectionRegistrations =
@@ -111,7 +111,7 @@ public class StudentService {//todo clean this class
             JSONObject courseSectionDetails = getCourseSectionDetails(courseSectionRegistration, courseSection, course);
             output.put(courseSectionDetails);
         }
-        return output.toString();
+        return output;
     }
 
     private JSONObject getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration, CourseSection courseSection, Course course) throws JSONException {

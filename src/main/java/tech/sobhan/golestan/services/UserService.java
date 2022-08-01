@@ -4,7 +4,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.auth.User;
 import tech.sobhan.golestan.business.exceptions.UserNotFoundException;
-import tech.sobhan.golestan.business.exceptions.UnauthorisedException;
 import tech.sobhan.golestan.repositories.InstructorRepository;
 import tech.sobhan.golestan.repositories.StudentRepository;
 import tech.sobhan.golestan.repositories.UserRepository;
@@ -13,7 +12,8 @@ import tech.sobhan.golestan.security.ErrorChecker;
 import java.util.List;
 
 import static tech.sobhan.golestan.security.config.PasswordConfiguration.getPasswordEncoder;
-import static tech.sobhan.golestan.utils.Util.*;
+import static tech.sobhan.golestan.utils.Util.createLog;
+import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
 public class UserService {
@@ -72,7 +72,7 @@ public class UserService {
         return update(newUser, id).toString();
     }
 
-    User update(User newUser, Long id) {
+    public User update(User newUser, Long id) {
         userRepository.findById(id).map(user -> {
             user = newUser;
             return userRepository.save(user);

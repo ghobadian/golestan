@@ -2,9 +2,8 @@ package tech.sobhan.golestan.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.CourseSectionRegistrationNotFoundException;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
-import tech.sobhan.golestan.repositories.CourseSectionRegistrationRepository;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 
 import java.util.List;
 
@@ -13,16 +12,16 @@ import static tech.sobhan.golestan.utils.Util.createLog;
 @Service
 @Slf4j
 public class CourseSectionRegistrationService {
-    private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
+    private final RepositoryHandler repositoryHandler;
 
-    public CourseSectionRegistrationService(CourseSectionRegistrationRepository courseSectionRegistrationRepository) {
-        this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
+    public CourseSectionRegistrationService(RepositoryHandler repositoryHandler) {
+        this.repositoryHandler = repositoryHandler;
     }
 
     public CourseSectionRegistration create(CourseSectionRegistration courseSectionRegistration) {
         if(courseSectionRegistrationExists(list(), courseSectionRegistration)) return null;
         createLog(CourseSectionRegistration.class, courseSectionRegistration.getId());
-        return courseSectionRegistrationRepository.save(courseSectionRegistration);
+        return repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
     }
 
     private boolean courseSectionRegistrationExists(List<CourseSectionRegistration> allCourseSectionRegistrations,
@@ -37,10 +36,6 @@ public class CourseSectionRegistrationService {
     }
 
     public List<CourseSectionRegistration> list() {
-        List<CourseSectionRegistration> allCourseSectionRegistrations = courseSectionRegistrationRepository.findAll();
-//        if(allCourseSectionRegistrations.isEmpty()){
-//            throw new CourseSectionRegistrationNotFoundException();
-//        }
-        return allCourseSectionRegistrations;
+        return repositoryHandler.findAllCourseSectionRegistrations();
     }
 }

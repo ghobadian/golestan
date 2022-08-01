@@ -59,6 +59,10 @@ public final class RepositoryHandler {
         return courseRepository.findById(id).orElseThrow(CourseNotFoundException::new);
     }
 
+    public CourseSectionRegistration saveCourseSectionRegistration(CourseSectionRegistration courseSectionRegistration) {
+        return courseSectionRegistrationRepository.save(courseSectionRegistration);
+    }
+
     public Term findTerm(Long id) {
         if(id == null) throw new TermNotFoundException();
         return termRepository.findById(id).orElseThrow(TermNotFoundException::new);
@@ -89,12 +93,26 @@ public final class RepositoryHandler {
         studentRepository.save(student);
     }
 
-    public void saveInstructor(Instructor instructor) {
-        instructorRepository.save(instructor);
+    public Instructor saveInstructor(Instructor instructor) {
+        return instructorRepository.save(instructor);
     }
 
     public User getUserByUsername(String username) {
         if(username == null) throw new UserNotFoundException();
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public List<CourseSectionRegistration> findAllCourseSectionRegistrations() {
+        List<CourseSectionRegistration> courseSectionRegistrations = courseSectionRegistrationRepository.findAll();
+        if(courseSectionRegistrations.isEmpty()) throw new CourseSectionNotFoundException();
+        return courseSectionRegistrations;
+    }
+
+    public List<Instructor> findAllInstructors() {
+        return instructorRepository.findAll();
+    }
+
+    public List<CourseSection> findCourseSectionByInstructor(Long id) {
+        return courseSectionRepository.findByInstructor(id);
     }
 }
