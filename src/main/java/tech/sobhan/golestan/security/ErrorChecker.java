@@ -50,6 +50,13 @@ public class ErrorChecker {
         if(!isInstructor(username)) throw new ForbiddenException();
     }
 
+    public void checkIsInstructorOfCourseSectionOrAdmin(String username, String password, CourseSection courseSection){//todo clean it
+        checkIsUser(username, password);
+        if(isInstructor(username) && !isAdmin(username)) throw new ForbiddenException();
+        if(isInstructor(username) && !isInstructorOfCourseSection(username, courseSection))
+            throw new ForbiddenException();
+    }
+
     public void checkIsInstructorOfCourseSection(String username, String password, CourseSection courseSection) {
         checkIsInstructor(username, password);
         if(!isInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();

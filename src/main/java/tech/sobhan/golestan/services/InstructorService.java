@@ -101,8 +101,7 @@ public class InstructorService {
     public String giveMark(Map<String, String> json, String username, String password) {
         CourseSection courseSection = courseSectionRepository
                 .findById(Long.valueOf(json.get("course_section_id"))).orElseThrow(CourseNotFoundException::new);
-        String foundError = foundError(username, password, courseSection);
-        if (foundError != null) return foundError;
+        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
         Student student = studentRepository
                 .findById(Long.valueOf(json.get("student_id"))).orElseThrow(StudentNotFoundException::new);
 
@@ -117,12 +116,4 @@ public class InstructorService {
         });
         return "OK";
     }
-
-    private String foundError(String username, String password, CourseSection courseSection) {
-        if(!errorChecker.isUser(username, password)) throw new UnauthorisedException();
-        if(!ErrorChecker.isInstructor(username)) return "ERROR 403";
-        if(!ErrorChecker.isInstructorOfCourseSection(username, courseSection)) return "ERROR 403";
-        return null;
-    }
-
 }

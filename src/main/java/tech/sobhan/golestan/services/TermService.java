@@ -2,7 +2,6 @@ package tech.sobhan.golestan.services;
 
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.business.exceptions.TermNotFoundException;
-import tech.sobhan.golestan.business.exceptions.UnauthorisedException;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.repositories.TermRepository;
 import tech.sobhan.golestan.repositories.UserRepository;
@@ -19,9 +18,10 @@ public class TermService {
     private final ErrorChecker errorChecker;
 
 
-    public TermService(TermRepository termRepository, UserRepository userRepository) {
+    public TermService(TermRepository termRepository, UserRepository userRepository, ErrorChecker errorChecker) {
         this.termRepository = termRepository;
         this.userRepository = userRepository;
+        this.errorChecker = errorChecker;
     }
 
     public String list(String username, String password) {

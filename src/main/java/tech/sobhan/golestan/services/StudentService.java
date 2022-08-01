@@ -34,6 +34,8 @@ public class StudentService {//todo clean this class
     private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
     private final TermRepository termRepository;
     private final UserRepository userRepository;
+    private final RepositoryHandler repositoryHandler;
+
 
     private final ErrorChecker errorChecker;
 
@@ -42,12 +44,13 @@ public class StudentService {//todo clean this class
                           CourseSectionRegistrationRepository courseSectionRegistrationRepository,
                           TermRepository termRepository,
                           UserRepository userRepository,
-                          ErrorChecker errorChecker) {
+                          RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
         this.studentRepository = studentRepository;
         this.courseSectionRepository = courseSectionRepository;
         this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
         this.termRepository = termRepository;
         this.userRepository = userRepository;
+        this.repositoryHandler = repositoryHandler;
         this.errorChecker = errorChecker;
     }
     public Student create(Student student){
@@ -182,8 +185,8 @@ public class StudentService {//todo clean this class
     }
     @SneakyThrows
     public String listCourseSectionStudents(Long courseSectionId, String username, String password) {
-        String foundProblem = foundProblem(courseSectionId, username, password);
-        if(foundProblem != null) return foundProblem;
+        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+        errorChecker.checkIsInstructorOfCourseSectionOrAdmin(username, password, courseSection);
         List<CourseSectionRegistration> courseSectionRegistrations =
                 courseSectionRegistrationRepository.findByCourseSection(courseSectionId);
         JSONArray output = new JSONArray();
@@ -200,13 +203,5 @@ public class StudentService {//todo clean this class
         return output.toString();
     }
 
-    private String foundProblem(Long courseSectionId, String username, String password) {//todo make static
-        errorChecker.checkIsUser(username, password);
-        CourseSection courseSection = courseSectionRepository.findById(courseSectionId)
-                .orElseThrow(CourseSectionNotFoundException::new);
-        if(!ErrorChecker.isInstructor(username) && !ErrorChecker.isAdmin(username)) return "ERROR 403";
-        if(ErrorChecker.isInstructor(username) && !ErrorChecker.isInstructorOfCourseSection(username, courseSection))
-            return "ERROR 403";
-        return null;
-    }
+
 }
