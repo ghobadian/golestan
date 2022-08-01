@@ -15,17 +15,25 @@ public class StudentController {
         this.service = service;
     }
 
+    @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)
+    public String listStudentsOfSpecifiedCourseSection(@RequestParam Long courseSectionId,
+                                @RequestHeader(value = "username") String username,
+                                @RequestHeader(value = "password") String password){
+        return service.listCourseSectionStudents(courseSectionId, username, password);
+    }
     @PostMapping(SIGNUP_SECTION_PATH)
-    public void signUpSection(@RequestParam Long courseSectionId, @RequestHeader(value = "username") String username,
-                              @RequestHeader(value = "password") String password){//todo اینجا چطور به برنامه بفهمونم که کاربر فعلی کیه؟
-        service.signUpSection(courseSectionId, username, password);//todo چطور بتونم از اون کوکی که توی مرورگر نشون میده استفاده کنم
+    public String signUpSection(@RequestParam Long courseSectionId,
+                              @RequestHeader(value = "username") String username,
+                              @RequestHeader(value = "password") String password){
+        return service.signUpSection(courseSectionId, username, password);
     }//todo move all repository instances to a class
 
     @SneakyThrows
-    @PostMapping(SEE_SCORES_IN_TERM_PATH)//todo test later
-    public String seeScoresInSpecifiedTerm(@PathVariable Long term_id, @RequestHeader(value = "username") String username,
-                                           @RequestHeader(value = "password") String password){//todo
-        return service.seeScoresInSpecifiedTerm(term_id, username, password);
+    @GetMapping(SEE_SCORES_IN_TERM_PATH)//todo test later
+    public String seeScoresInSpecifiedTerm(@RequestParam Long termId,
+                                           @RequestHeader(value = "username") String username,
+                                           @RequestHeader(value = "password") String password){
+        return service.seeScoresInSpecifiedTerm(termId, username, password);
     }
 
     @SneakyThrows

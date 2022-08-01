@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.services.CourseService;
 
-import java.util.List;
-
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
@@ -18,30 +16,39 @@ public class CourseController {
     }
 
     @GetMapping(COURSE_LIST_PATH)
-    private List<Course> list(){
-        return service.list();
+    private String list(@RequestHeader(value = "username") String username,
+                              @RequestHeader(value = "password") String password){
+        return service.list(username, password);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(COURSE_CREATE_PATH)
-    private Course create(@RequestParam int units, @RequestParam String title){
-        return service.create(units, title);
+    private String create(@RequestParam int units, @RequestParam String title,
+                          @RequestHeader(value = "username") String username,
+                          @RequestHeader(value = "password") String password){
+        return service.create(units, title, username, password);
     }
 
     @GetMapping(COURSE_READ_PATH)
-    private Course read(@PathVariable Long id){
-        return service.read(id);
+    private String read(@PathVariable Long id,
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password){
+        return service.read(id, username, password);
     }//todo add advice
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(COURSE_UPDATE_PATH)
-    private void update(@RequestBody Course newCourse, @PathVariable Long id){
-        service.update(newCourse, id);
+    private String update(@RequestBody Course newCourse, @PathVariable Long id,
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password){
+        return service.update(newCourse, id, username, password);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(COURSE_DELETE_PATH)
-    private void delete(@PathVariable Long id){
-        service.delete(id);
+    private String delete(@PathVariable Long id,
+                                  @RequestHeader(value = "username") String username,
+                                  @RequestHeader(value = "password") String password){
+        return service.delete(id, username, password);
     }
 }

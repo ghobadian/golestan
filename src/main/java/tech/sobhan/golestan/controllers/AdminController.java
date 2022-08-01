@@ -20,7 +20,10 @@ public class AdminController {
     @SneakyThrows
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(MODIFY_ROLE_PATH)
-    public void modifyRole(@PathVariable Long id, @RequestBody Map<String,String> requestedBody){
-        service.modifyRole(id, requestedBody);
+    public String modifyRole(@PathVariable Long id,
+                           @RequestBody Map<String,String> requestedBody,
+                           @RequestHeader(value = "username") String username,
+                           @RequestHeader(value = "password") String password){
+        return service.modifyRole(id, requestedBody, username, password);
     }
 }

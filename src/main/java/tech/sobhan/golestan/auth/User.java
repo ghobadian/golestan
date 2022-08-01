@@ -9,6 +9,7 @@ import tech.sobhan.golestan.models.users.Student;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 @AllArgsConstructor @NoArgsConstructor
 @Data @Builder
@@ -35,7 +36,28 @@ public class User implements UserDetails {
     @OneToOne
     @JoinColumn(name = "instructor", unique = true)
     private Instructor instructor = null;
-//    private Set<? extends GrantedAuthority> grantedAuthorities;
+//    @Embedded
+//    private final GrantedAuthorities grantedAuthorities;
+
+//    private final Set<? extends GrantedAuthority> grantedAuthorities;
+
+//    public User() {
+//        this.grantedAuthorities = null;
+//    }
+
+    public User(String username, String password, String name, String phone, String nationalId, boolean admin,
+                boolean active, Student student, Instructor instructor, GrantedAuthorities grantedAuthorities) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.phone = phone;
+        this.nationalId = nationalId;
+        this.admin = admin;
+        this.active = active;
+        this.student = student;
+        this.instructor = instructor;
+//        this.grantedAuthorities = grantedAuthorities;
+    }
 
     @Override
     public int hashCode() {

@@ -1,16 +1,9 @@
 package tech.sobhan.golestan.controllers;
 
 import lombok.SneakyThrows;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.models.Course;
-import tech.sobhan.golestan.models.CourseSection;
-import tech.sobhan.golestan.models.Term;
-import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.services.CourseSectionService;
-
-import java.util.List;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
@@ -23,33 +16,47 @@ public class CourseSectionController {
     }
 
     @GetMapping(COURSE_SECTION_LIST_PATH)
-    private List<CourseSection> list(@RequestParam Long termId){
-        return service.list(termId);
+    private String list(@RequestParam Long termId,
+                                     @RequestHeader(value = "username") String username,
+                                     @RequestHeader(value = "password") String password){
+        return service.list(termId, username, password);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(COURSE_SECTION_CREATE_PATH)
-    private CourseSection create(@RequestParam Course course, @RequestParam Instructor instructor,
-                                 @RequestParam Term term){//todo check, it is so sus
-        return service.create(course, instructor, term);
+    private String create(@RequestParam Long courseId,
+                          @RequestParam Long instructorId,
+                          @RequestParam Long termId,
+                          @RequestHeader(value = "username") String username,
+                          @RequestHeader(value = "password") String password){
+        return service.create(courseId, instructorId, termId, username, password);
     }
 
     @SneakyThrows
     @GetMapping(COURSE_SECTION_READ_PATH)
-    private JSONObject read(@PathVariable Long id){
-        return service.read(id);
+    private String read(@PathVariable Long id,
+                            @RequestHeader(value = "username") String username,
+                            @RequestHeader(value = "password") String password){
+        return service.read(id, username, password);
     }//todo add advice
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(COURSE_SECTION_UPDATE_PATH)
-    private void update(@RequestBody CourseSection newCourseSection, @PathVariable Long id){
-        service.update(newCourseSection, id);
+    private String update(@RequestParam(required = false) Long termId,
+                          @RequestParam(required = false) Long courseId,
+                          @RequestParam(required = false) Long instructorId,
+                          @PathVariable Long courseSectionId,
+                          @RequestHeader(value = "username") String username,
+                          @RequestHeader(value = "password") String password){
+        return service.update(termId, courseId, instructorId, courseSectionId, username, password);
     }
 
     @SneakyThrows
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(COURSE_SECTION_DELETE_PATH)
-    private void delete(@PathVariable Long id){
-        service.delete(id);
+    private String delete(@PathVariable Long id,
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password){
+        return service.delete(id, username, password);
     }
 }

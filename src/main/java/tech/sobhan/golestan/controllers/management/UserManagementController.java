@@ -17,13 +17,17 @@ public class UserManagementController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(USER_UPDATE_PATH)
-    private void update(@RequestBody User newUser, @PathVariable Long id){
-        service.update(newUser, id);
+    private String update(@RequestBody User newUser, @PathVariable Long id,
+                          @RequestHeader(value = "username") String username,
+                          @RequestHeader(value = "password") String password){
+        return service.update(newUser, id, username, password);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(USER_DELETE_PATH)
-    private void delete(@PathVariable Long id){
-        service.delete(id);
+    private String delete(@PathVariable Long id,
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password){
+        return service.delete(id, username, password);
     }
 }

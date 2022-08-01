@@ -24,13 +24,17 @@ public class InstructorManagementController {
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(INSTRUCTOR_DELETE_PATH)
-    private void delete(@PathVariable Long id){
-        service.delete(id);
+    private void delete(@PathVariable Long id,
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password){
+        service.delete(id, username, password);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(INSTRUCTOR_UPDATE_PATH)
-    private void update(@RequestParam Rank rank, @PathVariable Long id){
-        service.update(rank, id);
+    private void update(@RequestParam Rank rank, @PathVariable Long id,
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password){
+        service.update(rank, id, username, password);
     }
 }

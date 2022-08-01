@@ -3,72 +3,60 @@ package tech.sobhan.golestan.services;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.auth.User;
-import tech.sobhan.golestan.business.exceptions.UserNotFoundException;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.repositories.InstructorRepository;
-import tech.sobhan.golestan.repositories.StudentRepository;
-import tech.sobhan.golestan.repositories.UserRepository;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.security.Role;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+
 @Slf4j
 @Service
 public class AdminService {
+    private final RepositoryHandler repositoryHandler;
+    private final ErrorChecker errorChecker;
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final InstructorRepository instructorRepository;
 
-    public AdminService(UserService userService, UserRepository userRepository, StudentRepository studentRepository,
-                        InstructorRepository instructorRepository) {
+    public AdminService(RepositoryHandler repositoryHandler, ErrorChecker errorChecker, UserService userService) {
+        this.repositoryHandler = repositoryHandler;
+        this.errorChecker = errorChecker;
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.studentRepository = studentRepository;
-        this.instructorRepository = instructorRepository;
     }
 
-    public void modifyRole(Long id, Map<String, String> requestedBody) {
-        log.warn("AdminService/modifyRole");
-        User foundUser = (userRepository.findById(id).orElseThrow(UserNotFoundException::new));
+    public String modifyRole(Long id, Map<String, String> requestedBody, String username, String password) {
+        errorChecker.checkIsAdmin(username, password);
+
+        User foundUser = repositoryHandler.findUser(id);
         foundUser.setActive(true);
         Role role = Role.valueOf(requestedBody.get("role").toUpperCase());
         switch (role){
             case STUDENT -> addRoleStudent(id, requestedBody, foundUser);
             case INSTRUCTOR -> addRoleInstructor(id, requestedBody, foundUser);
         }
-        log.warn("AdminService/modifyRole2");
+        return "OK";
     }
+
 
     private void addRoleInstructor(Long id, Map<String, String> requestedBody, User foundUser) {
         Instructor instructor = Instructor.builder().rank(Rank.valueOf(requestedBody.get("rank").toUpperCase())).build();
-        instructorRepository.save(instructor);
+        repositoryHandler.saveInstructor(instructor);
         foundUser.setInstructor(instructor);
         userService.update(foundUser, id);
-//        userRepository.findById(id).map(user -> {
-//            user = foundUser;
-//            return userRepository.save(user);
-//        });
     }
 
     private void addRoleStudent(Long id, Map<String, String> requestedBody, User foundUser) {
-        log.warn("AdminService/addRoleStudent");
         Degree degree = Degree.valueOf(Optional.of(requestedBody.get("degree")).orElseThrow().toUpperCase());
         Student student = Student.builder().degree(degree)
                 .startDate(new Date()).build();
         foundUser.setStudent(student);
-        studentRepository.save(student);
-        userService.update(foundUser, id);
-        log.warn("AdminService/addRoleStudent2");
+        repositoryHandler.saveStudent(student);
 
-//        userRepository.findById(id).map(user -> {
-//            user = foundUser;
-//            return userRepository.save(user);
-//        });
+        userService.update(foundUser, id);
     }
 }

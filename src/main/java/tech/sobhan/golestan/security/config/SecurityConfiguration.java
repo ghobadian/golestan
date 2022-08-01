@@ -33,12 +33,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .httpBasic().and()
-                .authorizeRequests()
+                .csrf().disable();
+//                .httpBasic().and()
+//                .authorizeRequests()
 //                .antMatchers("/instructors/").authenticated()
-                .antMatchers("/management/**").authenticated()
-                .antMatchers("/management/**").hasRole(ADMIN.name())
+//                .antMatchers("/management/**").authenticated()
+//                .antMatchers("/management/**").hasRole(ADMIN.name())
 //                .antMatchers(MODIFY_ROLE_PATH).authenticated()
 //                .anyRequest()
 //                .authenticated()
@@ -48,27 +48,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                    .permitAll()
 //                    .usernameParameter("username")
 //                    .passwordParameter("password")
-                .and()
-                .rememberMe()
-                    .tokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(30))
-                    .key("one_fellow_over_the_cuckoos_nest")
-                    .rememberMeParameter("remember-me")
-                .and()
-                .logout()
-                    .logoutUrl("/logout")
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .clearAuthentication(true)
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID", "remember-me")
-                    .logoutSuccessUrl("/login");
+//                .and()
+//                .rememberMe()
+//                    .tokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(30))
+//                    .key("one_fellow_over_the_cuckoos_nest")
+//                    .rememberMeParameter("remember-me")
+//                .and()
+//                .logout()
+//                    .logoutUrl("/logout")
+//                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+//                    .clearAuthentication(true)
+//                    .invalidateHttpSession(true)
+//                    .deleteCookies("JSESSIONID", "remember-me")
+//                    .logoutSuccessUrl("/login");
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth){
-        auth.authenticationProvider(daoAuthenticationProvider());
-    }
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth){
+//        auth.authenticationProvider(daoAuthenticationProvider());
+//    }
 
-    @Bean
+//    @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder);

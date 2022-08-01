@@ -4,57 +4,53 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.CourseSectionNotFoundException;
-import tech.sobhan.golestan.business.exceptions.CourseSectionRegistrationNotEmpty;
+import tech.sobhan.golestan.business.exceptions.*;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
-import tech.sobhan.golestan.repositories.CourseSectionRegistrationRepository;
-import tech.sobhan.golestan.repositories.CourseSectionRepository;
+import tech.sobhan.golestan.repositories.*;
+import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.utils.Util.createLog;
+import static tech.sobhan.golestan.utils.Util.*;
 
 @Service
 @Slf4j
 public class CourseSectionService {
-    private final CourseSectionRepository courseSectionRepository;
-    private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
+    private final RepositoryHandler repositoryHandler;
+    private final ErrorChecker errorChecker;
 
-    public CourseSectionService(CourseSectionRepository courseSectionRepository,
-                                   CourseSectionRegistrationRepository courseSectionRegistrationRepository) {
-        this.courseSectionRepository = courseSectionRepository;
-        this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
+    public CourseSectionService(RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
+        this.repositoryHandler = repositoryHandler;
+        this.errorChecker = errorChecker;
+    }
+    public String list(Long termId, String username, String password) {
+        errorChecker.checkIsUser(username, password);
+        List<CourseSection> output = list(termId);
+        return output.isEmpty() ? "ERROR 404" : output.toString();
     }
 
-    public List<CourseSection> list() {
-        List<CourseSection> allCourseSections = courseSectionRepository.findAll();
-//        if(allCourseSections.isEmpty()){
-//            throw new CourseSectionNotFoundException();
-//        }
-        return allCourseSections;
+    private List<CourseSection> list(Long termId) {
+        return repositoryHandler.findCourseSectionByTerm(termId);
     }
 
-    public List<CourseSection> list(Long termId) {
-        List<CourseSection> allCourseSections = courseSectionRepository.findByTerm(termId);
-        if(allCourseSections.isEmpty()){
-            throw new CourseSectionNotFoundException();
-        }
-        return allCourseSections;
-    }
-
-    public CourseSection create(Course course, Instructor instructor, Term term) {
+    public String create(Long courseId, Long instructorId, Long termId, String username, String password) {
+        Course course = repositoryHandler.findCourse(courseId);
+        Instructor instructor = repositoryHandler.findInstructor(instructorId);
+        Term term = repositoryHandler.findTerm(termId);
         CourseSection courseSection = CourseSection.builder().instructor(instructor).course(course).term(term).build();
-        return create(courseSection);
+        String foundProblem = foundProblem(term, username, password, courseSection);
+        if (foundProblem != null) return foundProblem;
+        return create(courseSection).toString();
     }
 
     public CourseSection create(CourseSection courseSection) {
-        if(courseSectionExists(list(), courseSection)) return null;
         createLog(CourseSection.class, courseSection.getId());
-        return courseSectionRepository.save(courseSection);
+        return repositoryHandler.saveCourseSection(courseSection);
     }
+
 
     private boolean courseSectionExists(List<CourseSection> allCourseSections, CourseSection courseSection) {
         for (CourseSection cs : allCourseSections) {
@@ -66,33 +62,79 @@ public class CourseSectionService {
         return false;
     }
 
-    public JSONObject read(Long id) throws JSONException {
-        CourseSection courseSection = courseSectionRepository.findById(id)
-                .orElseThrow(CourseSectionNotFoundException::new);
-        int numberOfStudents = courseSectionRegistrationRepository.findByCourseSection(courseSection.getId()).size();
+    public String read(Long id, String username, String password) throws JSONException {
+        errorChecker.checkIsUser(username, password);
+        return read(id).toString();
+    }
+
+    private JSONObject read(Long id) throws JSONException {
+        CourseSection courseSection = repositoryHandler.findCourseSection(id);
+        int numberOfStudents = repositoryHandler.findCourseSectionRegistrationByCourseSection(courseSection.getId()).size();
         JSONObject output = new JSONObject();
         output.put("courseSection", courseSection);
         output.put("numberOfStudents",numberOfStudents);
         return output;
     }
 
-    public void update(CourseSection newCourseSection, Long id) {
-        courseSectionRepository.findById(id).map(user -> {
-            user = newCourseSection.clone();
-            return courseSectionRepository.save(user);//todo sus for saveUser instead of user
-        }).orElseGet(() -> {
-            newCourseSection.setId(id);
-            return courseSectionRepository.save(newCourseSection.clone());
-        });
+
+    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId, String username, String password) {
+        String foundProblem = foundProblem(courseSectionId, username, password);
+        if (foundProblem != null) return foundProblem;
+        return update(termId, courseId, instructorId, courseSectionId);
     }
 
-    public void delete(Long id) throws JSONException, CourseSectionRegistrationNotEmpty {
-        CourseSection specifiedCourseSection = (CourseSection) read(id).get("courseSection");
-        if(courseSectionRegistrationRepository.findByCourseSection(id).isEmpty()){
-            courseSectionRepository.delete(specifiedCourseSection);
-        }else{
-            throw new CourseSectionRegistrationNotEmpty();
+    private String update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {
+        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+        try{
+            Term term = repositoryHandler.findTerm(termId);
+            courseSection.setTerm(term);
+        }catch (TermNotFoundException ignored){
+        }
+        try{
+            Course course = repositoryHandler.findCourse(courseId);
+            courseSection.setCourse(course);
+        }catch (CourseNotFoundException ignored){
+        }
+        try{
+            Instructor instructor = repositoryHandler.findInstructor(instructorId);
+            courseSection.setInstructor(instructor);
+        }catch (InstructorNotFoundException ignored){
+        }
+        repositoryHandler.saveCourseSection(courseSection);
+        return "OK";
+//
+//                .map(courseSection -> {
+//                    courseSection = newCourseSection.clone();
+//                    return courseSectionRepository.save(courseSection);//todo sus for saveUser instead of user
+//                }).orElseGet(() -> {
+//                    newCourseSection.setId(id);
+//                    return courseSectionRepository.save(newCourseSection.clone());
+//                });
+    }
+
+    public String delete(Long courseSectionId, String username, String password) throws JSONException, CourseSectionRegistrationNotEmptyException {
+        String foundError = foundProblem(courseSectionId, username, password);
+        if (foundError != null) return foundError;
+        CourseSection courseSection = (CourseSection) read(courseSectionId).get("courseSection");
+        try{
+            repositoryHandler.findCourseSectionRegistrationByCourseSection(courseSectionId);
+            throw new CourseSectionRegistrationNotEmptyException();
+        }catch(CourseSectionRegistrationNotFoundException e){
+            repositoryHandler.deleteCourseSection(courseSection);
+            return "OK";
         }
     }
 
+
+    private String foundProblem(Long courseSectionId, String username, String password) {
+        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
+        return null;
+    }
+
+    private String foundProblem(Term term, String username, String password, CourseSection courseSection) {
+        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
+        if(courseSectionExists(list(term.getId()), courseSection)) return "ERROR course section already exists";//todo move to error checker
+        return null;
+    }
 }

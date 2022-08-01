@@ -18,8 +18,9 @@ public class UserController {
     }
 
     @GetMapping(USER_LIST_PATH)
-    private List<User> list(){//todo if not active don't let user
-        return service.list();
+    private String list(@RequestHeader(value = "username") String username,
+                            @RequestHeader(value = "password") String password){//todo if not active don't let user
+        return service.list(username, password);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -30,7 +31,9 @@ public class UserController {
     }
 
     @GetMapping(USER_READ_PATH)
-    private User read(@PathVariable Long id){
-        return service.read(id);
+    private String read(@PathVariable Long id,
+                      @RequestHeader(value = "username") String username,
+                      @RequestHeader(value = "password") String password){
+        return service.read(id, username, password);
     }//todo add advice
 }

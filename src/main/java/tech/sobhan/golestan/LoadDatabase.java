@@ -13,6 +13,7 @@ import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.auth.User;
+import tech.sobhan.golestan.repositories.UserRepository;
 import tech.sobhan.golestan.services.*;
 
 import java.util.Date;
@@ -20,18 +21,19 @@ import java.util.Date;
 @Configuration
 public class LoadDatabase {
 //    @Bean
-    CommandLineRunner initDatabase(UserService userService, InstructorService instructorService,
+    CommandLineRunner initDatabase(UserService userService, UserRepository userRepository, InstructorService instructorService,
                                    StudentService studentService, PasswordEncoder passwordEncoder,
                                    CourseService courseService, TermService termService,
                                    CourseSectionService courseSectionService,
                                    CourseSectionRegistrationService courseSectionRegistrationService){
         return args -> {//todo add more data
-            loadTables(userService, instructorService, studentService, passwordEncoder,
+            loadTables(userService, userRepository, instructorService, studentService, passwordEncoder,
                     courseService, termService, courseSectionService, courseSectionRegistrationService);
         };
     }
 
-    private void loadTables(UserService userService, InstructorService instructorService, StudentService studentService, PasswordEncoder passwordEncoder, CourseService courseService, TermService termService, CourseSectionService courseSectionService, CourseSectionRegistrationService courseSectionRegistrationService) {
+    private void loadTables(UserService userService,UserRepository userRepository, InstructorService instructorService,
+                            StudentService studentService, PasswordEncoder passwordEncoder, CourseService courseService, TermService termService, CourseSectionService courseSectionService, CourseSectionRegistrationService courseSectionRegistrationService) {
         Instructor instructor1 = Instructor.builder().rank(Rank.ASSISTANT).build();
         Instructor instructor2 = Instructor.builder().rank(Rank.ASSOCIATE).build();
         Instructor esna = Instructor.builder().rank(Rank.FULL).build();
@@ -46,7 +48,7 @@ public class LoadDatabase {
         Student student3 = Student.builder().degree(Degree.PHD).startDate(new Date()).build();
         loadStudents(studentService, ghobadian, padash, zahedi, student2, student3);
 
-        loadUsers(userService, passwordEncoder, esna, khadem, kashani, ghobadian, padash, zahedi, student2, student3);
+        loadUsers(userService, passwordEncoder, userRepository, esna, khadem, kashani, ghobadian, padash, zahedi, student2, student3);
 
         Course physics = Course.builder().title("physics").units(3).build();
         Course literature = Course.builder().title("literature").units(4).build();
@@ -82,7 +84,8 @@ public class LoadDatabase {
         courseSectionRegistrationService.create(courseSectionRegistration4);
     }
 
-    private void loadCourseSections(CourseSectionService courseSectionService, CourseSection mathCourseSection, CourseSection apCourseSection, CourseSection diffCourseSection) {
+    private void loadCourseSections(CourseSectionService courseSectionService, CourseSection mathCourseSection,
+                                    CourseSection apCourseSection, CourseSection diffCourseSection) {
         courseSectionService.create(mathCourseSection);
         courseSectionService.create(apCourseSection);
         courseSectionService.create(diffCourseSection);
@@ -101,7 +104,8 @@ public class LoadDatabase {
         courseService.create(diff);
     }
 
-    private void loadStudents(StudentService studentService, Student ghobadian, Student padash, Student zahedi, Student student2, Student student3) {
+    private void loadStudents(StudentService studentService, Student ghobadian, Student padash,
+                              Student zahedi, Student student2, Student student3) {
         studentService.create(ghobadian);
         studentService.create(padash);
         studentService.create(zahedi);
@@ -109,26 +113,26 @@ public class LoadDatabase {
         studentService.create(student3);
     }
 
-    private void loadUsers(UserService userService, PasswordEncoder passwordEncoder, Instructor esna, Instructor khadem, Instructor kashani, Student ghobadian, Student padash, Student zahedi, Student student2, Student student3) {
-        User user1 = User.builder().username("admin").password(passwordEncoder.encode("admin")).name("admin").phone("1234")
+    private void loadUsers(UserService userService, PasswordEncoder passwordEncoder, UserRepository userRepository, Instructor esna, Instructor khadem, Instructor kashani, Student ghobadian, Student padash, Student zahedi, Student student2, Student student3) {
+        User admin1 = User.builder().username("admin").password(passwordEncoder.encode("admin")).name("admin").phone("1234")
                 .nationalId("1234").admin(true).active(true).build();
         User gobadianUser = User.builder().username("msghobadian").password(passwordEncoder.encode("123456789")).name("MohammadSadegh Ghobadian").phone("09031098319")
-                .nationalId("123516879").student(ghobadian).active(true).build();
+                .nationalId("123516879").student(ghobadian).build();
         User padashUser = User.builder().username("price").password(passwordEncoder.encode("1315469798")).name("Ali Padash").phone("46549787978")
-                .nationalId("3146465987").student(padash).active(true).build();
+                .nationalId("3146465987").student(padash).build();
         User zahediUser = User.builder().username("zahedi").password(passwordEncoder.encode("fasdjfhklhk")).name("Saeed Zahedi").phone("4649879877")
-                .nationalId("1364797879").student(zahedi).active(true).build();
+                .nationalId("1364797879").student(zahedi).build();
         User user3 = User.builder().username("john_doe").password(passwordEncoder.encode("123456789")).name("John Doe").phone("13897954654")
-                .nationalId("1316464564").student(student2).active(true).build();
+                .nationalId("1316464564").student(student2).build();
         User user4 = User.builder().username("no_name").password(passwordEncoder.encode("665489asfsaf")).name("Ali Bagheri").phone("54647981fsfasf")
-                .nationalId("4689987987").student(student3).active(true).build();
+                .nationalId("4689987987").student(student3).build();
         User user5 = User.builder().username("mesna").password(passwordEncoder.encode("twelve")).name("Mahdi Esnaashari").phone("453987863125")
-                .nationalId("123165464987").instructor(esna).active(true).build();
+                .nationalId("123165464987").instructor(esna).build();
         User user6 = User.builder().username("khadem").password(passwordEncoder.encode("khadempass")).name("Ali Khadem").phone("12345874546")
-                .nationalId("465498798798").instructor(khadem).active(true).build();
+                .nationalId("465498798798").instructor(khadem).build();
         User user7 = User.builder().username("zkash").password(passwordEncoder.encode("faskdjjfhk")).name("Zahra Kashani").phone("621332178")
-                .nationalId("132132464979").instructor(kashani).active(true).build();
-        userService.create(user1);
+                .nationalId("132132464979").instructor(kashani).build();
+        userRepository.save(admin1);
         userService.create(gobadianUser);
         userService.create(padashUser);
         userService.create(zahediUser);
