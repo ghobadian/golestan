@@ -1,9 +1,0 @@
-{
-    "name": "ali",
-    "username": "username",
-    "password": "password",
-    "phone": "phone",
-    "nationalId": "12345",
-    "admin" : false,
-    "active": false
-}
