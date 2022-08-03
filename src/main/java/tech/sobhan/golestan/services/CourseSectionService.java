@@ -5,16 +5,17 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.business.exceptions.*;
+import tech.sobhan.golestan.business.exceptions.duplication.CourseSectionDuplicationException;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
-import tech.sobhan.golestan.repositories.*;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.utils.Util.*;
+import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
 @Slf4j
@@ -26,10 +27,38 @@ public class CourseSectionService {
         this.repositoryHandler = repositoryHandler;
         this.errorChecker = errorChecker;
     }
-    public String list(Long termId, String username, String password) {
+    public String list(Long termId, String username, String password, String instructorName, String courseName, Integer pageNumber, Integer maxInEachPage) {//todo change to list and methods likewise
         errorChecker.checkIsUser(username, password);
-        List<CourseSection> output = list(termId);
-        return output.isEmpty() ? "ERROR 404" : output.toString();
+        List<CourseSection> filteredList = list(termId, instructorName, courseName);
+        List<CourseSection> paginationList = pagination(filteredList, pageNumber, maxInEachPage);
+        return paginationList.toString();
+    }
+
+    private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
+        final Integer DEFAULT_MAX_IN_EACH_PAGE = 5;//todo move to constants
+        if(pageNumber == null && maxInEachPage==null){
+            return filteredList;
+        }else if(pageNumber != null && maxInEachPage != null){
+            errorChecker.checkPageLength(filteredList.size(), pageNumber, maxInEachPage);
+            return filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
+        }else if(pageNumber!= null && maxInEachPage == null){
+            errorChecker.checkPageLength(filteredList.size(), pageNumber, DEFAULT_MAX_IN_EACH_PAGE);
+            return filteredList.subList((pageNumber - 1)  * DEFAULT_MAX_IN_EACH_PAGE, (pageNumber)  * DEFAULT_MAX_IN_EACH_PAGE);
+        }else{
+            throw new NullPointerException();//todo change to custom exception
+        }
+    }
+
+    private List<CourseSection> list(Long termId, String instructorName, String courseName) {//todo test
+        if(instructorName!=null && courseName == null){
+            return repositoryHandler.findCourseSectionByInstructorName(instructorName);
+        }else if(instructorName==null && courseName!= null){
+            return repositoryHandler.findCourseSectionByCourseName(courseName);
+        }else if(instructorName!=null && courseName!= null){
+            return repositoryHandler.findCourseSectionByInstructorNameAndCourseName(instructorName, courseName);
+        }else{
+            return list(termId);
+        }
     }
 
     private List<CourseSection> list(Long termId) {
@@ -37,13 +66,17 @@ public class CourseSectionService {
     }
 
     public String create(Long courseId, Long instructorId, Long termId, String username, String password) {
+        CourseSection courseSection = buildCourseSection(courseId, instructorId, termId);
+        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
+        checkCourseSectionExists(termId, courseSection);//todo move to error checker
+        return create(courseSection).toString();
+    }
+
+    private CourseSection buildCourseSection(Long courseId, Long instructorId, Long termId) {
         Course course = repositoryHandler.findCourse(courseId);
         Instructor instructor = repositoryHandler.findInstructor(instructorId);
         Term term = repositoryHandler.findTerm(termId);
-        CourseSection courseSection = CourseSection.builder().instructor(instructor).course(course).term(term).build();
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
-        if(courseSectionExists(list(term.getId()), courseSection)) return "ERROR course section already exists";//todo move to error checker
-        return create(courseSection).toString();
+        return CourseSection.builder().instructor(instructor).course(course).term(term).build();
     }
 
     public CourseSection create(CourseSection courseSection) {
@@ -51,15 +84,18 @@ public class CourseSectionService {
         return repositoryHandler.saveCourseSection(courseSection);
     }
 
-
-    private boolean courseSectionExists(List<CourseSection> allCourseSections, CourseSection courseSection) {
+    private void checkCourseSectionExists(Long termId, CourseSection courseSection) {
+        List<CourseSection> allCourseSections;
+        try{            //todo important
+            allCourseSections = list(termId);
+        }catch(CourseSectionNotFoundException e){
+            return;
+        }
         for (CourseSection cs : allCourseSections) {
             if(courseSection.equals(cs)){
-                System.out.println("ERROR403 duplicate CourseSections");
-                return true;
+                throw new CourseSectionDuplicationException();
             }
         }
-        return false;
     }
 
     public String read(Long id, String username, String password) throws JSONException {
@@ -69,7 +105,7 @@ public class CourseSectionService {
 
     private JSONObject read(Long id) throws JSONException {
         CourseSection courseSection = repositoryHandler.findCourseSection(id);
-        int numberOfStudents = repositoryHandler.findCourseSectionRegistrationByCourseSection(courseSection.getId()).size();
+        int numberOfStudents = repositoryHandler.findNumberOfStudentsInCourseSection(courseSection.getId());
         JSONObject output = new JSONObject();
         output.put("courseSection", courseSection);
         output.put("numberOfStudents",numberOfStudents);
