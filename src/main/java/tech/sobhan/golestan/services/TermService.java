@@ -1,26 +1,22 @@
 package tech.sobhan.golestan.services;
 
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.TermNotFoundException;
+import tech.sobhan.golestan.business.exceptions.duplication.TermDuplicationException;
 import tech.sobhan.golestan.models.Term;
-import tech.sobhan.golestan.repositories.TermRepository;
-import tech.sobhan.golestan.repositories.UserRepository;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.utils.Util.*;
+import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
 public class TermService {
-    private final TermRepository termRepository;
-    private final UserRepository userRepository;
+    private final RepositoryHandler repositoryHandler;
     private final ErrorChecker errorChecker;
 
-
-    public TermService(TermRepository termRepository, UserRepository userRepository, ErrorChecker errorChecker) {
-        this.termRepository = termRepository;
-        this.userRepository = userRepository;
+    public TermService(RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
+        this.repositoryHandler = repositoryHandler;
         this.errorChecker = errorChecker;
     }
 
@@ -30,7 +26,7 @@ public class TermService {
     }
 
     private List<Term> list() {
-        return termRepository.findAll();
+        return repositoryHandler.findAllTerms();
     }
 
 
@@ -42,9 +38,9 @@ public class TermService {
     }
 
     public Term create(Term term) {
-        if (termExists(list(), term)) return null;
+        if (termExists(list(), term)) throw new TermDuplicationException();//todo implement in all service classes
         createLog(Term.class, term.getId());
-        return termRepository.save(term);
+        return repositoryHandler.saveTerm(term);
     }
 
     public String read(Long id, String username, String password) {
@@ -52,37 +48,37 @@ public class TermService {
         return read(id).toString();
     }
 
-    private Term read(Long id) {
-        return termRepository.findById(id).orElseThrow(TermNotFoundException::new);
+    private Term read(Long termId) {
+        return repositoryHandler.findTerm(termId);
     }
 
-    public String update(String title, boolean open, Long id, String username, String password) {
+    public String update(String title, Boolean open, Long termId, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
-        update(title, open, id);
+        update(title, open, termId);
         return "OK";
     }
 
-    private void update(String title, boolean open, Long id) {
-        termRepository.findById(id).map(user -> {
-            user.setTitle(title);
-            user.setOpen(open);
-            return termRepository.save(user);
-        }).orElseGet(() -> {
-            Term newTerm = Term.builder().id(id).title(title).open(open).build();
-            return termRepository.save(newTerm);
-        });
+    private void update(String title, Boolean open, Long termId) {
+        Term term = repositoryHandler.findTerm(termId);
+        if(title!=null){
+            term.setTitle(title);
+        }
+        if(open != null){
+            term.setOpen(open);
+        }
+        repositoryHandler.saveTerm(term);
     }
 
     public String delete(Long id, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
-        termRepository.delete(read(id));
+        Term term = repositoryHandler.findTerm(id);
+        repositoryHandler.deleteTerm(term);
         return "OK";
     }
 
     private static boolean termExists(List<Term> allTerms, Term term) {
         for (Term t : allTerms) {
             if(term.equals(t)){
-                System.out.println("ERROR403 duplicate Terms");
                 return true;
             }
         }
