@@ -1,11 +1,9 @@
 package tech.sobhan.golestan.controllers;
 
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.services.InstructorService;
 
 import java.util.List;
-import java.util.Map;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
@@ -30,10 +28,21 @@ public class InstructorController {
         return service.read(id, username, password);
     }//todo add advice
 
-    @PostMapping(GIVE_MARK_PATH)
-    public String giveMark(@RequestBody Map<String, String> json,
-                         @RequestHeader(value = "username") String username,
-                         @RequestHeader(value = "password") String password){//todo test
-        return service.giveMark(json, username, password);
+    @PostMapping(GIVE_SINGLE_MARK_PATH)
+    public String giveMark(@RequestParam Long courseSectionId,
+                           @PathVariable Long studentId,
+                           @RequestParam Double score,
+                           @RequestHeader(value = "username") String username,
+                           @RequestHeader(value = "password") String password){
+        return service.giveMark(username, password, courseSectionId, studentId, score);
+    }
+
+    @PostMapping(GIVE_MULTIPLE_MARK_PATH)
+    public String giveMultipleMark(@RequestParam Long courseSectionId,
+                           @RequestParam List<Long> studentIds,
+                           @RequestParam List<Double> scores,
+                           @RequestHeader(value = "username") String username,
+                           @RequestHeader(value = "password") String password){
+        return service.giveMultipleMark(username, password, courseSectionId, studentIds, scores);
     }
 }
