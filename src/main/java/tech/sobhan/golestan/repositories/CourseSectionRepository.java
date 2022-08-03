@@ -20,4 +20,6 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, Lo
     @Query("SELECT cs FROM CourseSection cs WHERE cs.course.id  = ?1")
     List<CourseSection> findByCourse(Long courseId);
 
+    @Query("SELECT cs FROM CourseSection cs WHERE cs.course.title  = ?1")
+    List<CourseSection> findByCourseTitle(String courseTitle);
 }

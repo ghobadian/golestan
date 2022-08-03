@@ -16,4 +16,7 @@ public interface CourseSectionRegistrationRepository extends JpaRepository<Cours
 
     @Query("SELECT c FROM CourseSectionRegistration c WHERE c.courseSection.id = ?1")
     List<CourseSectionRegistration> findByCourseSection(Long courseSectionId);
+
+    @Query("select count(c) FROM CourseSectionRegistration c where c.courseSection.id = ?1")
+    int findNumberOfStudents(Long id);
 }
