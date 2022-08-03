@@ -6,7 +6,6 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.business.exceptions.AlreadySignedUpException;
 import tech.sobhan.golestan.business.exceptions.CourseSectionRegistrationNotFoundException;
 import tech.sobhan.golestan.business.exceptions.StudentNotFoundException;
@@ -15,13 +14,11 @@ import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Student;
+import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static tech.sobhan.golestan.utils.Util.createLog;
 
@@ -116,7 +113,7 @@ public class StudentService {//todo clean this class
         List<CourseSection> courseSections = repositoryHandler.findCourseSectionByTerm(termId);
         Set<CourseSectionRegistration> output = new HashSet<>();
         filterCourseSectionRegistrationsOfSpecifiedTerm(courseSectionRegistrations, courseSections, output);
-        return output.stream().toList();
+        return new ArrayList<>(output);
     }
     private void filterCourseSectionRegistrationsOfSpecifiedTerm(List<CourseSectionRegistration> courseSectionRegistrations, List<CourseSection> courseSections, Set<CourseSectionRegistration> output) {
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {

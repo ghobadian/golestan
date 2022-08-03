@@ -35,8 +35,8 @@ public class AdminService {
         foundUser.setActive(true);
         Role role = Role.valueOf(requestedBody.get("role").toUpperCase());
         switch (role){
-            case STUDENT -> addRoleStudent(requestedBody, foundUser);
-            case INSTRUCTOR -> addRoleInstructor(requestedBody, foundUser);
+            case STUDENT : addRoleStudent(requestedBody, foundUser); break;
+            case INSTRUCTOR : addRoleInstructor(requestedBody, foundUser); break;
         }
         return "OK";
     }
