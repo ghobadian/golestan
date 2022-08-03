@@ -2,7 +2,6 @@ package tech.sobhan.golestan.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.services.CourseService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
@@ -38,10 +37,12 @@ public class CourseController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(COURSE_UPDATE_PATH)
-    private String update(@RequestBody Course newCourse, @PathVariable Long id,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password){
-        return service.update(newCourse, id, username, password);
+    private String update(@PathVariable Long id,
+                          @RequestParam(required = false) String title,
+                          @RequestParam(required = false) Integer units,
+                          @RequestHeader(value = "username") String username, 
+                          @RequestHeader(value = "password") String password){
+        return service.update(id, username, password, title, units);
     }
 
     @ResponseStatus(HttpStatus.OK)
