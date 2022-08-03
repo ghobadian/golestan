@@ -1,9 +1,8 @@
 package tech.sobhan.golestan.services;
 
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.CourseNotFoundException;
 import tech.sobhan.golestan.models.Course;
-import tech.sobhan.golestan.repositories.CourseRepository;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
@@ -13,12 +12,12 @@ import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
 public class CourseService {
-    private final CourseRepository courseRepository;
+    private final RepositoryHandler repositoryHandler;
     private final ErrorChecker errorChecker;
 
-    public CourseService(CourseRepository courseRepository,
+    public CourseService(RepositoryHandler repositoryHandler,
                          ErrorChecker errorChecker) {
-        this.courseRepository = courseRepository;
+        this.repositoryHandler = repositoryHandler;
         this.errorChecker = errorChecker;
     }
 
@@ -28,28 +27,19 @@ public class CourseService {
     }
 
     private List<Course> list() {
-        return courseRepository.findAll();
+        return repositoryHandler.findAllCourses();
     }
 
-    public String create(int units, String title, String username, String password) {
+    public String create(int units, String title, String username, String password) {//todo ckeck duplication in all create methods
         errorChecker.checkIsAdmin(username, password);
         Course course = Course.builder().units(units).title(title).build();
+        errorChecker.checkCourseExists(course);
         return create(course).toString();
     }
 
     public Course create(Course course) {
         createLog(Course.class, course.getId());
-        return courseRepository.save(course);
-    }
-
-    private boolean courseExists(List<Course> allCourses, Course course) {//todo find usage
-        for (Course c : allCourses) {
-            if(course.equals(c)){
-                System.out.println("ERROR403 duplicate Courses");
-                return true;
-            }
-        }
-        return false;
+        return repositoryHandler.saveCourse(course);
     }
 
     public String read(Long id, String username, String password) {
@@ -58,29 +48,31 @@ public class CourseService {
     }
 
     private Course read(Long id) {
-        return courseRepository.findById(id).orElseThrow(CourseNotFoundException::new);
+        return repositoryHandler.findCourse(id);
     }
 
-    public String update(Course newCourse, Long id, String username, String password) {
+    public String update(Long courseId, String username, String password, String title, Integer units) {
         errorChecker.checkIsAdmin(username, password);
-        update(newCourse, id);
+        return update(courseId, title, units);
+    }
+
+    private String update(Long courseId, String title, Integer units) {
+        Course course = repositoryHandler.findCourse(courseId);
+        if(title!=null){
+            course.setTitle(title);
+        }
+        if(units!=null){
+            course.setUnits(units);
+        }
+        repositoryHandler.saveCourse(course);
         return "OK";
     }
 
-    private void update(Course newCourse, Long id) {
-        courseRepository.findById(id).map(user -> {
-            user = newCourse.clone();
-            return courseRepository.save(user);
-        }).orElseGet(() -> {
-            newCourse.setId(id);
-            return courseRepository.save(newCourse.clone());
-        });
-    }
-
-    public String delete(Long id, String username, String password) {
+    public String delete(Long courseId, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
-        courseRepository.delete(read(id));
-        deleteLog(Course.class, id);
+        Course course = repositoryHandler.findCourse(courseId);
+        repositoryHandler.deleteCourse(course);
+        deleteLog(Course.class, courseId);
         return "OK";
     }
 

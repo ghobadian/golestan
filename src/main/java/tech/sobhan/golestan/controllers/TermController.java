@@ -2,7 +2,6 @@ package tech.sobhan.golestan.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.services.TermService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
@@ -38,9 +37,11 @@ public class TermController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(TERM_UPDATE_PATH)
-    private String update(@RequestParam String title, @RequestParam boolean open, @PathVariable Long id,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password){
+    private String update(@RequestParam(required = false) String title,
+                          @RequestParam(required = false) Boolean open,
+                          @PathVariable Long id,
+                          @RequestHeader(value = "username") String username,
+                          @RequestHeader(value = "password") String password){
         return service.update(title, open, id, username, password);
     }
 

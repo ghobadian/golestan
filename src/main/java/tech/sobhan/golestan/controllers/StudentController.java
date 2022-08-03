@@ -1,10 +1,8 @@
 package tech.sobhan.golestan.controllers;
 
 import lombok.SneakyThrows;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.StudentService;
-
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
@@ -31,10 +29,10 @@ public class StudentController {
 
     @SneakyThrows
     @GetMapping(SEE_SCORES_IN_TERM_PATH)//todo test later
-    public JSONArray seeScoresInSpecifiedTerm(@RequestParam Long termId,
+    public String seeScoresInSpecifiedTerm(@RequestParam Long termId,
                                               @RequestHeader(value = "username") String username,
                                               @RequestHeader(value = "password") String password){
-        return service.seeScoresInSpecifiedTerm(termId, username, password);
+        return service.seeScoresInSpecifiedTerm(termId, username, password).toString();
     }
 
     @SneakyThrows

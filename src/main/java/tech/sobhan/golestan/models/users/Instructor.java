@@ -1,8 +1,6 @@
 package tech.sobhan.golestan.models.users;
 
 import lombok.*;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
-import tech.sobhan.golestan.auth.User;
 import tech.sobhan.golestan.enums.Rank;
 
 import javax.persistence.*;

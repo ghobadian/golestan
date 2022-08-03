@@ -1,8 +1,7 @@
 package tech.sobhan.golestan.services;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.auth.User;
+import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.business.exceptions.UserNotFoundException;
 import tech.sobhan.golestan.repositories.InstructorRepository;
 import tech.sobhan.golestan.repositories.StudentRepository;
@@ -11,13 +10,11 @@ import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.security.config.PasswordConfiguration.getPasswordEncoder;
 import static tech.sobhan.golestan.utils.Util.createLog;
 import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
 public class UserService {
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;//todo find usage
     private final InstructorRepository instructorRepository;
@@ -29,7 +26,6 @@ public class UserService {
                        InstructorRepository instructorRepository,
                        ErrorChecker errorChecker) {
         this.errorChecker = errorChecker;
-        this.passwordEncoder = getPasswordEncoder();
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.instructorRepository = instructorRepository;
@@ -45,7 +41,7 @@ public class UserService {
     }
 
     public User create(String username, String password, String name, String phone, String nationalId) {
-        User user = User.builder().username(username).password(passwordEncoder.encode(password)).name(name).phone(phone)
+        User user = User.builder().username(username).password(password).name(name).phone(phone)//todo encode password later
                 .nationalId(nationalId).build();
         return create(user);
     }

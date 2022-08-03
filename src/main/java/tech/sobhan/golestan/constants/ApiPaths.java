@@ -20,9 +20,10 @@ public class ApiPaths {
     public static final String INSTRUCTOR_LIST_PATH = "/instructors";
     public static final String INSTRUCTOR_CREATE_PATH = "/instructors";//todo deprecated
     public static final String INSTRUCTOR_READ_PATH = "/instructors/{id}";
-    public static final String INSTRUCTOR_UPDATE_PATH = "/management/instructors/{id}";
-    public static final String INSTRUCTOR_DELETE_PATH = "/management/instructors/{id}";
-    public static final String GIVE_MARK_PATH = "/instructor/give_mark";
+    public static final String INSTRUCTOR_UPDATE_PATH = "/management/instructors/{instructorId}";
+    public static final String INSTRUCTOR_DELETE_PATH = "/management/instructors/{instructorId}";
+    public static final String GIVE_SINGLE_MARK_PATH = "/instructor/give_mark/{studentId}";
+    public static final String GIVE_MULTIPLE_MARK_PATH = "/instructor/give_mark";
     public static final String SIGNUP_SECTION_PATH = "/student/sign_up_section";
     public static final String SEE_SCORES_IN_TERM_PATH = "/student/see_scores/";
     public static final String SEE_SUMMERY_PATH = "/student/see_summery";

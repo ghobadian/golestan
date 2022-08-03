@@ -2,17 +2,14 @@ package tech.sobhan.golestan.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.*;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
-import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.repositories.*;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
-import java.util.Map;
 
 import static tech.sobhan.golestan.utils.Util.createLog;
 
@@ -31,17 +28,12 @@ public class InstructorService {
 
     public String list(String username, String password) {
         errorChecker.checkIsUser(username, password);
-        //        if(allInstructors.isEmpty()){
-//            throw new InstructorNotFoundException();
-//        }
         return list().toString();
     }
 
     private List<Instructor> list() {
         return repositoryHandler.findAllInstructors();
     }
-
-
 
     public Instructor create(Instructor instructor){
         if (instructorExists(list(), instructor)) return null;
@@ -68,19 +60,15 @@ public class InstructorService {
         return repositoryHandler.findInstructor(instructorId);
     }
 
-    public String update(Rank rank, Long id, String username, String password) {
+    public String update(Rank rank, Long instructorId, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
-        return update(rank, id);
+        return update(rank, instructorId);
     }
 
-    private String update(Rank rank, Long id) {
-        instructorRepository.findById(id).map(instructor -> {
-            instructor.setRank(rank);
-            return instructorRepository.save(instructor);//todo sus for saveinstructor instead of instructor
-        }).orElseGet(() -> {
-            Instructor newInstructor = Instructor.builder().rank(rank).id(id).build();
-            return instructorRepository.save(newInstructor);
-        });
+    private String update(Rank rank, Long instructorId) {
+        Instructor instructor = repositoryHandler.findInstructor(instructorId);
+        instructor.setRank(rank);
+        repositoryHandler.saveInstructor(instructor);
         return "OK";
     }
 
@@ -89,31 +77,27 @@ public class InstructorService {
         Instructor instructor = repositoryHandler.findInstructor(instructorId);
         List<CourseSection> courseSectionsOfInstructor = repositoryHandler.findCourseSectionByInstructor(instructorId);
         for (CourseSection courseSection : courseSectionsOfInstructor) {
-            courseSection
             courseSection.setInstructor(null);
         }
-        courseSectionRepository.deleteAll(courseSectionRepository.findByInstructor(instructorId));
-        instructorRepository.delete(instructor);
+        repositoryHandler.deleteInstructor(instructor);
         return "OK";
-//        log.info("Instructor with id of " + id + "deleted successfully.");        //todo add log in all deletes and signups
     }
 
-    public String giveMark(Map<String, String> json, String username, String password) {
-        CourseSection courseSection = courseSectionRepository
-                .findById(Long.valueOf(json.get("course_section_id"))).orElseThrow(CourseNotFoundException::new);
+    public String giveMark(String username, String password, Long courseSectionId, Long studentId, Double score) {
+        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
         errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
-        Student student = studentRepository
-                .findById(Long.valueOf(json.get("student_id"))).orElseThrow(StudentNotFoundException::new);
+        CourseSectionRegistration courseSectionRegistration = repositoryHandler
+                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSectionId, studentId);
+        courseSectionRegistration.setScore(score);
+        repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
+        return "OK";
+    }
 
-        double score = Double.parseDouble(json.get("score"));
-        CourseSectionRegistration newCourseSectionRegistration = courseSectionRegistrationRepository
-                .findByCourseSectionAndStudent(courseSection.getId(), student.getStudentId())
-                .orElseThrow(CourseSectionRegistrationNotEmptyException::new);
-        newCourseSectionRegistration.setScore(score);
-        courseSectionRegistrationRepository.findById(newCourseSectionRegistration.getId()).map(courseSectionRegistration -> {
-            courseSectionRegistration = newCourseSectionRegistration;
-            return courseSectionRegistrationRepository.save(courseSectionRegistration);
-        });
+    public String giveMultipleMark(String username, String password, Long courseSectionId, List<Long> studentIds, List<Double> scores) {
+        if(studentIds.size() != scores.size()) throw new RuntimeException("sizes are not the same");
+        for (int i=0;i<studentIds.size();i++) {//todo change to map
+            giveMark(username, password, courseSectionId, studentIds.get(i), scores.get(i));//todo remove username and password from here
+        }
         return "OK";
     }
 }

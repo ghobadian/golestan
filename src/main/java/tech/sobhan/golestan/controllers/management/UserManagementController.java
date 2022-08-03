@@ -2,7 +2,7 @@ package tech.sobhan.golestan.controllers.management;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.auth.User;
+import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.services.UserService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.USER_DELETE_PATH;

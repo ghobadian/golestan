@@ -2,10 +2,8 @@ package tech.sobhan.golestan.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.auth.User;
+import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.services.UserService;
-
-import java.util.List;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 

@@ -6,17 +6,16 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.auth.User;
-import tech.sobhan.golestan.business.exceptions.CourseSectionNotFoundException;
-import tech.sobhan.golestan.business.exceptions.StudentNotFoundException;
-import tech.sobhan.golestan.business.exceptions.UserNotFoundException;
+import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.business.exceptions.AlreadySignedUpException;
+import tech.sobhan.golestan.business.exceptions.CourseSectionRegistrationNotFoundException;
+import tech.sobhan.golestan.business.exceptions.StudentNotFoundException;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.repositories.*;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.HashSet;
@@ -24,39 +23,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static tech.sobhan.golestan.utils.Util.*;
+import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
 @Slf4j
 public class StudentService {//todo clean this class
-    private final StudentRepository studentRepository;
-    private final CourseSectionRepository courseSectionRepository;
-    private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
-    private final TermRepository termRepository;
-    private final UserRepository userRepository;
     private final RepositoryHandler repositoryHandler;
-
-
     private final ErrorChecker errorChecker;
 
-    public StudentService(StudentRepository studentRepository,
-                          CourseSectionRepository courseSectionRepository,
-                          CourseSectionRegistrationRepository courseSectionRegistrationRepository,
-                          TermRepository termRepository,
-                          UserRepository userRepository,
-                          RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
-        this.studentRepository = studentRepository;
-        this.courseSectionRepository = courseSectionRepository;
-        this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
-        this.termRepository = termRepository;
-        this.userRepository = userRepository;
+    public StudentService(RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
         this.repositoryHandler = repositoryHandler;
         this.errorChecker = errorChecker;
     }
+
     public Student create(Student student){
         if (studentExists(list(), student)) return null;
         createLog(Student.class, student.getStudentId());
-        return studentRepository.save(student);
+        return repositoryHandler.saveStudent(student);
     }
     private boolean studentExists(List<Student> allStudents, Student student) {
         for (Student s : allStudents) {
@@ -68,7 +51,7 @@ public class StudentService {//todo clean this class
         return false;
     }
     public List<Student> list() {
-        return studentRepository.findAll();
+        return repositoryHandler.findAllStudents();
     }
     public String signUpSection(Long course_section_id, String username, String password) {
         errorChecker.checkIsUser(username, password);
@@ -77,24 +60,27 @@ public class StudentService {//todo clean this class
         createAndSaveCourseSectionRegistration(courseSection, student);
         return "Successfully signed up for course section.";
     }
-    private CourseSection findCourseSection(Long course_section_id) {
-        return courseSectionRepository.findById(course_section_id)
-                .orElseThrow(CourseSectionNotFoundException::new);
+
+    private CourseSection findCourseSection(Long courseSectionId) {
+        return repositoryHandler.findCourseSection(courseSectionId);
     }
 
     private void createAndSaveCourseSectionRegistration(CourseSection courseSection, Student student) {
         if(alreadySignedUp(courseSection.getId(), student.getStudentId())) throw new AlreadySignedUpException();
-        CourseSectionRegistration newCourseSectionRegistration = CourseSectionRegistration.builder()
+        CourseSectionRegistration courseSectionRegistration = CourseSectionRegistration.builder()
                 .student(student).courseSection(courseSection).build();
-        courseSectionRegistrationRepository.save(newCourseSectionRegistration);
+        repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
     }
 
-    private boolean alreadySignedUp(Long courseSectionId, Long studentId) {
-        return courseSectionRegistrationRepository.findByCourseSectionAndStudent(courseSectionId, studentId).isPresent();
+    private boolean alreadySignedUp(Long courseSectionId, Long studentId) {//todo do sth for already signed ups and likewise
+        try{
+            return repositoryHandler.findCourseSectionRegistrationByCourseSectionAndStudent(courseSectionId, studentId)!=null;
+        }catch (CourseSectionRegistrationNotFoundException e){
+            return false;
+        }
     }
     private Student findStudent(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        return user.getStudent();
+        return repositoryHandler.findStudentByUsername(username);
     }
     public JSONArray seeScoresInSpecifiedTerm(Long term_id, String username, String password) throws JSONException {
         errorChecker.checkIsUser(username, password);
@@ -102,7 +88,7 @@ public class StudentService {//todo clean this class
         List<CourseSectionRegistration> courseSectionRegistrations =
                 findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(studentId, term_id);
 
-        double avg = findAverage(courseSectionRegistrations);
+        double avg = findAverage(courseSectionRegistrations);//todo emtiazi
         JSONArray output = new JSONArray();
         output.put(new JSONObject("{average:"+avg+"}"));
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
@@ -124,10 +110,10 @@ public class StudentService {//todo clean this class
         return courseSectionDetails;
     }
 
-    private List<CourseSectionRegistration> findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(Long student_id, Long term_id) {
-        List<CourseSectionRegistration> courseSectionRegistrations = courseSectionRegistrationRepository
-                .findByStudent(student_id);
-        List<CourseSection> courseSections = courseSectionRepository.findByTerm(term_id);
+    private List<CourseSectionRegistration> findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(Long studentId, Long termId) {
+        List<CourseSectionRegistration> courseSectionRegistrations = repositoryHandler
+                .findCourseSectionRegistrationByStudent(studentId);
+        List<CourseSection> courseSections = repositoryHandler.findCourseSectionByTerm(termId);
         Set<CourseSectionRegistration> output = new HashSet<>();
         filterCourseSectionRegistrationsOfSpecifiedTerm(courseSectionRegistrations, courseSections, output);
         return output.stream().toList();
@@ -150,10 +136,12 @@ public class StudentService {//todo clean this class
     }
     public String seeSummery(String username, String password) throws JSONException {
         errorChecker.checkIsUser(username, password);
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = repositoryHandler.findUserByUsername(username);
         Student student = Optional.ofNullable(user.getStudent()).orElseThrow(StudentNotFoundException::new);
         double totalSum = 0;
-        List<Term> terms = termRepository.findAll();
+
+        List<Term> terms = repositoryHandler.findAllTerms();
+
         JSONArray output = new JSONArray();
         for (Term term : terms) {
             JSONObject termDetails = new JSONObject();
@@ -178,21 +166,23 @@ public class StudentService {//todo clean this class
         termDetails.put("term", term.getTitle());
         termDetails.put("average", averageInSpecifiedTerm);
     }
+
     private double averageInSpecifiedTerm(Long termId, Long studentId) {
         List<CourseSectionRegistration> courseSectionRegistrations =
                 findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(studentId, termId);
         return courseSectionRegistrations.isEmpty() ? 0 : findAverage(courseSectionRegistrations);
     }
+
     @SneakyThrows
     public String listCourseSectionStudents(Long courseSectionId, String username, String password) {
         CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
         errorChecker.checkIsInstructorOfCourseSectionOrAdmin(username, password, courseSection);
-        List<CourseSectionRegistration> courseSectionRegistrations =
-                courseSectionRegistrationRepository.findByCourseSection(courseSectionId);
+        List<CourseSectionRegistration> courseSectionRegistrations = repositoryHandler
+                .findCourseSectionRegistrationByCourseSection(courseSectionId);
         JSONArray output = new JSONArray();
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
             Student student = courseSectionRegistration.getStudent();
-            User user = userRepository.findByStudentId(student.getStudentId()).orElseThrow(UserNotFoundException::new);
+            User user = repositoryHandler.findUserByStudent(student.getStudentId());
             JSONObject studentDetails = new JSONObject();
             studentDetails.put("studentId", student.getStudentId());
             studentDetails.put("studentName", user.getName());
@@ -202,6 +192,4 @@ public class StudentService {//todo clean this class
         }
         return output.toString();
     }
-
-
 }

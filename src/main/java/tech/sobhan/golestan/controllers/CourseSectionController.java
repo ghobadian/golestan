@@ -17,9 +17,13 @@ public class CourseSectionController {
 
     @GetMapping(COURSE_SECTION_LIST_PATH)
     private String list(@RequestParam Long termId,
-                                     @RequestHeader(value = "username") String username,
-                                     @RequestHeader(value = "password") String password){
-        return service.list(termId, username, password);
+                        @RequestHeader(value = "username") String username,
+                        @RequestHeader(value = "password") String password,
+                        @RequestParam(required = false) String instructorName,
+                        @RequestParam(required = false) Integer pageNumber,
+                        @RequestParam(required = false) Integer maxInEachPage,
+                        @RequestParam(required = false) String courseName){
+        return service.list(termId, username, password, instructorName, courseName, pageNumber, maxInEachPage);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

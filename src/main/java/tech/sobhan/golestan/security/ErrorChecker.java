@@ -1,11 +1,16 @@
 package tech.sobhan.golestan.security;
 
 import org.springframework.stereotype.Component;
-import tech.sobhan.golestan.auth.User;
+import tech.sobhan.golestan.models.users.User;
+import tech.sobhan.golestan.business.exceptions.PageNumberException;
 import tech.sobhan.golestan.business.exceptions.ForbiddenException;
 import tech.sobhan.golestan.business.exceptions.UnauthorisedException;
+import tech.sobhan.golestan.business.exceptions.duplication.CourseDuplicationException;
+import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.repositories.RepositoryHandler;
+
+import java.util.List;
 
 @Component
 public class ErrorChecker {
@@ -21,9 +26,9 @@ public class ErrorChecker {
         return user.getPassword().equals(password);
     }
 
-    private boolean isAdmin(String username){
+    private boolean isNotAdmin(String username){
         User user = repositoryHandler.getUserByUsername(username);
-        return user.isAdmin();
+        return !user.isAdmin();
     }
 
     private boolean isInstructor(String username){
@@ -31,14 +36,14 @@ public class ErrorChecker {
         return user.getInstructor()!=null;
     }
 
-    private boolean isInstructorOfCourseSection(String username, CourseSection courseSection) {
+    private boolean isNotInstructorOfCourseSection(String username, CourseSection courseSection) {
         User user = repositoryHandler.getUserByUsername(username);
-        return user.getInstructor().equals(courseSection.getInstructor());
+        return !user.getInstructor().equals(courseSection.getInstructor());
     }
 
     public void checkIsAdmin(String username, String password) {
         checkIsUser(username, password);
-        if(!isAdmin(username)) throw new ForbiddenException();
+        if(isNotAdmin(username)) throw new ForbiddenException();
     }
 
     public void checkIsUser(String username, String password) {
@@ -52,13 +57,26 @@ public class ErrorChecker {
 
     public void checkIsInstructorOfCourseSectionOrAdmin(String username, String password, CourseSection courseSection){//todo clean it
         checkIsUser(username, password);
-        if(isInstructor(username) && !isAdmin(username)) throw new ForbiddenException();
-        if(isInstructor(username) && !isInstructorOfCourseSection(username, courseSection))
+        if(isInstructor(username) && isNotAdmin(username)) throw new ForbiddenException();
+        if(isInstructor(username) && isNotInstructorOfCourseSection(username, courseSection))
             throw new ForbiddenException();
     }
 
     public void checkIsInstructorOfCourseSection(String username, String password, CourseSection courseSection) {
         checkIsInstructor(username, password);
-        if(!isInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
+        if(isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
+    }
+
+    public void checkCourseExists(Course course) {
+        List<Course> allCourses = repositoryHandler.findAllCourses();
+        for (Course c : allCourses) {
+            if(course.equals(c)){
+                throw new CourseDuplicationException();
+            }
+        }
+    }
+
+    public void checkPageLength(int size, Integer pageNumber, Integer maxInEachPage) {
+        if(size < (pageNumber-1) * maxInEachPage) throw new PageNumberException();
     }
 }

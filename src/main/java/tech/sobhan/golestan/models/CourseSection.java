@@ -1,15 +1,20 @@
 package tech.sobhan.golestan.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import tech.sobhan.golestan.models.users.Instructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Objects;
 
 @Data
 @Builder @AllArgsConstructor @NoArgsConstructor
 @Entity
-@EqualsAndHashCode
 public class CourseSection {
     @Id @GeneratedValue private Long id;
     @ManyToOne

@@ -1,7 +1,5 @@
 package tech.sobhan.golestan.utils;
 
-import tech.sobhan.golestan.auth.User;
-
 import java.util.List;
 
 public class DatabaseSearcher<T> {
