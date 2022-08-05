@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "admin.username",
+      "type": "java.lang.String",
+      "description": "username of the admin user in database."
+    },
+    {
+      "name": "admin.password",
+      "type": "java.lang.String",
+      "description": "username of the admin user in database."
+    }
+  ] }
