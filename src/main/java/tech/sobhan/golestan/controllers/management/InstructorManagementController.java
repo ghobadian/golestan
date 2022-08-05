@@ -15,13 +15,6 @@ public class InstructorManagementController {
         this.service = service;
     }
 
-    //todo deprecated
-//    @ResponseStatus(HttpStatus.CREATED)
-//    @PostMapping("/instructors")
-//    private Instructor create(@RequestBody Instructor instructor){
-//        return instructorRepository.save(instructor);
-//    }
-
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(INSTRUCTOR_DELETE_PATH)
     private void delete(@PathVariable Long instructorId,

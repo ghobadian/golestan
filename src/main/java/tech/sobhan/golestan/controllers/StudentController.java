@@ -1,6 +1,5 @@
 package tech.sobhan.golestan.controllers;
 
-import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.StudentService;
 
@@ -25,17 +24,15 @@ public class StudentController {
                               @RequestHeader(value = "username") String username,
                               @RequestHeader(value = "password") String password){
         return service.signUpSection(courseSectionId, username, password);
-    }//todo move all repository instances to a class
+    }
 
-    @SneakyThrows
-    @GetMapping(SEE_SCORES_IN_TERM_PATH)//todo test later
+    @GetMapping(SEE_SCORES_IN_TERM_PATH)
     public String seeScoresInSpecifiedTerm(@RequestParam Long termId,
                                               @RequestHeader(value = "username") String username,
                                               @RequestHeader(value = "password") String password){
         return service.seeScoresInSpecifiedTerm(termId, username, password).toString();
     }
 
-    @SneakyThrows
     @GetMapping(SEE_SUMMERY_PATH)
     public String seeSummery(@RequestHeader(value = "username") String username,
                                 @RequestHeader(value = "password") String password){

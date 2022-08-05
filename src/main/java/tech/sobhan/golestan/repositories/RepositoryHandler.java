@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static tech.sobhan.golestan.security.PasswordEncoder.hash;
+
 @Component
 @Getter
 public class RepositoryHandler {
@@ -47,9 +49,8 @@ public class RepositoryHandler {
     }
 
     public List<CourseSection> findCourseSectionByTerm(Long termId){
-        List<CourseSection> courseSections = courseSectionRepository.findByTerm(termId);
-        if(courseSections.isEmpty()) throw new CourseSectionNotFoundException();
-        return courseSections;
+        //        if(courseSections.isEmpty()) throw new CourseSectionNotFoundException();
+        return courseSectionRepository.findByTerm(termId);
     }
 
     public Instructor findInstructor(Long id) {
@@ -81,10 +82,10 @@ public class RepositoryHandler {
     }
 
     public List<CourseSectionRegistration> findCourseSectionRegistrationByCourseSection(Long courseSectionId) {
-        List<CourseSectionRegistration> courseSectionRegistrations = courseSectionRegistrationRepository
+        //        deprecated
+//        if(courseSectionRegistrations.isEmpty()) throw new CourseSectionRegistrationNotFoundException();
+        return courseSectionRegistrationRepository
                 .findByCourseSection(courseSectionId);
-        if(courseSectionRegistrations.isEmpty()) throw new CourseSectionRegistrationNotFoundException();
-        return courseSectionRegistrations;
 
     }
 
@@ -123,10 +124,6 @@ public class RepositoryHandler {
         instructorRepository.delete(instructor);
     }
 
-    public Student findStudent(Long id) {
-        return studentRepository.findById(id).orElseThrow(StudentNotFoundException::new);
-    }
-
     public CourseSectionRegistration findCourseSectionRegistrationByCourseSectionAndStudent(Long courseSectionId, Long studentId) {
         return courseSectionRegistrationRepository
                 .findByCourseSectionAndStudent(courseSectionId, studentId)
@@ -142,12 +139,24 @@ public class RepositoryHandler {
         return user.getStudent();
     }
 
-    public List<CourseSectionRegistration> findCourseSectionRegistrationByStudent(Long studentId) {
+    public List<CourseSectionRegistration> findCSRByStudent(Long studentId) {
         return courseSectionRegistrationRepository.findByStudent(studentId);
     }
 
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public boolean userExistsByPhone(String phone){
+        return userRepository.findByPhone(phone).isPresent();
+    }
+
+    public boolean userExistsByUsername(String username){
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean userExistsByNationalId(String nationalId){
+        return userRepository.findByNationalId(nationalId).isPresent();
     }
 
     public List<Term> findAllTerms() {
@@ -171,6 +180,7 @@ public class RepositoryHandler {
     }
 
     public User saveUser(User user) {
+        user.setPassword(hash(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -199,7 +209,12 @@ public class RepositoryHandler {
         List<CourseSection> output = new ArrayList<>();
         for (CourseSection courseSection : allCourseSections) {
             Long currentCourseSectionInstructorId = courseSection.getInstructor().getId();
-            String currentCourseSectionInstructorName = findUserByInstructor(currentCourseSectionInstructorId).getName();
+            String currentCourseSectionInstructorName;
+            try{
+                currentCourseSectionInstructorName = findUserByInstructor(currentCourseSectionInstructorId).getName();
+            }catch (UserNotFoundException u){
+                continue;
+            }
             if(instructorName.equals(currentCourseSectionInstructorName)){
                 output.add(courseSection);
             }
@@ -230,5 +245,44 @@ public class RepositoryHandler {
         userRepository.deleteAll();
         studentRepository.deleteAll();
         instructorRepository.deleteAll();
+    }
+
+
+    public boolean courseSectionExistsByTerm(Long termId, CourseSection courseSection) {
+        return courseSectionRepository.findByTerm(termId).stream().anyMatch(cs -> cs.equals(courseSection));
+    }
+
+    public boolean termExistsByTitle(String title) {
+        return termRepository.findByTitle(title).isPresent();
+    }
+
+    public boolean courseSectionRegistrationExistsByCourseSectionAndStudent(Long courseSectionId, Long studentId) {
+        return courseSectionRegistrationRepository.findByCourseSectionAndStudent(courseSectionId, studentId).isPresent();
+    }
+
+    public boolean userExistsByAdminPrivilege() {
+        return !userRepository.findByAdmin().isEmpty();
+    }
+
+    public void deleteUsersWithAdminPrivilege() {
+        userRepository.deleteAllInBatch(userRepository.findByAdmin());
+    }
+
+    public List<CourseSectionRegistration> findCSRsByStudentAndTerm(Long studentId, Long termId) {
+        List<CourseSectionRegistration> csrs = findCSRByStudent(studentId);
+        List<CourseSection> courseSections = findCourseSectionByTerm(termId);
+        Set<CourseSectionRegistration> output = new HashSet<>();
+        filterCSRsOfSpecifiedTerm(csrs, courseSections, output);
+        return new ArrayList<>(output);
+    }
+
+    private static void filterCSRsOfSpecifiedTerm(List<CourseSectionRegistration> courseSectionRegistrations, List<CourseSection> courseSections, Set<CourseSectionRegistration> output) {
+        for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {//todo use set and retainAll
+            for (CourseSection courseSection : courseSections) {
+                if(courseSection.equals(courseSectionRegistration.getCourseSection())){
+                    output.add(courseSectionRegistration);
+                }
+            }
+        }
     }
 }

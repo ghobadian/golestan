@@ -1,13 +1,10 @@
 package tech.sobhan.golestan.services;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.AlreadySignedUpException;
-import tech.sobhan.golestan.business.exceptions.CourseSectionRegistrationNotFoundException;
 import tech.sobhan.golestan.business.exceptions.StudentNotFoundException;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
@@ -18,13 +15,12 @@ import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
-import java.util.*;
-
-import static tech.sobhan.golestan.utils.Util.createLog;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
-public class StudentService {//todo clean this class
+public class StudentService {
     private final RepositoryHandler repositoryHandler;
     private final ErrorChecker errorChecker;
 
@@ -33,97 +29,59 @@ public class StudentService {//todo clean this class
         this.errorChecker = errorChecker;
     }
 
-    public Student create(Student student){
-        if (studentExists(list(), student)) return null;
-        createLog(Student.class, student.getStudentId());
-        return repositoryHandler.saveStudent(student);
-    }
-    private boolean studentExists(List<Student> allStudents, Student student) {
-        for (Student s : allStudents) {
-            if(student.equals(s)){
-                System.out.println("ERROR403 duplicate Students");
-                return true;
-            }
-        }
-        return false;
-    }
     public List<Student> list() {
         return repositoryHandler.findAllStudents();
     }
-    public String signUpSection(Long course_section_id, String username, String password) {
+    public String signUpSection(Long courseSectionId, String username, String password) {
         errorChecker.checkIsUser(username, password);
-        CourseSection courseSection = findCourseSection(course_section_id);
-        Student student = findStudent(username);
+        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+        Student student = repositoryHandler.findStudentByUsername(username);
         createAndSaveCourseSectionRegistration(courseSection, student);
         return "Successfully signed up for course section.";
     }
 
-    private CourseSection findCourseSection(Long courseSectionId) {
-        return repositoryHandler.findCourseSection(courseSectionId);
-    }
-
     private void createAndSaveCourseSectionRegistration(CourseSection courseSection, Student student) {
-        if(alreadySignedUp(courseSection.getId(), student.getStudentId())) throw new AlreadySignedUpException();
-        CourseSectionRegistration courseSectionRegistration = CourseSectionRegistration.builder()
-                .student(student).courseSection(courseSection).build();
-        repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
+        errorChecker.checkCourseSectionRegistrationExists(courseSection.getId(), student.getId());
+        CourseSectionRegistration csr = CourseSectionRegistration.builder().student(student).courseSection(courseSection).build();
+        repositoryHandler.saveCourseSectionRegistration(csr);
     }
 
-    private boolean alreadySignedUp(Long courseSectionId, Long studentId) {//todo do sth for already signed ups and likewise
-        try{
-            return repositoryHandler.findCourseSectionRegistrationByCourseSectionAndStudent(courseSectionId, studentId)!=null;
-        }catch (CourseSectionRegistrationNotFoundException e){
-            return false;
-        }
-    }
-    private Student findStudent(String username) {
-        return repositoryHandler.findStudentByUsername(username);
-    }
-    public JSONArray seeScoresInSpecifiedTerm(Long term_id, String username, String password) throws JSONException {
+    public JSONArray seeScoresInSpecifiedTerm(Long term_id, String username, String password){
         errorChecker.checkIsUser(username, password);
-        Long studentId = findStudent(username).getStudentId();
-        List<CourseSectionRegistration> courseSectionRegistrations =
-                findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(studentId, term_id);
-
-        double avg = findAverage(courseSectionRegistrations);//todo emtiazi
+        Long studentId = repositoryHandler.findStudentByUsername(username).getId();
+        List<CourseSectionRegistration> csrs = repositoryHandler.findCSRsByStudentAndTerm(studentId, term_id);
+        JSONObject average = toJson(findAverage(csrs));//todo emtiazi
         JSONArray output = new JSONArray();
-        output.put(new JSONObject("{average:"+avg+"}"));
-        for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
-            CourseSection courseSection = courseSectionRegistration.getCourseSection();
-            Course course = courseSection.getCourse();
-            JSONObject courseSectionDetails = getCourseSectionDetails(courseSectionRegistration, courseSection, course);
-            output.put(courseSectionDetails);
-        }
+        if(average!=null)   output.put(average);
+        csrs.forEach(csr -> output.put(getCourseSectionDetails(csr)));
         return output;
     }
 
-    private JSONObject getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration, CourseSection courseSection, Course course) throws JSONException {
+    private JSONObject toJson(double average) {
+        try{
+            return new JSONObject("{average:"+average+"}");
+        }catch (JSONException j){
+            j.printStackTrace();
+            return null;
+        }
+    }
+
+    private JSONObject getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration){
+        CourseSection courseSection = courseSectionRegistration.getCourseSection();
+        Course course = courseSection.getCourse();
         JSONObject courseSectionDetails = new JSONObject();
-        courseSectionDetails.put("course_section_id", courseSection.getId());
-        courseSectionDetails.put("course_name", course.getTitle());
-        courseSectionDetails.put("course_units", course.getUnits());
-        courseSectionDetails.put("instructor", courseSection.getInstructor());
-        courseSectionDetails.put("score", courseSectionRegistration.getScore());
+        try{
+            courseSectionDetails.put("course_section_id", courseSection.getId());
+            courseSectionDetails.put("course_name", course.getTitle());
+            courseSectionDetails.put("course_units", course.getUnits());
+            courseSectionDetails.put("instructor", courseSection.getInstructor());
+            courseSectionDetails.put("score", courseSectionRegistration.getScore());
+        }catch (JSONException j){
+            j.printStackTrace();
+        }
         return courseSectionDetails;
     }
 
-    private List<CourseSectionRegistration> findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(Long studentId, Long termId) {
-        List<CourseSectionRegistration> courseSectionRegistrations = repositoryHandler
-                .findCourseSectionRegistrationByStudent(studentId);
-        List<CourseSection> courseSections = repositoryHandler.findCourseSectionByTerm(termId);
-        Set<CourseSectionRegistration> output = new HashSet<>();
-        filterCourseSectionRegistrationsOfSpecifiedTerm(courseSectionRegistrations, courseSections, output);
-        return new ArrayList<>(output);
-    }
-    private void filterCourseSectionRegistrationsOfSpecifiedTerm(List<CourseSectionRegistration> courseSectionRegistrations, List<CourseSection> courseSections, Set<CourseSectionRegistration> output) {
-        for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
-            for (CourseSection courseSection : courseSections) {
-                if(courseSection.equals(courseSectionRegistration.getCourseSection())){
-                    output.add(courseSectionRegistration);
-                }
-            }
-        }
-    }
     private double findAverage(List<CourseSectionRegistration> courseSectionRegistrations) {
         double sum = 0;
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
@@ -131,7 +89,7 @@ public class StudentService {//todo clean this class
         }
         return sum / courseSectionRegistrations.size();
     }
-    public String seeSummery(String username, String password) throws JSONException {
+    public String seeSummery(String username, String password) {
         errorChecker.checkIsUser(username, password);
         User user = repositoryHandler.findUserByUsername(username);
         Student student = Optional.ofNullable(user.getStudent()).orElseThrow(StudentNotFoundException::new);
@@ -142,35 +100,40 @@ public class StudentService {//todo clean this class
         JSONArray output = new JSONArray();
         for (Term term : terms) {
             JSONObject termDetails = new JSONObject();
-            double averageInSpecifiedTerm = averageInSpecifiedTerm(term.getId(), student.getStudentId());
+            double averageInSpecifiedTerm = averageInSpecifiedTerm(term.getId(), student.getId());
             findTermDetails(term, termDetails, averageInSpecifiedTerm);
             totalSum += averageInSpecifiedTerm;
             output.put(termDetails);
         }
-
-        addTotalAverage(totalSum, terms, output);
+        addTotalAverage(totalSum, terms.size(), output);
         return output.toString();
     }
 
-    private void addTotalAverage(double totalSum, List<Term> terms, JSONArray output) throws JSONException {
-        double totalAverage = totalSum / terms.size();
-        output.put(new JSONObject("{totalAverage:"+totalAverage+"}"));
+    private void addTotalAverage(double totalSum, int numberOfTerms, JSONArray output) {
+        double totalAverage = totalSum / numberOfTerms;
+        try{
+            output.put(new JSONObject("{totalAverage:"+totalAverage+"}"));
+        }catch (JSONException j){
+            j.printStackTrace();
+        }
     }
 
-    private void findTermDetails(Term term, JSONObject termDetails, double averageInSpecifiedTerm) throws JSONException {
-        termDetails.put("term_id", term.getId());
-        termDetails.put("term_title", term.getTitle());
-        termDetails.put("term", term.getTitle());
-        termDetails.put("average", averageInSpecifiedTerm);
+    private void findTermDetails(Term term, JSONObject termDetails, double averageInSpecifiedTerm) {
+        try{
+            termDetails.put("term_id", term.getId());
+            termDetails.put("term", term.getTitle());
+            termDetails.put("average", averageInSpecifiedTerm);
+        }catch (JSONException j){
+            j.printStackTrace();
+        }
     }
 
     private double averageInSpecifiedTerm(Long termId, Long studentId) {
         List<CourseSectionRegistration> courseSectionRegistrations =
-                findCourseSectionRegistrationsOfSpecifiedStudentAndTerm(studentId, termId);
+                repositoryHandler.findCSRsByStudentAndTerm(studentId, termId);
         return courseSectionRegistrations.isEmpty() ? 0 : findAverage(courseSectionRegistrations);
     }
 
-    @SneakyThrows
     public String listCourseSectionStudents(Long courseSectionId, String username, String password) {
         CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
         errorChecker.checkIsInstructorOfCourseSectionOrAdmin(username, password, courseSection);
@@ -179,14 +142,24 @@ public class StudentService {//todo clean this class
         JSONArray output = new JSONArray();
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
             Student student = courseSectionRegistration.getStudent();
-            User user = repositoryHandler.findUserByStudent(student.getStudentId());
-            JSONObject studentDetails = new JSONObject();
-            studentDetails.put("studentId", student.getStudentId());
-            studentDetails.put("studentName", user.getName());
-            studentDetails.put("studentNumber", student.getStudentId());
-            studentDetails.put("score", courseSectionRegistration.getScore());
+            User user = repositoryHandler.findUserByStudent(student.getId());
+            JSONObject studentDetails = getStudentDetails(courseSectionRegistration, student, user);
             output.put(studentDetails);
         }
         return output.toString();
+    }
+
+    private JSONObject getStudentDetails(CourseSectionRegistration courseSectionRegistration, Student student, User user){
+        JSONObject studentDetails = new JSONObject();
+        try{
+            studentDetails.put("studentId", student.getId());
+            studentDetails.put("studentName", user.getName());
+            studentDetails.put("studentNumber", student.getId());
+            studentDetails.put("score", courseSectionRegistration.getScore());
+        }catch (JSONException j){
+            j.printStackTrace();
+        }
+
+        return studentDetails;
     }
 }

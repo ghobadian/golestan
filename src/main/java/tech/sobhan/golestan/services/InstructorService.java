@@ -1,6 +1,8 @@
 package tech.sobhan.golestan.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.CourseSection;
@@ -10,6 +12,7 @@ import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static tech.sobhan.golestan.utils.Util.createLog;
 
@@ -51,7 +54,7 @@ public class InstructorService {
         return false;
     }
 
-    public String read(Long id, String username, String password) {//todo create service package
+    public String read(Long id, String username, String password) {
         errorChecker.checkIsUser(username, password);
         return read(id).toString();
     }
@@ -72,7 +75,7 @@ public class InstructorService {
         return "OK";
     }
 
-    public String delete(Long instructorId, String username, String password) {//todo check later
+    public String delete(Long instructorId, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
         Instructor instructor = repositoryHandler.findInstructor(instructorId);
         List<CourseSection> courseSectionsOfInstructor = repositoryHandler.findCourseSectionByInstructor(instructorId);
@@ -84,8 +87,11 @@ public class InstructorService {
     }
 
     public String giveMark(String username, String password, Long courseSectionId, Long studentId, Double score) {
-        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
+        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
+        return giveMark(courseSectionId, studentId, score);
+    }
+
+    private String giveMark(Long courseSectionId, Long studentId, Double score) {
         CourseSectionRegistration courseSectionRegistration = repositoryHandler
                 .findCourseSectionRegistrationByCourseSectionAndStudent(courseSectionId, studentId);
         courseSectionRegistration.setScore(score);
@@ -93,11 +99,34 @@ public class InstructorService {
         return "OK";
     }
 
-    public String giveMultipleMark(String username, String password, Long courseSectionId, List<Long> studentIds, List<Double> scores) {
-        if(studentIds.size() != scores.size()) throw new RuntimeException("sizes are not the same");
-        for (int i=0;i<studentIds.size();i++) {//todo change to map
-            giveMark(username, password, courseSectionId, studentIds.get(i), scores.get(i));//todo remove username and password from here
-        }
+    public String giveMultipleMarks(String username, String password, Long courseSectionId, JSONArray studentIds, JSONArray scores) {
+        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
+        int numberOfStudents = studentIds.length();
+        int numberOfScores = scores.length();
+        if(numberOfScores != numberOfStudents) throw new RuntimeException("sizes are not the same");
+        IntStream.range(0,numberOfStudents).forEach(i -> {
+            Long studentId = parseId(studentIds, i);
+            Double score = parseScore(scores, i);
+            giveMark(courseSectionId, studentId, score);
+        });
         return "OK";
+    }
+
+    private Double parseScore(JSONArray scores, int i) {
+        try{
+            return Double.parseDouble(String.valueOf(scores.get(i)));
+        }catch (JSONException j){
+            j.printStackTrace();
+            return null;
+        }
+    }
+
+    private Long parseId(JSONArray studentIds, int i)  {
+        try{
+            return Long.parseLong(String.valueOf(studentIds.get(i)));
+        }catch (JSONException j){
+            j.printStackTrace();
+            return null;
+        }
     }
 }
