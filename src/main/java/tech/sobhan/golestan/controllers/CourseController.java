@@ -33,7 +33,7 @@ public class CourseController {
                         @RequestHeader(value = "username") String username,
                         @RequestHeader(value = "password") String password){
         return service.read(id, username, password);
-    }//todo add advice
+    }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(COURSE_UPDATE_PATH)

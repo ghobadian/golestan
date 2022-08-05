@@ -1,7 +1,6 @@
 package tech.sobhan.golestan.models.users;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import tech.sobhan.golestan.enums.Degree;
 
 import javax.persistence.*;
@@ -14,7 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Student{
-    @Id @GeneratedValue private Long studentId;//todo change it to id
+    @Id @GeneratedValue private Long id;
     private Degree degree;
     private Date startDate;
 
@@ -23,11 +22,11 @@ public class Student{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Student student = (Student) o;
-        return Objects.equals(studentId, student.studentId);
+        return Objects.equals(id, student.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(studentId);
+        return Objects.hash(id);
     }
 }

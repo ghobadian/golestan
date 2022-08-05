@@ -18,7 +18,6 @@ public class ApiPaths {
     public static final String COURSE_SECTION_UPDATE_PATH = "/management/courseSections/{courseSectionId}";
     public static final String COURSE_SECTION_DELETE_PATH = "/management/courseSections/{id}";
     public static final String INSTRUCTOR_LIST_PATH = "/instructors";
-    public static final String INSTRUCTOR_CREATE_PATH = "/instructors";//todo deprecated
     public static final String INSTRUCTOR_READ_PATH = "/instructors/{id}";
     public static final String INSTRUCTOR_UPDATE_PATH = "/management/instructors/{instructorId}";
     public static final String INSTRUCTOR_DELETE_PATH = "/management/instructors/{instructorId}";

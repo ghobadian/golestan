@@ -30,7 +30,7 @@ public class CourseService {
         return repositoryHandler.findAllCourses();
     }
 
-    public String create(int units, String title, String username, String password) {//todo ckeck duplication in all create methods
+    public String create(int units, String title, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
         Course course = Course.builder().units(units).title(title).build();
         errorChecker.checkCourseExists(course);

@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseSectionRegistrationRepository extends JpaRepository<CourseSectionRegistration, Long> {
-    @Query("SELECT c FROM CourseSectionRegistration c WHERE c.courseSection.id = ?1 AND c.student.studentId = ?2")//todo test later
+    @Query("SELECT c FROM CourseSectionRegistration c WHERE c.courseSection.id = ?1 AND c.student.id = ?2")
     Optional<CourseSectionRegistration> findByCourseSectionAndStudent(Long courseSectionId, Long studentId);
 
-    @Query("SELECT c FROM CourseSectionRegistration c WHERE c.student.studentId = ?1")//todo test later
+    @Query("SELECT c FROM CourseSectionRegistration c WHERE c.student.id = ?1")
     List<CourseSectionRegistration> findByStudent(Long studentId);
 
     @Query("SELECT c FROM CourseSectionRegistration c WHERE c.courseSection.id = ?1")

@@ -1,6 +1,5 @@
 package tech.sobhan.golestan.controllers;
 
-import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.CourseSectionService;
@@ -36,13 +35,12 @@ public class CourseSectionController {
         return service.create(courseId, instructorId, termId, username, password);
     }
 
-    @SneakyThrows
     @GetMapping(COURSE_SECTION_READ_PATH)
     private String read(@PathVariable Long id,
                             @RequestHeader(value = "username") String username,
                             @RequestHeader(value = "password") String password){
         return service.read(id, username, password);
-    }//todo add advice
+    }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(COURSE_SECTION_UPDATE_PATH)
@@ -55,7 +53,6 @@ public class CourseSectionController {
         return service.update(termId, courseId, instructorId, courseSectionId, username, password);
     }
 
-    @SneakyThrows
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(COURSE_SECTION_DELETE_PATH)
     private String delete(@PathVariable Long id,

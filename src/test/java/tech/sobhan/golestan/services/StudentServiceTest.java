@@ -34,9 +34,7 @@ class StudentServiceTest {
 
     @BeforeEach
     public void loadData(){
-        if(repositoryHandler.findAllUsers().isEmpty()){
-            loadDatas(repositoryHandler);
-        }
+        loadDatas(repositoryHandler);
     }
     public static void loadDatas(RepositoryHandler repositoryHandler){
         term = repositoryHandler.saveTerm(Term.builder().title("temp").open(true).build());
@@ -67,8 +65,7 @@ class StudentServiceTest {
     @SneakyThrows
     @Test
     void seeScoresInSpecifiedTerm() {
-
-        JSONArray response = studentService.seeScoresInSpecifiedTerm(term.getId(), user.getUsername(), user.getPassword());
+        JSONArray response = studentService.seeScoresInSpecifiedTerm(term.getId(), user.getUsername(), user.getUsername());
         double avg = (Double) ((JSONObject) response.get(0)).get("average");
         assertEquals(avg, 12);
     }

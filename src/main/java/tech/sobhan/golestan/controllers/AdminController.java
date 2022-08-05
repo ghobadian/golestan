@@ -1,6 +1,5 @@
 package tech.sobhan.golestan.controllers;
 
-import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.AdminService;
@@ -17,7 +16,6 @@ public class AdminController {
         this.service = service;
     }
 
-    @SneakyThrows
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(MODIFY_ROLE_PATH)
     public String modifyRole(@PathVariable Long id,

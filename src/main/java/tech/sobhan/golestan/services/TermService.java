@@ -1,7 +1,6 @@
 package tech.sobhan.golestan.services;
 
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.duplication.TermDuplicationException;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
@@ -31,14 +30,14 @@ public class TermService {
 
 
     public String create(String title, boolean open, String username, String password) {
-
         errorChecker.checkIsAdmin(username, password);
+        errorChecker.checkTermExists(title);
         Term term = Term.builder().title(title).open(open).build();
         return create(term).toString();
     }
 
     public Term create(Term term) {
-        if (termExists(list(), term)) throw new TermDuplicationException();//todo implement in all service classes
+        errorChecker.checkTermExists(term.getTitle());
         createLog(Term.class, term.getId());
         return repositoryHandler.saveTerm(term);
     }

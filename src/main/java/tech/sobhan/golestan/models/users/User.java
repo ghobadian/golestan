@@ -11,7 +11,7 @@ import java.util.Objects;
 @AllArgsConstructor @NoArgsConstructor
 @Data @Builder
 @Entity @Table(name = "users")
-public class User/* implements UserDetails*/ {
+public class User {
     @Id @GeneratedValue private Long id;
     @Column(name = "username", nullable = false, unique = true)
     private String username;
@@ -39,6 +39,7 @@ public class User/* implements UserDetails*/ {
         return Objects.hash(username, phone, nationalId);
     }
 
+    @Override
     public User clone(){
         return User.builder().username(username).password(password).name(name).phone(phone)
                 .nationalId(nationalId).admin(admin).active(active).build();

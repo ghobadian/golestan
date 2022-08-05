@@ -1,9 +1,8 @@
 package tech.sobhan.golestan.controllers;
 
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.InstructorService;
-
-import java.util.List;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
@@ -38,11 +37,11 @@ public class InstructorController {
     }
 
     @PostMapping(GIVE_MULTIPLE_MARK_PATH)
-    public String giveMultipleMark(@RequestParam Long courseSectionId,
-                           @RequestParam List<Long> studentIds,
-                           @RequestParam List<Double> scores,
-                           @RequestHeader(value = "username") String username,
-                           @RequestHeader(value = "password") String password){
-        return service.giveMultipleMark(username, password, courseSectionId, studentIds, scores);
+    public String giveMultipleMarks(@RequestParam Long courseSectionId,
+                                    @RequestParam JSONArray studentIds,
+                                    @RequestParam JSONArray scores,
+                                    @RequestHeader(value = "username") String username,//todo it throws error
+                                    @RequestHeader(value = "password") String password){
+        return service.giveMultipleMarks(username, password, courseSectionId, studentIds, scores);
     }
 }

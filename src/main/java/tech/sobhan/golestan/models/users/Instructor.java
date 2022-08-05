@@ -1,9 +1,14 @@
 package tech.sobhan.golestan.models.users;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import tech.sobhan.golestan.enums.Rank;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.Objects;
 
 @Data
@@ -11,25 +16,9 @@ import java.util.Objects;
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode
 public class Instructor {
     @Id @GeneratedValue private Long id;
     private Rank rank;
-    //todo add user id
-
-
-//    @Override//todo fix later
-//    public String toString() {
-//        JSONObject output = new JSONObject();
-//        JSONObject instructorDetails = new JSONObject();
-//        User user = userRepository.
-//        instructorDetails.put()
-//        output.put("instructor", instructorDetails);
-//        return "Instructor{" +
-//                "id=" + id +
-//                ", rank=" + rank +
-//                '}';
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -42,5 +31,10 @@ public class Instructor {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Instructor(id="+id + ", rank="+rank+")";
     }
 }

@@ -17,7 +17,7 @@ public class UserController {
 
     @GetMapping(USER_LIST_PATH)
     private String list(@RequestHeader(value = "username") String username,
-                            @RequestHeader(value = "password") String password){//todo if not active don't let user
+                            @RequestHeader(value = "password") String password){
         return service.list(username, password);
     }
 
@@ -33,5 +33,5 @@ public class UserController {
                       @RequestHeader(value = "username") String username,
                       @RequestHeader(value = "password") String password){
         return service.read(id, username, password);
-    }//todo add advice
+    }
 }

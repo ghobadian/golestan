@@ -16,7 +16,7 @@ import static tech.sobhan.golestan.utils.Util.deleteLog;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final StudentRepository studentRepository;//todo find usage
+    private final StudentRepository studentRepository;
     private final InstructorRepository instructorRepository;
     private final ErrorChecker errorChecker;
 
@@ -41,8 +41,10 @@ public class UserService {
     }
 
     public User create(String username, String password, String name, String phone, String nationalId) {
-        User user = User.builder().username(username).password(password).name(name).phone(phone)//todo encode password later
-                .nationalId(nationalId).build();
+        errorChecker.checkPhoneNumber(phone);
+        errorChecker.checkUserExists(username, phone, nationalId);
+        User user = User.builder().username(username).password(password)
+                .name(name).phone(phone).nationalId(nationalId).build();
         return create(user);
     }
 
