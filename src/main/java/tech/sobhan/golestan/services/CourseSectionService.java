@@ -1,6 +1,7 @@
 package tech.sobhan.golestan.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -16,7 +17,6 @@ import tech.sobhan.golestan.repositories.Repository;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.constants.Etc.DEFAULT_MAX_IN_EACH_PAGE;
 import static tech.sobhan.golestan.security.ErrorChecker.checkPaginationErrors;
 import static tech.sobhan.golestan.utils.Util.createLog;
 
@@ -55,13 +55,15 @@ public class CourseSectionService {
         return output;
     }
 
+    @Value("${DEFAULT_MAX_IN_EACH_PAGE}")
+    private static Integer defaultMaxInEachPage;
     private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber == null && maxInEachPage==null){
             return filteredList;
         }else if(pageNumber != null && maxInEachPage != null){
             return filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
         }else if(pageNumber!= null && maxInEachPage == null){
-            return filteredList.subList((pageNumber - 1)  * DEFAULT_MAX_IN_EACH_PAGE, (pageNumber)  * DEFAULT_MAX_IN_EACH_PAGE);
+            return filteredList.subList((pageNumber - 1)  * defaultMaxInEachPage, (pageNumber)  * defaultMaxInEachPage);
         }else{
             return filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
         }

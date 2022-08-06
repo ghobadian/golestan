@@ -9,5 +9,10 @@
       "name": "admin.password",
       "type": "java.lang.String",
       "description": "username of the admin user in database."
+    },
+    {
+      "name": "DEFAULT_MAX_IN_EACH_PAGE",
+      "type": "java.lang.String",
+      "description": "max number of objects to show while paginating."
     }
   ] }

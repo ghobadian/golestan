@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tech.sobhan.golestan.business.exceptions.*;
 import tech.sobhan.golestan.business.exceptions.duplication.*;
@@ -12,7 +13,6 @@ import tech.sobhan.golestan.repositories.Repository;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.constants.Etc.DEFAULT_MAX_IN_EACH_PAGE;
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
 @Component
@@ -87,11 +87,13 @@ public class ErrorChecker {
         }
     }
 
+    @Value("${DEFAULT_MAX_IN_EACH_PAGE}")
+    private static Integer defaultMaxInEachPage;//todo fix two responses when advising exception
     public static  void checkPaginationErrors(int size, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber==null)
             if(maxInEachPage< 1) throw new PageNumberException();
             else return;
-        if(maxInEachPage == null) maxInEachPage = DEFAULT_MAX_IN_EACH_PAGE;
+        if(maxInEachPage == null) maxInEachPage = defaultMaxInEachPage;
         if(pageNumber < 1 || maxInEachPage < 1) throw new PageNumberException();
         if(size < (pageNumber) * maxInEachPage) throw new PageNumberException();
     }

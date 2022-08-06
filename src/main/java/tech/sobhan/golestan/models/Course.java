@@ -17,7 +17,7 @@ public class Course {
     private String title;
     private int units;
 
-    @Override
+    @Override//todo move manual to swagger
     public Course clone(){
         return Course.builder().title(title).units(units).build();
     }

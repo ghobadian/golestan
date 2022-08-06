@@ -1,8 +1,9 @@
 package tech.sobhan.golestan.services;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
 import tech.sobhan.golestan.models.Course;
 
 import java.util.ArrayList;
@@ -12,12 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ContextConfiguration
 class CourseServiceTest {
-    @Mock
+    @MockBean
     private CourseService courseService;
 
     @Test
-    void list() {
+    void list() {//todo use h2 for docker
         List<Course> courses = new ArrayList<>();
         courses.add(Course.builder().units(5).title("course5").build());
         courses.add(Course.builder().units(2).title("course2").build());
