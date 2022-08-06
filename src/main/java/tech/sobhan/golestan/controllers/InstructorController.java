@@ -4,15 +4,15 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.enums.Rank;
-import tech.sobhan.golestan.services.InstructorService;
+import tech.sobhan.golestan.services.security.InstructorSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
 public class InstructorController {
-    private final InstructorService service;
+    private final InstructorSecurityService service;
 
-    public InstructorController(InstructorService service) {
+    public InstructorController(InstructorSecurityService service) {
         this.service = service;
     }
 

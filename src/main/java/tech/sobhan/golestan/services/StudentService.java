@@ -1,6 +1,5 @@
 package tech.sobhan.golestan.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -13,41 +12,29 @@ import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.Repository;
-import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class StudentService {
     private final Repository repository;
-    private final ErrorChecker errorChecker;
 
-    public StudentService(Repository repository, ErrorChecker errorChecker) {
+    public StudentService(Repository repository) {
         this.repository = repository;
-        this.errorChecker = errorChecker;
     }
 
-    public List<Student> list() {
-        return repository.findAllStudents();
-    }
-    public String signUpSection(Long courseSectionId, String username, String password) {
-        errorChecker.checkIsUser(username, password);
-        CourseSection courseSection = repository.findCourseSection(courseSectionId);
-        Student student = repository.findStudentByUsername(username);
-        createAndSaveCourseSectionRegistration(courseSection, student);
+//    public List<Student> list() {//todo find usage
+//        return repository.findAllStudents();
+//    }
+    public String signUpSection(Student student, CourseSection courseSection) {
+        CourseSectionRegistration csr = CourseSectionRegistration.builder()
+                .student(student).courseSection(courseSection).build();
+        repository.saveCourseSectionRegistration(csr);
         return "Successfully signed up for course section.";
     }
 
-    private void createAndSaveCourseSectionRegistration(CourseSection courseSection, Student student) {
-        errorChecker.checkCourseSectionRegistrationExists(courseSection, student);
-        CourseSectionRegistration csr = CourseSectionRegistration.builder().student(student).courseSection(courseSection).build();
-        repository.saveCourseSectionRegistration(csr);
-    }
-
-    public JSONArray seeScoresInSpecifiedTerm(Long termId, String username, String password){
-        errorChecker.checkIsUser(username, password);
+    public JSONArray seeScoresInSpecifiedTerm(Long termId, String username) {
         Student student = repository.findStudentByUsername(username);
         Term term = repository.findTerm(termId);
         List<CourseSectionRegistration> csrs = repository.findCSRsByStudentAndTerm(student, term);
@@ -90,8 +77,9 @@ public class StudentService {
         }
         return sum / courseSectionRegistrations.size();
     }
-    public String seeSummery(String username, String password) {
-        errorChecker.checkIsUser(username, password);
+
+
+    public String seeSummery(String username) {
         User user = repository.findUserByUsername(username);
         Student student = Optional.ofNullable(user.getStudent()).orElseThrow(StudentNotFoundException::new);
         double totalSum = 0;
@@ -135,11 +123,7 @@ public class StudentService {
         return courseSectionRegistrations.isEmpty() ? 0 : findAverage(courseSectionRegistrations);
     }
 
-    public String listCourseSectionStudents(Long courseSectionId, String username, String password) {
-        CourseSection courseSection = repository.findCourseSection(courseSectionId);
-        errorChecker.checkIsInstructorOfCourseSectionOrAdmin(username, password, courseSection);
-        List<CourseSectionRegistration> courseSectionRegistrations = repository
-                .findCourseSectionRegistrationByCourseSection(courseSection);
+    public String listCourseSectionStudents(List<CourseSectionRegistration> courseSectionRegistrations) {
         JSONArray output = new JSONArray();
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
             Student student = courseSectionRegistration.getStudent();
@@ -160,7 +144,6 @@ public class StudentService {
         }catch (JSONException j){
             j.printStackTrace();
         }
-
         return studentDetails;
     }
 

@@ -2,15 +2,15 @@ package tech.sobhan.golestan.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.services.CourseService;
+import tech.sobhan.golestan.services.security.CourseSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
 public class CourseController {
-    private final CourseService service;
+    private final CourseSecurityService service;
 
-    public CourseController(CourseService service) {
+    public CourseController(CourseSecurityService service) {
         this.service = service;
     }
 

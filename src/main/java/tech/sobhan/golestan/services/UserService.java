@@ -8,7 +8,6 @@ import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.Repository;
-import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
-import static tech.sobhan.golestan.utils.Util.createLog;
 import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
@@ -24,58 +22,30 @@ public class UserService {
     private final Repository repository;
     private final InstructorService instructorService;
     private final StudentService studentService;
-    private final ErrorChecker errorChecker;
 
 
     public UserService(Repository repository,
                        InstructorService instructorService,
-                       StudentService studentService,
-                       ErrorChecker errorChecker) {
+                       StudentService studentService) {
         this.repository = repository;
         this.instructorService = instructorService;
         this.studentService = studentService;
-        this.errorChecker = errorChecker;
     }
 
-    public String list(String username, String password) {
-        errorChecker.checkIsUser(username, password);
-        return list().toString();
-    }
-
-    private List<User> list() {
+    public List<User> list() {
         return repository.findAllUsers();
     }
 
     public User create(String username, String password, String name, String phone, String nationalId) {
-        errorChecker.checkPhoneNumber(phone);
-        errorChecker.checkNationalId(nationalId);
-        errorChecker.checkUserExists(username, phone, nationalId);
-        User user = User.builder().username(username).password(password)
-                .name(name).phone(phone).nationalId(nationalId).build();
-        return create(user);
-    }
-
-    public User create(User user) {
-        user.setActive(false);
-        user.setAdmin(false);
-        createLog(User.class, user.getId());
-        user.setPassword(hash(user.getPassword()));
+        User user = User.builder().username(username).password(hash(password))
+                .name(name).phone(phone).nationalId(nationalId)
+                .active(false).admin(false).build();
+//        createLog(User.class, user.getId());//todo user id is null because of not being in repository
         return repository.saveUser(user);
     }
 
-    public String read(Long id, String username, String password) {
-        errorChecker.checkIsUser(username, password);
-        return read(id).toString();
-    }
-
-    private User read(Long id) {
+    public User read(Long id) {
         return repository.findUser(id);
-    }
-
-    public String update(String name, String newUsername, String newPassword, String phone,
-                         String username, String password) {
-        errorChecker.checkIsUser(username, password);
-        return update(name, newUsername, newPassword, phone, username).toString();
     }
 
     public User update(String name, String newUsername, String newPassword, String phone, String username) {
@@ -111,8 +81,7 @@ public class UserService {
         }
     }
 
-    public void delete(Long id, String username, String password) {//todo check
-        errorChecker.checkIsAdmin(username, password);
+    public void delete(Long id) {
         User user = repository.findUser(id);
         deleteInstructorOfUser(user);
         deleteStudentOfUser(user);
@@ -136,8 +105,7 @@ public class UserService {
         }
     }
 
-    public String modifyRole(Long id, Map<String, String> requestedBody, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    public String modifyRole(Long id, Map<String, String> requestedBody) {
         User foundUser = repository.findUser(id);
         foundUser.setActive(true);
         Role role = Role.valueOf(requestedBody.get("role").toUpperCase());

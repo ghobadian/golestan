@@ -2,15 +2,15 @@ package tech.sobhan.golestan.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.services.TermService;
+import tech.sobhan.golestan.services.security.TermSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
 public class TermController {
-    private final TermService service;
+    private final TermSecurityService service;
 
-    public TermController(TermService service) {
+    public TermController(TermSecurityService service) {
         this.service = service;
     }
 

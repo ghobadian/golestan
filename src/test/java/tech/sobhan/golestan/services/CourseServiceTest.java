@@ -12,8 +12,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ContextConfiguration
+@SpringBootTest//todo don't boot the whole project
+@ContextConfiguration()
 class CourseServiceTest {
     @MockBean
     private CourseService courseService;

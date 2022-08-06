@@ -3,7 +3,6 @@ package tech.sobhan.golestan.services;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.repositories.Repository;
-import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
@@ -12,64 +11,45 @@ import static tech.sobhan.golestan.utils.Util.createLog;
 @Service
 public class TermService {
     private final Repository repository;
-    private final ErrorChecker errorChecker;
 
-    public TermService(Repository repository, ErrorChecker errorChecker) {
+    public TermService(Repository repository) {
         this.repository = repository;
-        this.errorChecker = errorChecker;
     }
 
-    public String list(String username, String password) {
-        errorChecker.checkIsUser(username, password);
-        return list().toString();
-    }
-
-    private List<Term> list() {
+    public List<Term> list() {
         return repository.findAllTerms();
     }
 
-
-    public String create(String title, boolean open, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
-        errorChecker.checkTermExists(title);
+    public Term create(String title, boolean open) {
         Term term = Term.builder().title(title).open(open).build();
-        return create(term).toString();
-    }
-
-    public Term create(Term term) {
-        errorChecker.checkTermExists(term.getTitle());
         createLog(Term.class, term.getId());
         return repository.saveTerm(term);
     }
 
-    public String read(Long id, String username, String password) {
-        errorChecker.checkIsUser(username, password);
-        return read(id).toString();
-    }
-
-    private Term read(Long termId) {
+    public Term read(Long termId) {
         return repository.findTerm(termId);
     }
 
-    public String update(String title, Boolean open, Long termId, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
-        update(title, open, termId);
-        return "OK";
+    public Term update(String title, Boolean open, Long termId) {
+        Term term = repository.findTerm(termId);
+        changeTitle(title, term);
+        changeOpen(open, term);
+        return repository.saveTerm(term);
     }
 
-    private void update(String title, Boolean open, Long termId) {
-        Term term = repository.findTerm(termId);
-        if(title!=null){
-            term.setTitle(title);
-        }
+    private void changeOpen(Boolean open, Term term) {
         if(open != null){
             term.setOpen(open);
         }
-        repository.saveTerm(term);
     }
 
-    public void delete(Long id, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    private void changeTitle(String title, Term term) {
+        if(title !=null){
+            term.setTitle(title);
+        }
+    }
+
+    public void delete(Long id) {
         Term term = repository.findTerm(id);
         repository.deleteTerm(term);
     }

@@ -3,7 +3,7 @@ package tech.sobhan.golestan.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.services.UserService;
+import tech.sobhan.golestan.services.security.UserSecurityService;
 
 import java.util.Map;
 
@@ -11,9 +11,9 @@ import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
 public class UserController {
-    private final UserService service;
+    private final UserSecurityService service;
 
-    public UserController(UserService service) {
+    public UserController(UserSecurityService service) {
         this.service = service;
     }
 

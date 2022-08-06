@@ -65,7 +65,7 @@ class StudentServiceTest {
     @SneakyThrows
     @Test
     void seeScoresInSpecifiedTerm() {
-        JSONArray response = studentService.seeScoresInSpecifiedTerm(term.getId(), user.getUsername(), user.getUsername());
+        JSONArray response = studentService.seeScoresInSpecifiedTerm(term.getId(), user.getUsername());
         double avg = (Double) ((JSONObject) response.get(0)).get("average");
         assertEquals(avg, 12);
     }

@@ -1,22 +1,22 @@
 package tech.sobhan.golestan.controllers;
 
 import org.springframework.web.bind.annotation.*;
-import tech.sobhan.golestan.services.StudentService;
+import tech.sobhan.golestan.services.security.StudentSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
 public class StudentController {
-    private final StudentService service;
+    private final StudentSecurityService service;
 
-    public StudentController(StudentService service) {
+    public StudentController(StudentSecurityService service) {
         this.service = service;
     }
 
     @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)//todo move to studentController
     public String listStudentsOfSpecifiedCourseSection(@RequestParam Long courseSectionId,
-                                @RequestHeader(value = "username") String username,
-                                @RequestHeader(value = "password") String password){
+                                                       @RequestHeader(value = "username") String username,
+                                                       @RequestHeader(value = "password") String password){
         return service.listCourseSectionStudents(courseSectionId, username, password);
     }
     @PostMapping(SIGNUP_SECTION_PATH)
