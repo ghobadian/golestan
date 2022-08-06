@@ -12,28 +12,28 @@ import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
-import tech.sobhan.golestan.security.ErrorChecker;
+import tech.sobhan.golestan.repositories.Repository;
 
 import java.util.List;
 
 import static tech.sobhan.golestan.constants.Etc.DEFAULT_MAX_IN_EACH_PAGE;
+import static tech.sobhan.golestan.security.ErrorChecker.checkPaginationErrors;
 import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
 @Slf4j
 public class CourseSectionService {
-    private final RepositoryHandler repositoryHandler;
-    private final ErrorChecker errorChecker;
+    private final Repository repository;
 
-    public CourseSectionService(RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
-        this.repositoryHandler = repositoryHandler;
-        this.errorChecker = errorChecker;
+    public CourseSectionService(Repository repository) {
+        this.repository = repository;
     }
-    public String list(Long termId, String username, String password, String instructorName,
+
+    public String list(Long termId, String instructorName,
                        String courseName, Integer pageNumber, Integer maxInEachPage) {
-        errorChecker.checkIsUser(username, password);
-        List<CourseSection> filteredList = filterList(termId, instructorName, courseName);
+        Term term = repository.findTerm(termId);
+        List<CourseSection> filteredList = filterList(term, instructorName, courseName);
+        checkPaginationErrors(filteredList.size(), pageNumber, maxInEachPage);
         List<CourseSection> paginationList = pagination(filteredList, pageNumber, maxInEachPage);
         JSONArray output = listToJsonArray(paginationList);
         return output.toString();
@@ -43,7 +43,7 @@ public class CourseSectionService {
         JSONArray output = new JSONArray();
         paginationList.forEach(courseSection -> {
             JSONObject sth = new JSONObject();
-            String courseSectionInstructorName = repositoryHandler.findUserByInstructor(courseSection.getInstructor().getId()).getName();
+            String courseSectionInstructorName = repository.findUserByInstructor(courseSection.getInstructor().getId()).getName();
             try {
                 sth.put("courseSection", courseSection);
                 sth.put("instructor", courseSectionInstructorName);
@@ -56,7 +56,6 @@ public class CourseSectionService {
     }
 
     private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
-        errorChecker.checkPaginationErrors(filteredList.size(), pageNumber, maxInEachPage);
         if(pageNumber == null && maxInEachPage==null){
             return filteredList;
         }else if(pageNumber != null && maxInEachPage != null){
@@ -68,50 +67,30 @@ public class CourseSectionService {
         }
     }
 
-    private List<CourseSection> filterList(Long termId, String instructorName, String courseName) {
+    private List<CourseSection> filterList(Term term, String instructorName, String courseName) {
         if(instructorName!=null && courseName == null){
-            return repositoryHandler.findCourseSectionByInstructorName(instructorName);
+            return repository.findCourseSectionByInstructorName(instructorName);
         }else if(instructorName==null && courseName!= null){
-            return repositoryHandler.findCourseSectionByCourseName(courseName);
+            return repository.findCourseSectionByCourseName(courseName);
         }else if(instructorName!=null && courseName!= null){
-            return repositoryHandler.findCourseSectionByInstructorNameAndCourseName(instructorName, courseName);
+            return repository.findCourseSectionByInstructorNameAndCourseName(instructorName, courseName);
         }else{
-            return list(termId);
+            return list(term);
         }
     }
 
-    private List<CourseSection> list(Long termId) {
-        return repositoryHandler.findCourseSectionByTerm(termId);
-    }
-
-    public String create(Long courseId, Long instructorId, Long termId, String username, String password) {
-        CourseSection courseSection = buildCourseSection(courseId, instructorId, termId);
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
-        errorChecker.checkCourseSectionExists(termId, courseSection);
-        return create(courseSection).toString();
-    }
-
-    private CourseSection buildCourseSection(Long courseId, Long instructorId, Long termId) {
-        Course course = repositoryHandler.findCourse(courseId);
-        Instructor instructor = repositoryHandler.findInstructor(instructorId);
-        Term term = repositoryHandler.findTerm(termId);
-        return CourseSection.builder().instructor(instructor).course(course).term(term).build();
+    private List<CourseSection> list(Term term) {
+        return repository.findCourseSectionByTerm(term);
     }
 
     public CourseSection create(CourseSection courseSection) {
         createLog(CourseSection.class, courseSection.getId());
-        return repositoryHandler.saveCourseSection(courseSection);
+        return repository.saveCourseSection(courseSection);
     }
 
-
-    public String read(Long id, String username, String password){
-        errorChecker.checkIsUser(username, password);
-        return read(id).toString();
-    }
-
-    private JSONObject read(Long id) {
-        CourseSection courseSection = repositoryHandler.findCourseSection(id);
-        int numberOfStudents = repositoryHandler.findNumberOfStudentsInCourseSection(courseSection.getId());
+    public JSONObject read(Long id) {
+        CourseSection courseSection = repository.findCourseSection(id);
+        int numberOfStudents = repository.findNumberOfStudentsInCourseSection(courseSection);
         JSONObject output = new JSONObject();
         try{
             output.put("courseSection", courseSection);
@@ -119,41 +98,31 @@ public class CourseSectionService {
         }catch (JSONException j){
             j.printStackTrace();
         }
-
         return output;
     }
 
-
-    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId, String username, String password) {
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
-        return update(termId, courseId, instructorId, courseSectionId);
-    }
-
-    private String update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {
-        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {
+        CourseSection courseSection = repository.findCourseSection(courseSectionId);
         try{
-            Term term = repositoryHandler.findTerm(termId);
+            Term term = repository.findTerm(termId);
             courseSection.setTerm(term);
         }catch (TermNotFoundException ignored){
         }
         try{
-            Course course = repositoryHandler.findCourse(courseId);
+            Course course = repository.findCourse(courseId);
             courseSection.setCourse(course);
         }catch (CourseNotFoundException ignored){
         }
         try{
-            Instructor instructor = repositoryHandler.findInstructor(instructorId);
+            Instructor instructor = repository.findInstructor(instructorId);
             courseSection.setInstructor(instructor);
         }catch (InstructorNotFoundException ignored){
         }
-        repositoryHandler.saveCourseSection(courseSection);
+        repository.saveCourseSection(courseSection);
         return "OK";
     }
 
-    public void delete(Long courseSectionId, String username, String password){
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
-        errorChecker.checkCourseSectionIsNotEmpty(courseSectionId);
-        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
-        repositoryHandler.deleteCourseSection(courseSection);
+    public void delete(CourseSection courseSection){
+        repository.deleteCourseSection(courseSection);
     }
 }

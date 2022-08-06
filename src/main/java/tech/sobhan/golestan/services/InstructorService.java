@@ -1,6 +1,5 @@
 package tech.sobhan.golestan.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -8,24 +7,21 @@ import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.models.users.Student;
+import tech.sobhan.golestan.repositories.Repository;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static tech.sobhan.golestan.utils.Util.createLog;
-
-@Slf4j
 @Service
 public class InstructorService {
-
     private final ErrorChecker errorChecker;
-    private final RepositoryHandler repositoryHandler;
+    private final Repository repository;
 
-    public InstructorService(ErrorChecker errorChecker, RepositoryHandler repositoryHandler) {
+    public InstructorService(ErrorChecker errorChecker, Repository repository) {
         this.errorChecker = errorChecker;
-        this.repositoryHandler = repositoryHandler;
+        this.repository = repository;
     }
 
 
@@ -35,24 +31,24 @@ public class InstructorService {
     }
 
     private List<Instructor> list() {
-        return repositoryHandler.findAllInstructors();
+        return repository.findAllInstructors();
     }
 
-    public Instructor create(Instructor instructor){
-        if (instructorExists(list(), instructor)) return null;
-        createLog(Instructor.class, instructor.getId());
-        return repositoryHandler.saveInstructor(instructor);
-    }
-
-    private boolean instructorExists(List<Instructor> allInstructors, Instructor instructor) {
-        for (Instructor i : allInstructors) {
-            if(instructor.equals(i)){
-                System.out.println("ERROR403 duplicate Instructors");
-                return true;
-            }
-        }
-        return false;
-    }
+//    public Instructor create(Instructor instructor){
+//        if (instructorExists(list(), instructor)) return null;
+//        createLog(Instructor.class, instructor.getId());
+//        return repository.saveInstructor(instructor);
+//    }
+//
+//    private boolean instructorExists(List<Instructor> allInstructors, Instructor instructor) {
+//        for (Instructor i : allInstructors) {
+//            if(instructor.equals(i)){
+//                System.out.println("ERROR403 duplicate Instructors");
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public String read(Long id, String username, String password) {
         errorChecker.checkIsUser(username, password);
@@ -60,7 +56,7 @@ public class InstructorService {
     }
 
     private Instructor read(Long instructorId) {
-        return repositoryHandler.findInstructor(instructorId);
+        return repository.findInstructor(instructorId);
     }
 
     public String update(Rank rank, Long instructorId, String username, String password) {
@@ -69,9 +65,9 @@ public class InstructorService {
     }
 
     private String update(Rank rank, Long instructorId) {
-        Instructor instructor = repositoryHandler.findInstructor(instructorId);
+        Instructor instructor = repository.findInstructor(instructorId);
         instructor.setRank(rank);
-        repositoryHandler.saveInstructor(instructor);
+        repository.saveInstructor(instructor);
         return "OK";
     }
 
@@ -81,10 +77,10 @@ public class InstructorService {
     }
 
     public void delete(Long instructorId) {
-        Instructor instructor = repositoryHandler.findInstructor(instructorId);
-        List<CourseSection> courseSectionsOfInstructor = repositoryHandler.findCourseSectionByInstructor(instructorId);
+        Instructor instructor = repository.findInstructor(instructorId);
+        List<CourseSection> courseSectionsOfInstructor = repository.findCourseSectionByInstructor(instructor);
         courseSectionsOfInstructor.forEach(cs -> cs.setInstructor(null));
-        repositoryHandler.deleteInstructor(instructor);
+        repository.deleteInstructor(instructor);
     }
 
     public String giveMark(String username, String password, Long courseSectionId, Long studentId, Double score) {
@@ -93,10 +89,12 @@ public class InstructorService {
     }
 
     private String giveMark(Long courseSectionId, Long studentId, Double score) {
-        CourseSectionRegistration courseSectionRegistration = repositoryHandler
-                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSectionId, studentId);
+        CourseSection courseSection = repository.findCourseSection(courseSectionId);//todo move to security service
+        Student student = repository.findStudent(studentId);
+        CourseSectionRegistration courseSectionRegistration = repository
+                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);
         courseSectionRegistration.setScore(score);
-        repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
+        repository.saveCourseSectionRegistration(courseSectionRegistration);
         return "OK";
     }
 

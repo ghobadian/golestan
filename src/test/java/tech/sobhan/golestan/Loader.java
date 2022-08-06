@@ -14,20 +14,19 @@ import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
 @Component
 public class Loader {
-    private RepositoryHandler repositoryHandler;
+    private Repository repository;
     private MockMvc mockMvc;
     @SneakyThrows
-    public void loadData(RepositoryHandler repositoryHandler, MockMvc mockMvc) {
-        this.repositoryHandler = repositoryHandler;
+    public void loadData(Repository repository, MockMvc mockMvc) {
+        this.repository = repository;
         this.mockMvc = mockMvc;
         loadAdmin();
         createStudentUsers();
@@ -41,28 +40,28 @@ public class Loader {
 
     private void loadAdmin() {
         try{
-            repositoryHandler.findUserByUsername("admin");
+            repository.findUserByUsername("admin");
         }catch (UserNotFoundException e){
             User admin = User.builder().username("admin").password("admin").name("admin").phone("1234")
                     .nationalId("12345465489").admin(true).active(true).build();
             admin.setPassword(hash(admin.getPassword()));
-            repositoryHandler.saveUser(admin);
+            repository.saveUser(admin);
         }
     }
 
     @SneakyThrows
     private void createCourseSection() {
         for(int i=0;i<10;i++){
-            Course course = repositoryHandler.findAllCourses().get(i);
-            Instructor instructor = repositoryHandler.findAllInstructors().get(i);
-            Term term = repositoryHandler.findAllTerms().get(i);
+            Course course = repository.findAllCourses().get(i);
+            Instructor instructor = repository.findAllInstructors().get(i);
+            Term term = repository.findAllTerms().get(i);
             mockMvc.perform(post("/courseSections")
                     .header("username", "instructor" + i)
                     .header("password", "instructor" + i)
                     .param("courseId", String.valueOf(course.getId()))
                     .param("instructorId", String.valueOf(instructor.getId()))
                     .param("termId", String.valueOf(term.getId())));
-            CourseSection courseSection = repositoryHandler.findAllCourseSections().get(i);
+            CourseSection courseSection = repository.findAllCourseSections().get(i);
             assertEquals(courseSection.getCourse(), course);
             assertEquals(courseSection.getInstructor(), instructor);
             assertEquals(courseSection.getTerm(), term);
@@ -78,7 +77,7 @@ public class Loader {
                     .param("title", "BodyBuilding" + i)
                     .param("units", String.valueOf(5)));
         }
-        Course course = repositoryHandler.findAllCourses().get(0);
+        Course course = repository.findAllCourses().get(0);
         assertEquals(course.getTitle(), "BodyBuilding0");
         assertEquals(course.getUnits(), 5);
     }
@@ -93,14 +92,14 @@ public class Loader {
                     .param("open", String.valueOf(true)));
         }
 
-        Term term = repositoryHandler.findAllTerms().get(0);
+        Term term = repository.findAllTerms().get(0);
         assertEquals(term.getTitle(), "4003");
     }
 
     @SneakyThrows
     private void giveInstructorRoles() {
         for(int i=0;i<10;i++){
-            User instructorUser = repositoryHandler.findUserByUsername("instructor" + i);
+            User instructorUser = repository.findUserByUsername("instructor" + i);
             JSONObject requestBody = new JSONObject();
             requestBody.put("role", "instructor");
             requestBody.put("rank", "FULL");
@@ -109,14 +108,14 @@ public class Loader {
                     .header("password", "admin")
                     .contentType(MediaType.APPLICATION_JSON).content(requestBody.toString()));
         }
-        Instructor instructor = repositoryHandler.findAllInstructors().get(0);
+        Instructor instructor = repository.findAllInstructors().get(0);
         assertEquals(instructor.getRank(), Rank.FULL);
     }
 
     @SneakyThrows
     private void giveStudentRoles() {
         for(int i=0;i<10;i++){
-            User studentUser = repositoryHandler.findUserByUsername("student" + i);
+            User studentUser = repository.findUserByUsername("student" + i);
             JSONObject requestBody = new JSONObject();
             requestBody.put("role", "student");
             requestBody.put("degree", "BS");
@@ -125,9 +124,9 @@ public class Loader {
                     .header("password", "admin")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(String.valueOf(requestBody))
-                    .accept(MediaType.APPLICATION_JSON)).andDo(print());
+                    .accept(MediaType.APPLICATION_JSON));
         }
-        Student student = repositoryHandler.findStudentByUsername("student0");
+        Student student = repository.findStudentByUsername("student0");
         assertEquals(student.getDegree(), Degree.BS);
     }
 
@@ -140,9 +139,9 @@ public class Loader {
                     .param("phone", "0903156879" + i)
                     .param("nationalId", "546879412" + i));
         }
-        User instructor = repositoryHandler.findUserByUsername("instructor3");
+        User instructor = repository.findUserByUsername("instructor3");
         assertEquals(instructor.getPassword() , hash("instructor3"));
-        assertEquals(repositoryHandler.findAllUsers().size(), 21);
+        assertEquals(repository.findAllUsers().size(), 21);
     }
 
     private void createStudentUsers() throws Exception {
@@ -152,8 +151,8 @@ public class Loader {
                     .param("password", "student" + i)
                     .param("name", "student"+ i)
                     .param("phone", "0901254125" + i)
-                    .param("nationalId", "541254687" + i)).andDo(print());
+                    .param("nationalId", "541254687" + i));
         }
-        assertEquals(11, repositoryHandler.findAllUsers().size());
+        assertEquals(11, repository.findAllUsers().size());
     }
 }

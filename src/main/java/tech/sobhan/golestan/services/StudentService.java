@@ -12,7 +12,7 @@ import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
@@ -21,35 +21,36 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class StudentService {
-    private final RepositoryHandler repositoryHandler;
+    private final Repository repository;
     private final ErrorChecker errorChecker;
 
-    public StudentService(RepositoryHandler repositoryHandler, ErrorChecker errorChecker) {
-        this.repositoryHandler = repositoryHandler;
+    public StudentService(Repository repository, ErrorChecker errorChecker) {
+        this.repository = repository;
         this.errorChecker = errorChecker;
     }
 
     public List<Student> list() {
-        return repositoryHandler.findAllStudents();
+        return repository.findAllStudents();
     }
     public String signUpSection(Long courseSectionId, String username, String password) {
         errorChecker.checkIsUser(username, password);
-        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
-        Student student = repositoryHandler.findStudentByUsername(username);
+        CourseSection courseSection = repository.findCourseSection(courseSectionId);
+        Student student = repository.findStudentByUsername(username);
         createAndSaveCourseSectionRegistration(courseSection, student);
         return "Successfully signed up for course section.";
     }
 
     private void createAndSaveCourseSectionRegistration(CourseSection courseSection, Student student) {
-        errorChecker.checkCourseSectionRegistrationExists(courseSection.getId(), student.getId());
+        errorChecker.checkCourseSectionRegistrationExists(courseSection, student);
         CourseSectionRegistration csr = CourseSectionRegistration.builder().student(student).courseSection(courseSection).build();
-        repositoryHandler.saveCourseSectionRegistration(csr);
+        repository.saveCourseSectionRegistration(csr);
     }
 
-    public JSONArray seeScoresInSpecifiedTerm(Long term_id, String username, String password){
+    public JSONArray seeScoresInSpecifiedTerm(Long termId, String username, String password){
         errorChecker.checkIsUser(username, password);
-        Long studentId = repositoryHandler.findStudentByUsername(username).getId();
-        List<CourseSectionRegistration> csrs = repositoryHandler.findCSRsByStudentAndTerm(studentId, term_id);
+        Student student = repository.findStudentByUsername(username);
+        Term term = repository.findTerm(termId);
+        List<CourseSectionRegistration> csrs = repository.findCSRsByStudentAndTerm(student, term);
         JSONObject average = toJson(findAverage(csrs));//todo emtiazi
         JSONArray output = new JSONArray();
         if(average!=null)   output.put(average);
@@ -91,16 +92,16 @@ public class StudentService {
     }
     public String seeSummery(String username, String password) {
         errorChecker.checkIsUser(username, password);
-        User user = repositoryHandler.findUserByUsername(username);
+        User user = repository.findUserByUsername(username);
         Student student = Optional.ofNullable(user.getStudent()).orElseThrow(StudentNotFoundException::new);
         double totalSum = 0;
 
-        List<Term> terms = repositoryHandler.findAllTerms();
+        List<Term> terms = repository.findAllTerms();
 
         JSONArray output = new JSONArray();
         for (Term term : terms) {
             JSONObject termDetails = new JSONObject();
-            double averageInSpecifiedTerm = averageInSpecifiedTerm(term.getId(), student.getId());
+            double averageInSpecifiedTerm = averageInSpecifiedTerm(term, student);
             findTermDetails(term, termDetails, averageInSpecifiedTerm);
             totalSum += averageInSpecifiedTerm;
             output.put(termDetails);
@@ -128,21 +129,21 @@ public class StudentService {
         }
     }
 
-    private double averageInSpecifiedTerm(Long termId, Long studentId) {
+    private double averageInSpecifiedTerm(Term term, Student studentId) {
         List<CourseSectionRegistration> courseSectionRegistrations =
-                repositoryHandler.findCSRsByStudentAndTerm(studentId, termId);
+                repository.findCSRsByStudentAndTerm(studentId, term);
         return courseSectionRegistrations.isEmpty() ? 0 : findAverage(courseSectionRegistrations);
     }
 
     public String listCourseSectionStudents(Long courseSectionId, String username, String password) {
-        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+        CourseSection courseSection = repository.findCourseSection(courseSectionId);
         errorChecker.checkIsInstructorOfCourseSectionOrAdmin(username, password, courseSection);
-        List<CourseSectionRegistration> courseSectionRegistrations = repositoryHandler
-                .findCourseSectionRegistrationByCourseSection(courseSectionId);
+        List<CourseSectionRegistration> courseSectionRegistrations = repository
+                .findCourseSectionRegistrationByCourseSection(courseSection);
         JSONArray output = new JSONArray();
         for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
             Student student = courseSectionRegistration.getStudent();
-            User user = repositoryHandler.findUserByStudent(student.getId());
+            User user = repository.findUserByStudent(student.getId());
             JSONObject studentDetails = getStudentDetails(courseSectionRegistration, student, user);
             output.put(studentDetails);
         }
@@ -164,9 +165,9 @@ public class StudentService {
     }
 
     public void delete(Long studentId) {
-        Student student = repositoryHandler.findStudent(studentId);
-        List<CourseSectionRegistration> csrs = repositoryHandler.findCourseSectionRegistrationByStudent(studentId);
+        Student student = repository.findStudent(studentId);
+        List<CourseSectionRegistration> csrs = repository.findCourseSectionRegistrationByStudent(student);
         csrs.forEach(csr -> csr.setStudent(null));
-        repositoryHandler.deleteStudent(student);
+        repository.deleteStudent(student);
     }
 }

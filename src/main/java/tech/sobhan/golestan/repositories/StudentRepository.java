@@ -6,6 +6,4 @@ import tech.sobhan.golestan.models.users.Student;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student,Long> {
-
-
 }

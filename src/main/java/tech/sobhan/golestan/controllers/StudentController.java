@@ -13,7 +13,7 @@ public class StudentController {
         this.service = service;
     }
 
-    @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)
+    @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)//todo move to studentController
     public String listStudentsOfSpecifiedCourseSection(@RequestParam Long courseSectionId,
                                 @RequestHeader(value = "username") String username,
                                 @RequestHeader(value = "password") String password){

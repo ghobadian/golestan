@@ -60,7 +60,7 @@ public class InstructorController {
     public String giveMultipleMarks(@RequestParam Long courseSectionId,
                                     @RequestParam JSONArray studentIds,
                                     @RequestParam JSONArray scores,
-                                    @RequestHeader(value = "username") String username,//todo it throws error
+                                    @RequestHeader(value = "username") String username,
                                     @RequestHeader(value = "password") String password){
         return service.giveMultipleMarks(username, password, courseSectionId, studentIds, scores);
     }

@@ -3,7 +3,6 @@ package tech.sobhan.golestan.services;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -17,7 +16,7 @@ import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
@@ -25,24 +24,24 @@ import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 @SpringBootTest
 class StudentServiceTest {
     @Autowired
-    private final StudentService studentService = Mockito.mock(StudentService.class);
+    private StudentService studentService;
 
     @Autowired
-    private final RepositoryHandler repositoryHandler = Mockito.mock(RepositoryHandler.class);
+    private Repository repository;
 
     private static Term term;
     private  static User user;
 
     @BeforeEach
     public void loadData(){
-        loadDatas(repositoryHandler);
+        loadData(repository);
     }
-    public static void loadDatas(RepositoryHandler repositoryHandler){
-        term = repositoryHandler.saveTerm(Term.builder().title("temp").open(true).build());
-        Student student = repositoryHandler.saveStudent(Student.builder()
+    public static void loadData(Repository repository){
+        term = repository.saveTerm(Term.builder().title("temp").open(true).build());
+        Student student = repository.saveStudent(Student.builder()
                 .degree(Degree.BS)
                 .build());
-        user = repositoryHandler.saveUser(User.builder()
+        user = repository.saveUser(User.builder()
                 .admin(false)
                 .active(true)
                 .phone("")
@@ -52,15 +51,15 @@ class StudentServiceTest {
                 .name("")
                 .student(student)
                 .build());
-        Course course = repositoryHandler.saveCourse(Course.builder().title("course").units(3).build());
-        Instructor instructor = repositoryHandler.saveInstructor(Instructor.builder().rank(Rank.FULL).build());
-        CourseSection courseSection = repositoryHandler.saveCourseSection(CourseSection.builder()
+        Course course = repository.saveCourse(Course.builder().title("course").units(3).build());
+        Instructor instructor = repository.saveInstructor(Instructor.builder().rank(Rank.FULL).build());
+        CourseSection courseSection = repository.saveCourseSection(CourseSection.builder()
                 .course(course).term(term).instructor(instructor).build());
-        repositoryHandler.saveCourseSectionRegistration(CourseSectionRegistration.builder()
+        repository.saveCourseSectionRegistration(CourseSectionRegistration.builder()
                 .student(student).courseSection(courseSection).score(6).build());
-        CourseSection courseSection2 = repositoryHandler.saveCourseSection(CourseSection.builder()
+        CourseSection courseSection2 = repository.saveCourseSection(CourseSection.builder()
                 .course(course).term(term).instructor(instructor).build());
-        repositoryHandler.saveCourseSectionRegistration(CourseSectionRegistration.builder()
+        repository.saveCourseSectionRegistration(CourseSectionRegistration.builder()
                 .student(student).courseSection(courseSection2).score(18).build());
     }
     @SneakyThrows

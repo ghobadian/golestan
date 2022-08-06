@@ -1,11 +1,19 @@
 package tech.sobhan.golestan.services;
 
 import org.springframework.stereotype.Service;
+import tech.sobhan.golestan.enums.Degree;
+import tech.sobhan.golestan.enums.Rank;
+import tech.sobhan.golestan.enums.Role;
+import tech.sobhan.golestan.models.users.Instructor;
+import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
 import tech.sobhan.golestan.security.ErrorChecker;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 import static tech.sobhan.golestan.utils.Util.createLog;
@@ -13,17 +21,17 @@ import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
 public class UserService {
-    private final RepositoryHandler repositoryHandler;
+    private final Repository repository;
     private final InstructorService instructorService;
     private final StudentService studentService;
     private final ErrorChecker errorChecker;
 
 
-    public UserService(RepositoryHandler repositoryHandler,
+    public UserService(Repository repository,
                        InstructorService instructorService,
                        StudentService studentService,
                        ErrorChecker errorChecker) {
-        this.repositoryHandler = repositoryHandler;
+        this.repository = repository;
         this.instructorService = instructorService;
         this.studentService = studentService;
         this.errorChecker = errorChecker;
@@ -35,7 +43,7 @@ public class UserService {
     }
 
     private List<User> list() {
-        return repositoryHandler.findAllUsers();
+        return repository.findAllUsers();
     }
 
     public User create(String username, String password, String name, String phone, String nationalId) {
@@ -52,7 +60,7 @@ public class UserService {
         user.setAdmin(false);
         createLog(User.class, user.getId());
         user.setPassword(hash(user.getPassword()));
-        return repositoryHandler.saveUser(user);
+        return repository.saveUser(user);
     }
 
     public String read(Long id, String username, String password) {
@@ -61,7 +69,7 @@ public class UserService {
     }
 
     private User read(Long id) {
-        return repositoryHandler.findUser(id);
+        return repository.findUser(id);
     }
 
     public String update(String name, String newUsername, String newPassword, String phone,
@@ -71,16 +79,16 @@ public class UserService {
     }
 
     public User update(String name, String newUsername, String newPassword, String phone, String username) {
-        User user = repositoryHandler.findUserByUsername(username);
+        User user = repository.findUserByUsername(username);
         updateName(name, user);
         updateUsername(newUsername, username, user);
         updatePassword(newPassword, user);
         updatePhoneNumber(phone, user);
-        return repositoryHandler.saveUser(user);
+        return repository.saveUser(user);
     }
 
     private void updatePhoneNumber(String phone, User user) {
-        if(phone !=null && !repositoryHandler.userExistsByPhone(phone)){
+        if(phone !=null && !repository.userExistsByPhone(phone)){
             user.setPhone(phone);
         }
     }
@@ -92,7 +100,7 @@ public class UserService {
     }
 
     private void updateUsername(String newUsername, String username, User user) {
-        if(newUsername !=null && !repositoryHandler.userExistsByUsername(username)){
+        if(newUsername !=null && !repository.userExistsByUsername(username)){
             user.setUsername(newUsername);
         }
     }
@@ -105,10 +113,10 @@ public class UserService {
 
     public void delete(Long id, String username, String password) {//todo check
         errorChecker.checkIsAdmin(username, password);
-        User user = repositoryHandler.findUser(id);
+        User user = repository.findUser(id);
         deleteInstructorOfUser(user);
         deleteStudentOfUser(user);
-        repositoryHandler.deleteUser(user);
+        repository.deleteUser(user);
         deleteLog(User.class, id);
     }
 
@@ -126,5 +134,34 @@ public class UserService {
             user.setStudent(null);
             studentService.delete(studentId);
         }
+    }
+
+    public String modifyRole(Long id, Map<String, String> requestedBody, String username, String password) {
+        errorChecker.checkIsAdmin(username, password);
+        User foundUser = repository.findUser(id);
+        foundUser.setActive(true);
+        Role role = Role.valueOf(requestedBody.get("role").toUpperCase());
+        switch (role){
+            case STUDENT : addRoleStudent(requestedBody, foundUser); break;
+            case INSTRUCTOR : addRoleInstructor(requestedBody, foundUser); break;
+        }
+        return "OK";
+    }
+
+
+    private void addRoleInstructor(Map<String, String> requestedBody, User user) {
+        Instructor instructor = Instructor.builder().rank(Rank.valueOf(requestedBody.get("rank").toUpperCase())).build();
+        repository.saveInstructor(instructor);
+        user.setInstructor(instructor);
+        repository.saveUser(user);
+    }
+
+    private void addRoleStudent(Map<String, String> requestedBody, User user) {
+        Degree degree = Degree.valueOf(Optional.of(requestedBody.get("degree")).orElseThrow().toUpperCase());
+        Student student = Student.builder().degree(degree)
+                .startDate(new Date()).build();
+        user.setStudent(student);
+        repository.saveStudent(student);
+        repository.saveUser(user);
     }
 }

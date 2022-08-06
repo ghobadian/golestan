@@ -3,7 +3,6 @@ package tech.sobhan.golestan;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,7 @@ import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,21 +34,20 @@ public class IntegrationTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
     @Autowired
-    private final RepositoryHandler repositoryHandler = Mockito.mock(RepositoryHandler.class);
-
+    private Repository repository;
     @Autowired
-    private final Loader loader = Mockito.mock(Loader.class);
+    private Loader loader;
     private static MockMvc mockMvc;
     @SneakyThrows
     @BeforeEach
     public void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        loader.loadData(repositoryHandler, mockMvc);
+        loader.loadData(repository, mockMvc);
     }
 
     @AfterEach
     public void clearDatabase(){
-        repositoryHandler.deleteAll();
+        repository.deleteAll();
     }
 
     @SneakyThrows
@@ -62,9 +60,9 @@ public class IntegrationTest {
 
     @SneakyThrows
     private void seeScoresInTerm() {
-        Term term = repositoryHandler.findAllTerms().get(0);
-        Instructor instructor = repositoryHandler.findAllInstructors().get(0);
-        CourseSection  courseSection = repositoryHandler.findAllCourseSections().get(0);
+        Term term = repository.findAllTerms().get(0);
+        Instructor instructor = repository.findAllInstructors().get(0);
+        CourseSection  courseSection = repository.findAllCourseSections().get(0);
         String expectedResponse = "[{\"average\":19.75},{\"course_section_id\":"+courseSection.getId()+"," +
                 "\"course_name\":\"BodyBuilding0\",\"course_units\":5," +
                 "\"instructor\":\""+instructor+"\",\"score\":19.75}]";
@@ -77,28 +75,28 @@ public class IntegrationTest {
 
     @SneakyThrows
     private void giveMarkToStudent() {
-        Long studentId = repositoryHandler.findUserByUsername("student0").getStudent().getId();
-        CourseSection courseSection = repositoryHandler.findAllCourseSections().get(0);
-        mockMvc.perform(post("/instructor/give_mark/{studentId}", studentId)
+        Student student = repository.findUserByUsername("student0").getStudent();
+        CourseSection courseSection = repository.findAllCourseSections().get(0);
+        mockMvc.perform(post("/instructor/give_mark/{studentId}", student.getId())
                 .header("username", "instructor0")
                 .header("password", "instructor0")
                 .param("courseSectionId", String.valueOf(courseSection.getId()))
                 .param("score", String.valueOf(19.75)));
-        CourseSectionRegistration courseSectionRegistration = repositoryHandler
-                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection.getId(), studentId);
+        CourseSectionRegistration courseSectionRegistration = repository
+                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);
         assertEquals(courseSectionRegistration.getScore(), 19.75);
     }
 
     @SneakyThrows
     private void signUpCourseSection() {
-        CourseSection courseSection = repositoryHandler.findAllCourseSections().get(0);
+        CourseSection courseSection = repository.findAllCourseSections().get(0);
         mockMvc.perform(post("/student/sign_up_section")
                 .header("username", "student0")
                 .header("password", "student0")
                 .param("courseSectionId", String.valueOf(courseSection.getId())));
-        CourseSectionRegistration courseSectionRegistration = repositoryHandler
-                .findCourseSectionRegistrationByCourseSection(courseSection.getId()).get(0);
-        Student student = repositoryHandler.findStudentByUsername("student0");
+        CourseSectionRegistration courseSectionRegistration = repository
+                .findCourseSectionRegistrationByCourseSection(courseSection).get(0);
+        Student student = repository.findStudentByUsername("student0");
         assertEquals(courseSectionRegistration.getStudent().getId(), student.getId());
     }
 
@@ -107,8 +105,8 @@ public class IntegrationTest {
     public void testForGivingMultipleMarks(){
         createCourseSectionRegistrations();
         JSONArray expectedScores = new JSONArray(List.of(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,20.0));
-        CourseSection courseSection = repositoryHandler.findAllCourseSections().get(0);
-        JSONArray studentIds = new JSONArray(repositoryHandler.findAllStudents()
+        CourseSection courseSection = repository.findAllCourseSections().get(0);
+        JSONArray studentIds = new JSONArray(repository.findAllStudents()
                 .stream()
                 .map(Student::getId)
                 .collect(Collectors.toList()));
@@ -118,8 +116,8 @@ public class IntegrationTest {
                 .param("scores", String.valueOf(expectedScores))
                 .header("username", "instructor0")
                 .header("password", "instructor0"));
-        List<CourseSectionRegistration> courseSectionRegistrations = repositoryHandler
-                .findCourseSectionRegistrationByCourseSection(courseSection.getId());
+        List<CourseSectionRegistration> courseSectionRegistrations = repository
+                .findCourseSectionRegistrationByCourseSection(courseSection);
         JSONArray actualScores = new JSONArray(courseSectionRegistrations
                 .stream()
                 .map(CourseSectionRegistration::getScore).collect(Collectors.toList()));
@@ -127,13 +125,13 @@ public class IntegrationTest {
     }
 
     private void createCourseSectionRegistrations() {
-        for (CourseSection courseSection : repositoryHandler.findAllCourseSections()) {
+        for (CourseSection courseSection : repository.findAllCourseSections()) {
             for(int i=0;i<10;i++){
                 CourseSectionRegistration courseSectionRegistration = CourseSectionRegistration.builder()
                         .courseSection(courseSection)
-                        .student(repositoryHandler.findStudentByUsername("student" + i))
+                        .student(repository.findStudentByUsername("student" + i))
                         .build();
-                repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
+                repository.saveCourseSectionRegistration(courseSectionRegistration);
             }
         }
 

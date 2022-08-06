@@ -31,6 +31,11 @@ public class Term{
     }
 
     @Override
+    public String toString() {
+        return "Term(title="+title+", open="+open+")";
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(title);
     }

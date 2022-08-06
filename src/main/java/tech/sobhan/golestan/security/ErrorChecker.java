@@ -5,8 +5,10 @@ import tech.sobhan.golestan.business.exceptions.*;
 import tech.sobhan.golestan.business.exceptions.duplication.*;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
+import tech.sobhan.golestan.models.Term;
+import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
 
 import java.util.List;
 
@@ -15,29 +17,29 @@ import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
 @Component
 public class ErrorChecker {
-    private final RepositoryHandler repositoryHandler;
+    private final Repository repository;
 
-    public ErrorChecker(RepositoryHandler repositoryHandler) {
-        this.repositoryHandler = repositoryHandler;
+    public ErrorChecker(Repository repository) {
+        this.repository = repository;
     }
 
     private boolean isUser(String username, String password){
-        User user = repositoryHandler.getUserByUsername(username);
+        User user = repository.getUserByUsername(username);
         return user.getPassword().equals(hash(password));
     }
 
     private boolean isNotAdmin(String username){
-        User user = repositoryHandler.getUserByUsername(username);
+        User user = repository.getUserByUsername(username);
         return !user.isAdmin();
     }
 
     private boolean isInstructor(String username){
-        User user = repositoryHandler.getUserByUsername(username);
+        User user = repository.getUserByUsername(username);
         return user.getInstructor()!=null;
     }
 
     private boolean isNotInstructorOfCourseSection(String username, CourseSection courseSection) {
-        User user = repositoryHandler.getUserByUsername(username);
+        User user = repository.getUserByUsername(username);
         return !user.getInstructor().equals(courseSection.getInstructor());
     }
 
@@ -47,7 +49,7 @@ public class ErrorChecker {
     }
 
     private void checkIsActive(String username) {
-        User user = repositoryHandler.getUserByUsername(username);
+        User user = repository.getUserByUsername(username);
         if(!user.isActive()) throw new UserNotActiveException();
     }
 
@@ -68,7 +70,7 @@ public class ErrorChecker {
     }
 
     public void checkIsInstructorOfCourseSection(String username, String password, Long courseSectionId) {
-        CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
+        CourseSection courseSection = repository.findCourseSection(courseSectionId);
         checkIsInstructorOfCourseSection(username, password, courseSection);
     }
     public void checkIsInstructorOfCourseSection(String username, String password, CourseSection courseSection) {
@@ -77,7 +79,7 @@ public class ErrorChecker {
     }
 
     public void checkCourseExists(Course course) {
-        List<Course> allCourses = repositoryHandler.findAllCourses();
+        List<Course> allCourses = repository.findAllCourses();
         for (Course c : allCourses) {
             if(course.equals(c)){
                 throw new CourseDuplicationException();
@@ -85,7 +87,7 @@ public class ErrorChecker {
         }
     }
 
-    public void checkPaginationErrors(int size, Integer pageNumber, Integer maxInEachPage) {
+    public static  void checkPaginationErrors(int size, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber==null)
             if(maxInEachPage< 1) throw new PageNumberException();
             else return;
@@ -98,28 +100,28 @@ public class ErrorChecker {
         if(!phone.matches("\\d{11}")) throw new InvalidPhoneNumberException();
     }
 
-    public void checkCourseSectionExists(Long termId, CourseSection courseSection) {
-        if(repositoryHandler.courseSectionExistsByTerm(termId, courseSection)) throw new CourseSectionDuplicationException();
+    public void checkCourseSectionExists(Term term, CourseSection courseSection) {
+        if(repository.courseSectionExistsByTerm(term, courseSection)) throw new CourseSectionDuplicationException();
     }
 
     public void checkUserExists(String username, String phone, String nationalId) {
-        if(repositoryHandler.userExistsByUsername(username) ||
-                repositoryHandler.userExistsByPhone(phone) ||
-                repositoryHandler.userExistsByNationalId(nationalId)) throw new UserDuplicationException();
+        if(repository.userExistsByUsername(username) ||
+                repository.userExistsByPhone(phone) ||
+                repository.userExistsByNationalId(nationalId)) throw new UserDuplicationException();
     }
 
 
     public void checkTermExists(String title) {
-        if(repositoryHandler.termExistsByTitle(title)) throw new TermDuplicationException();
+        if(repository.termExistsByTitle(title)) throw new TermDuplicationException();
     }
 
-    public void checkCourseSectionRegistrationExists(Long courseSectionId, Long studentId) {
-        if(repositoryHandler.courseSectionRegistrationExistsByCourseSectionAndStudent(courseSectionId, studentId))
+    public void checkCourseSectionRegistrationExists(CourseSection courseSection, Student student) {
+        if(repository.csrExistsByCourseSectionAndStudent(courseSection, student))
             throw new CourseSectionRegistrationDuplicationException();
     }
 
-    public void checkCourseSectionIsNotEmpty(Long courseSectionId) {
-        if(!repositoryHandler.findCourseSectionRegistrationByCourseSection(courseSectionId).isEmpty())
+    public void checkCourseSectionIsNotEmpty(CourseSection courseSection) {
+        if(!repository.findCourseSectionRegistrationByCourseSection(courseSection).isEmpty())
             throw new CourseSectionRegistrationNotEmptyException();
     }
 

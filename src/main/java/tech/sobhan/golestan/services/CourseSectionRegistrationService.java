@@ -3,39 +3,28 @@ package tech.sobhan.golestan.services;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
-import tech.sobhan.golestan.repositories.RepositoryHandler;
+import tech.sobhan.golestan.repositories.Repository;
+import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.utils.Util.createLog;
-
 @Service
 @Slf4j
-public class CourseSectionRegistrationService {
-    private final RepositoryHandler repositoryHandler;
+public class CourseSectionRegistrationService {//todo what the heck find Usage
+    private final Repository repository;
+    private final ErrorChecker errorChecker;
 
-    public CourseSectionRegistrationService(RepositoryHandler repositoryHandler) {
-        this.repositoryHandler = repositoryHandler;
+    public CourseSectionRegistrationService(Repository repository, ErrorChecker errorChecker) {
+        this.repository = repository;
+        this.errorChecker = errorChecker;
     }
 
-    public CourseSectionRegistration create(CourseSectionRegistration courseSectionRegistration) {
-        if(courseSectionRegistrationExists(list(), courseSectionRegistration)) return null;
-        createLog(CourseSectionRegistration.class, courseSectionRegistration.getId());
-        return repositoryHandler.saveCourseSectionRegistration(courseSectionRegistration);
-    }
-
-    private boolean courseSectionRegistrationExists(List<CourseSectionRegistration> allCourseSectionRegistrations,
-                                                    CourseSectionRegistration courseSectionRegistration) {
-        for (CourseSectionRegistration csr : allCourseSectionRegistrations) {
-            if(courseSectionRegistration.equals(csr)){
-                System.out.println("ERROR403 duplicate CourseSectionRegistrations");
-                return true;
-            }
-        }
-        return false;
+    public CourseSectionRegistration create(CourseSectionRegistration csr) {
+        errorChecker.checkCourseSectionRegistrationExists(csr.getCourseSection(), csr.getStudent());
+        return repository.saveCourseSectionRegistration(csr);
     }
 
     public List<CourseSectionRegistration> list() {
-        return repositoryHandler.findAllCourseSectionRegistrations();
+        return repository.findAllCourseSectionRegistrations();
     }
 }
