@@ -14,6 +14,7 @@ public class TermController {
         this.service = service;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping(TERM_LIST_PATH)
     private String list(@RequestHeader(value = "username") String username,
                             @RequestHeader(value = "password") String password){
@@ -28,6 +29,7 @@ public class TermController {
         return service.create(title, open, username, password);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping(TERM_READ_PATH)
     private String read(@PathVariable Long id,
                       @RequestHeader(value = "username") String username,
@@ -45,11 +47,11 @@ public class TermController {
         return service.update(title, open, id, username, password);
     }
 
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(TERM_DELETE_PATH)
-    private String delete(@PathVariable Long id,
+    private void delete(@PathVariable Long id,
                         @RequestHeader(value = "username") String username,
                         @RequestHeader(value = "password") String password){
-        return service.delete(id, username, password);
+        service.delete(id, username, password);
     }
 }

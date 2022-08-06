@@ -23,7 +23,6 @@ public class ErrorChecker {
 
     private boolean isUser(String username, String password){
         User user = repositoryHandler.getUserByUsername(username);
-//        PasswordEncoder passwordEncoder = getPasswordEncoder();
         return user.getPassword().equals(hash(password));
     }
 
@@ -109,6 +108,7 @@ public class ErrorChecker {
                 repositoryHandler.userExistsByNationalId(nationalId)) throw new UserDuplicationException();
     }
 
+
     public void checkTermExists(String title) {
         if(repositoryHandler.termExistsByTitle(title)) throw new TermDuplicationException();
     }
@@ -121,5 +121,9 @@ public class ErrorChecker {
     public void checkCourseSectionIsNotEmpty(Long courseSectionId) {
         if(!repositoryHandler.findCourseSectionRegistrationByCourseSection(courseSectionId).isEmpty())
             throw new CourseSectionRegistrationNotEmptyException();
+    }
+
+    public void checkNationalId(String nationalId) {
+        if(!nationalId.matches("\\d{10}")) throw new InvalidNationalIdException();
     }
 }

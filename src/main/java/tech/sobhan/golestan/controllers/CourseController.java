@@ -14,6 +14,7 @@ public class CourseController {
         this.service = service;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_LIST_PATH)
     private String list(@RequestHeader(value = "username") String username,
                               @RequestHeader(value = "password") String password){
@@ -28,6 +29,7 @@ public class CourseController {
         return service.create(units, title, username, password);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_READ_PATH)
     private String read(@PathVariable Long id,
                         @RequestHeader(value = "username") String username,
@@ -45,11 +47,11 @@ public class CourseController {
         return service.update(id, username, password, title, units);
     }
 
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(COURSE_DELETE_PATH)
-    private String delete(@PathVariable Long id,
+    private void delete(@PathVariable Long id,
                                   @RequestHeader(value = "username") String username,
                                   @RequestHeader(value = "password") String password){
-        return service.delete(id, username, password);
+        service.delete(id, username, password);
     }
 }

@@ -2,33 +2,31 @@ package tech.sobhan.golestan.services;
 
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.business.exceptions.UserNotFoundException;
-import tech.sobhan.golestan.repositories.InstructorRepository;
-import tech.sobhan.golestan.repositories.StudentRepository;
-import tech.sobhan.golestan.repositories.UserRepository;
+import tech.sobhan.golestan.repositories.RepositoryHandler;
 import tech.sobhan.golestan.security.ErrorChecker;
 
 import java.util.List;
 
+import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 import static tech.sobhan.golestan.utils.Util.createLog;
 import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final InstructorRepository instructorRepository;
+    private final RepositoryHandler repositoryHandler;
+    private final InstructorService instructorService;
+    private final StudentService studentService;
     private final ErrorChecker errorChecker;
 
 
-    public UserService(UserRepository userRepository,
-                       StudentRepository studentRepository,
-                       InstructorRepository instructorRepository,
+    public UserService(RepositoryHandler repositoryHandler,
+                       InstructorService instructorService,
+                       StudentService studentService,
                        ErrorChecker errorChecker) {
+        this.repositoryHandler = repositoryHandler;
+        this.instructorService = instructorService;
+        this.studentService = studentService;
         this.errorChecker = errorChecker;
-        this.userRepository = userRepository;
-        this.studentRepository = studentRepository;
-        this.instructorRepository = instructorRepository;
     }
 
     public String list(String username, String password) {
@@ -37,11 +35,12 @@ public class UserService {
     }
 
     private List<User> list() {
-        return userRepository.findAll();
+        return repositoryHandler.findAllUsers();
     }
 
     public User create(String username, String password, String name, String phone, String nationalId) {
         errorChecker.checkPhoneNumber(phone);
+        errorChecker.checkNationalId(nationalId);
         errorChecker.checkUserExists(username, phone, nationalId);
         User user = User.builder().username(username).password(password)
                 .name(name).phone(phone).nationalId(nationalId).build();
@@ -49,11 +48,11 @@ public class UserService {
     }
 
     public User create(User user) {
-        if (userExists(list(), user)) return null;
         user.setActive(false);
         user.setAdmin(false);
         createLog(User.class, user.getId());
-        return userRepository.save(user);
+        user.setPassword(hash(user.getPassword()));
+        return repositoryHandler.saveUser(user);
     }
 
     public String read(Long id, String username, String password) {
@@ -62,42 +61,70 @@ public class UserService {
     }
 
     private User read(Long id) {
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return repositoryHandler.findUser(id);
     }
 
-    public String update(User newUser, Long id, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
-        return update(newUser, id).toString();
+    public String update(String name, String newUsername, String newPassword, String phone,
+                         String username, String password) {
+        errorChecker.checkIsUser(username, password);
+        return update(name, newUsername, newPassword, phone, username).toString();
     }
 
-    public User update(User newUser, Long id) {
-        userRepository.findById(id).map(user -> {
-            user = newUser;
-            return userRepository.save(user);
-        }).orElseGet(() -> {
-            newUser.setId(id);
-            return userRepository.save(newUser);
-        });
-        return newUser;
+    public User update(String name, String newUsername, String newPassword, String phone, String username) {
+        User user = repositoryHandler.findUserByUsername(username);
+        updateName(name, user);
+        updateUsername(newUsername, username, user);
+        updatePassword(newPassword, user);
+        updatePhoneNumber(phone, user);
+        return repositoryHandler.saveUser(user);
     }
 
-    public String delete(Long id, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        studentRepository.delete(user.getStudent());
-        instructorRepository.delete(user.getInstructor());
-        userRepository.delete(user);
-        deleteLog(User.class, id);
-        return "OK";
-    }
-
-    private static boolean userExists(List<User> allUsers, User user) {
-        for (User u : allUsers) {
-            if(user.equals(u)){
-                System.out.println("ERROR403 duplicate Users");
-                return true;
-            }
+    private void updatePhoneNumber(String phone, User user) {
+        if(phone !=null && !repositoryHandler.userExistsByPhone(phone)){
+            user.setPhone(phone);
         }
-        return false;
+    }
+
+    private void updatePassword(String newPassword, User user) {
+        if(newPassword !=null){
+            user.setPassword(hash(newPassword));
+        }
+    }
+
+    private void updateUsername(String newUsername, String username, User user) {
+        if(newUsername !=null && !repositoryHandler.userExistsByUsername(username)){
+            user.setUsername(newUsername);
+        }
+    }
+
+    private void updateName(String name, User user) {
+        if(name !=null){
+            user.setName(name);
+        }
+    }
+
+    public void delete(Long id, String username, String password) {//todo check
+        errorChecker.checkIsAdmin(username, password);
+        User user = repositoryHandler.findUser(id);
+        deleteInstructorOfUser(user);
+        deleteStudentOfUser(user);
+        repositoryHandler.deleteUser(user);
+        deleteLog(User.class, id);
+    }
+
+    private void deleteStudentOfUser(User user) {
+        if(user.getInstructor() != null){
+            Long instructorId = user.getInstructor().getId();
+            user.setInstructor(null);
+            instructorService.delete(instructorId);
+        }
+    }
+
+    private void deleteInstructorOfUser(User user) {
+        if(user.getStudent() != null) {
+            Long studentId = user.getStudent().getId();
+            user.setStudent(null);
+            studentService.delete(studentId);
+        }
     }
 }

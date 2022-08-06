@@ -5,7 +5,9 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.*;
+import tech.sobhan.golestan.business.exceptions.notFound.CourseNotFoundException;
+import tech.sobhan.golestan.business.exceptions.notFound.InstructorNotFoundException;
+import tech.sobhan.golestan.business.exceptions.notFound.TermNotFoundException;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
@@ -148,11 +150,10 @@ public class CourseSectionService {
         return "OK";
     }
 
-    public String delete(Long courseSectionId, String username, String password){
+    public void delete(Long courseSectionId, String username, String password){
         errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
         errorChecker.checkCourseSectionIsNotEmpty(courseSectionId);
         CourseSection courseSection = repositoryHandler.findCourseSection(courseSectionId);
         repositoryHandler.deleteCourseSection(courseSection);
-        return "OK";
     }
 }

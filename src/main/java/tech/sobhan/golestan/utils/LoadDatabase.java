@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.RepositoryHandler;
 
+import static tech.sobhan.golestan.security.PasswordEncoder.hash;
+
 @Configuration
 public class LoadDatabase {
     @Bean
@@ -26,6 +28,7 @@ public class LoadDatabase {
         }
         User admin = User.builder().username(adminUsername).password((adminPassword)).name("admin").phone("1234")
                 .nationalId("1234").admin(true).active(true).build();
+        admin.setPassword(hash(admin.getPassword()));
         repositoryHandler.saveUser(admin);
     }
 }

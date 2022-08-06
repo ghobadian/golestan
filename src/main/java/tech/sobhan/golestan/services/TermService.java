@@ -68,19 +68,9 @@ public class TermService {
         repositoryHandler.saveTerm(term);
     }
 
-    public String delete(Long id, String username, String password) {
+    public void delete(Long id, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
         Term term = repositoryHandler.findTerm(id);
         repositoryHandler.deleteTerm(term);
-        return "OK";
-    }
-
-    private static boolean termExists(List<Term> allTerms, Term term) {
-        for (Term t : allTerms) {
-            if(term.equals(t)){
-                return true;
-            }
-        }
-        return false;
     }
 }

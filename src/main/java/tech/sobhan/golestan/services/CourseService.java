@@ -53,28 +53,32 @@ public class CourseService {
 
     public String update(Long courseId, String username, String password, String title, Integer units) {
         errorChecker.checkIsAdmin(username, password);
-        return update(courseId, title, units);
+        return update(courseId, title, units).toString();
     }
 
-    private String update(Long courseId, String title, Integer units) {
+    private Course update(Long courseId, String title, Integer units) {
         Course course = repositoryHandler.findCourse(courseId);
-        if(title!=null){
-            course.setTitle(title);
-        }
-        if(units!=null){
+        updateTitle(title, course);
+        updateUnits(units, course);
+        return repositoryHandler.saveCourse(course);
+    }
+
+    private void updateUnits(Integer units, Course course) {
+        if(units !=null){
             course.setUnits(units);
         }
-        repositoryHandler.saveCourse(course);
-        return "OK";
     }
 
-    public String delete(Long courseId, String username, String password) {
+    private void updateTitle(String title, Course course) {
+        if(title !=null){
+            course.setTitle(title);
+        }
+    }
+
+    public void delete(Long courseId, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
         Course course = repositoryHandler.findCourse(courseId);
         repositoryHandler.deleteCourse(course);
         deleteLog(Course.class, courseId);
-        return "OK";
     }
-
-
 }

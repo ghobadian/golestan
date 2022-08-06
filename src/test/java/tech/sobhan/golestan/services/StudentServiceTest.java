@@ -20,6 +20,7 @@ import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.RepositoryHandler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
 @SpringBootTest
 class StudentServiceTest {
@@ -46,7 +47,7 @@ class StudentServiceTest {
                 .active(true)
                 .phone("")
                 .nationalId("")
-                .password("student")
+                .password(hash("student"))
                 .username("student")
                 .name("")
                 .student(student)

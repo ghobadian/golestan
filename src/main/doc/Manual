@@ -1,0 +1,10 @@
+Request body for giving student role:
+    {
+        "role":"student"
+        "degree":[Degree]
+    }
+Request body for giving Instructor role:
+    {
+        "role":"instructor"
+        "rank":[Rank]
+    }

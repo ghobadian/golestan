@@ -2,21 +2,19 @@ package tech.sobhan.golestan.repositories;
 
 import lombok.Getter;
 import org.springframework.stereotype.Component;
-import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.business.exceptions.*;
+import tech.sobhan.golestan.business.exceptions.notFound.*;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
+import tech.sobhan.golestan.models.users.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
 @Component
 @Getter
@@ -180,7 +178,6 @@ public class RepositoryHandler {
     }
 
     public User saveUser(User user) {
-        user.setPassword(hash(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -284,5 +281,21 @@ public class RepositoryHandler {
                 }
             }
         }
+    }
+
+    public void deleteUser(User user) {
+        userRepository.delete(user);
+    }
+
+    public void deleteStudent(Student student) {
+        studentRepository.delete(student);
+    }
+
+    public Student findStudent(Long studentId) {
+        return studentRepository.findById(studentId).orElseThrow(StudentNotFoundException::new);
+    }
+
+    public List<CourseSectionRegistration> findCourseSectionRegistrationByStudent(Long studentId) {
+        return courseSectionRegistrationRepository.findByStudent(studentId);
     }
 }

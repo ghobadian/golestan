@@ -35,6 +35,6 @@ public class Instructor {
 
     @Override
     public String toString() {
-        return "Instructor(id="+id + ", rank="+rank+")";
+        return "Instructor(rank="+rank+")";//todo add name for instructor
     }
 }

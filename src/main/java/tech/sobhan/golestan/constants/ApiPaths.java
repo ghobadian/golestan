@@ -5,7 +5,7 @@ public class ApiPaths {
     public static final String USER_LIST_PATH = "/users";
     public static final String USER_CREATE_PATH = "/users";
     public static final String USER_READ_PATH = "/users/{id}";
-    public static final String USER_UPDATE_PATH = "/management/users/{id}";
+    public static final String USER_UPDATE_PATH = "/management/user/";
     public static final String USER_DELETE_PATH = "/management/users/{id}";
     public static final String COURSE_LIST_PATH = "/courses";
     public static final String COURSE_CREATE_PATH = "/management/courses";

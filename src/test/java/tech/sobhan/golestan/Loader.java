@@ -5,7 +5,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
-import tech.sobhan.golestan.business.exceptions.UserNotFoundException;
+import tech.sobhan.golestan.business.exceptions.notFound.UserNotFoundException;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.Course;
@@ -18,6 +18,8 @@ import tech.sobhan.golestan.repositories.RepositoryHandler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
 @Component
 public class Loader {
@@ -42,7 +44,8 @@ public class Loader {
             repositoryHandler.findUserByUsername("admin");
         }catch (UserNotFoundException e){
             User admin = User.builder().username("admin").password("admin").name("admin").phone("1234")
-                    .nationalId("1234").admin(true).active(true).build();
+                    .nationalId("12345465489").admin(true).active(true).build();
+            admin.setPassword(hash(admin.getPassword()));
             repositoryHandler.saveUser(admin);
         }
     }
@@ -121,7 +124,8 @@ public class Loader {
                     .header("username", "admin")
                     .header("password", "admin")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(String.valueOf(requestBody)).accept(MediaType.APPLICATION_JSON));
+                    .content(String.valueOf(requestBody))
+                    .accept(MediaType.APPLICATION_JSON)).andDo(print());
         }
         Student student = repositoryHandler.findStudentByUsername("student0");
         assertEquals(student.getDegree(), Degree.BS);
@@ -137,7 +141,7 @@ public class Loader {
                     .param("nationalId", "546879412" + i));
         }
         User instructor = repositoryHandler.findUserByUsername("instructor3");
-        assertEquals(instructor.getPassword() , "instructor3");
+        assertEquals(instructor.getPassword() , hash("instructor3"));
         assertEquals(repositoryHandler.findAllUsers().size(), 21);
     }
 
@@ -148,7 +152,7 @@ public class Loader {
                     .param("password", "student" + i)
                     .param("name", "student"+ i)
                     .param("phone", "0901254125" + i)
-                    .param("nationalId", "" + i));
+                    .param("nationalId", "541254687" + i)).andDo(print());
         }
         assertEquals(11, repositoryHandler.findAllUsers().size());
     }

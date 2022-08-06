@@ -1,4 +1,4 @@
-package tech.sobhan.golestan.business.exceptions;
+package tech.sobhan.golestan.business.exceptions.notFound;
 
 public class CourseSectionRegistrationNotFoundException extends RuntimeException {
     public CourseSectionRegistrationNotFoundException(){

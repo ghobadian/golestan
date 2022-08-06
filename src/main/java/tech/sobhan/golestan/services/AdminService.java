@@ -56,6 +56,5 @@ public class AdminService {
         user.setStudent(student);
         repositoryHandler.saveStudent(student);
         repositoryHandler.saveUser(user);
-        log.warn(repositoryHandler.findUserByUsername("student").toString());
     }
 }

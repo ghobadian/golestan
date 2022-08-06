@@ -75,15 +75,16 @@ public class InstructorService {
         return "OK";
     }
 
-    public String delete(Long instructorId, String username, String password) {
+    public void delete(Long instructorId, String username, String password) {
         errorChecker.checkIsAdmin(username, password);
+        delete(instructorId);
+    }
+
+    public void delete(Long instructorId) {
         Instructor instructor = repositoryHandler.findInstructor(instructorId);
         List<CourseSection> courseSectionsOfInstructor = repositoryHandler.findCourseSectionByInstructor(instructorId);
-        for (CourseSection courseSection : courseSectionsOfInstructor) {
-            courseSection.setInstructor(null);
-        }
+        courseSectionsOfInstructor.forEach(cs -> cs.setInstructor(null));
         repositoryHandler.deleteInstructor(instructor);
-        return "OK";
     }
 
     public String giveMark(String username, String password, Long courseSectionId, Long studentId, Double score) {

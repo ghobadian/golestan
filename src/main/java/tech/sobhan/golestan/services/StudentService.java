@@ -5,7 +5,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.StudentNotFoundException;
+import tech.sobhan.golestan.business.exceptions.notFound.StudentNotFoundException;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
@@ -161,5 +161,12 @@ public class StudentService {
         }
 
         return studentDetails;
+    }
+
+    public void delete(Long studentId) {
+        Student student = repositoryHandler.findStudent(studentId);
+        List<CourseSectionRegistration> csrs = repositoryHandler.findCourseSectionRegistrationByStudent(studentId);
+        csrs.forEach(csr -> csr.setStudent(null));
+        repositoryHandler.deleteStudent(student);
     }
 }

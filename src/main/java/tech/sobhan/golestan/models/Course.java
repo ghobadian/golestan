@@ -34,4 +34,9 @@ public class Course {
     public int hashCode() {
         return Objects.hash(title, units);
     }
+
+    @Override
+    public String toString() {
+        return "Course(title="+title+" , units="+units+")";
+    }
 }

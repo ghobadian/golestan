@@ -1,4 +1,4 @@
-package tech.sobhan.golestan.business.exceptions;
+package tech.sobhan.golestan.business.exceptions.notFound;
 
 import tech.sobhan.golestan.models.CourseSection;
 
