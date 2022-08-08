@@ -6,5 +6,5 @@ import tech.sobhan.golestan.models.Course;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
-
+    boolean existsByTitle(String title);
 }

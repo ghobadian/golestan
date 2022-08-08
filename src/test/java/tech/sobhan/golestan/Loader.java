@@ -11,6 +11,7 @@ import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
+import tech.sobhan.golestan.models.Token;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
@@ -47,6 +48,7 @@ public class Loader {
             admin.setPassword(hash(admin.getPassword()));
             repository.saveUser(admin);
         }
+        repository.saveToken(Token.builder().username("admin").token("admin").build());
     }
 
     @SneakyThrows
@@ -55,9 +57,9 @@ public class Loader {
             Course course = repository.findAllCourses().get(i);
             Instructor instructor = repository.findAllInstructors().get(i);
             Term term = repository.findAllTerms().get(i);
+            repository.saveToken(Token.builder().username("instructor"+i).token("instructor"+i).build());
             mockMvc.perform(post("/courseSections")
-                    .header("username", "instructor" + i)
-                    .header("password", "instructor" + i)
+                    .header("token", "instructor" + i)
                     .param("courseId", String.valueOf(course.getId()))
                     .param("instructorId", String.valueOf(instructor.getId()))
                     .param("termId", String.valueOf(term.getId())));
@@ -72,8 +74,7 @@ public class Loader {
     private void createCourse() {
         for(int i=0;i<10;i++){
             mockMvc.perform(post("/management/courses")
-                    .header("username", "admin")
-                    .header("password", "admin")
+                    .header("token", "admin")
                     .param("title", "BodyBuilding" + i)
                     .param("units", String.valueOf(5)));
         }
@@ -86,8 +87,7 @@ public class Loader {
     private void createTerms() {
         for(int i=3;i<13;i++){
             mockMvc.perform(post("/management/terms")
-                    .header("username", "admin")
-                    .header("password", "admin")
+                    .header("token", "admin")
                     .param("title", "400" + i)
                     .param("open", String.valueOf(true)));
         }
@@ -104,8 +104,7 @@ public class Loader {
             requestBody.put("role", "instructor");
             requestBody.put("rank", "FULL");
             mockMvc.perform(post("/management/users/{userId}/modifyRole",instructorUser.getId())
-                    .header("username", "admin")
-                    .header("password", "admin")
+                    .header("token", "admin")
                     .contentType(MediaType.APPLICATION_JSON).content(requestBody.toString()));
         }
         Instructor instructor = repository.findAllInstructors().get(0);
@@ -120,8 +119,7 @@ public class Loader {
             requestBody.put("role", "student");
             requestBody.put("degree", "BS");
             mockMvc.perform(post("/management/users/{userId}/modifyRole",studentUser.getId())
-                    .header("username", "admin")
-                    .header("password", "admin")
+                    .header("token", "admin")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(String.valueOf(requestBody))
                     .accept(MediaType.APPLICATION_JSON));
@@ -138,6 +136,7 @@ public class Loader {
                     .param("name", "instructor" + i)
                     .param("phone", "0903156879" + i)
                     .param("nationalId", "546879412" + i));
+            repository.saveToken(Token.builder().username("instructor" + i).token("instructor" + i).build());
         }
         User instructor = repository.findUserByUsername("instructor3");
         assertEquals(instructor.getPassword() , hash("instructor3"));
@@ -152,6 +151,7 @@ public class Loader {
                     .param("name", "student"+ i)
                     .param("phone", "0901254125" + i)
                     .param("nationalId", "541254687" + i));
+            repository.saveToken(Token.builder().username("student" + i).token("student" + i).build());
         }
         assertEquals(11, repository.findAllUsers().size());
     }

@@ -16,25 +16,20 @@ public class CourseController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_LIST_PATH)
-    private String list(@RequestHeader(value = "username") String username,
-                              @RequestHeader(value = "password") String password){
-        return service.list(username, password);
+    private String list(@RequestHeader String token){
+        return service.list(token);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(COURSE_CREATE_PATH)
-    private String create(@RequestParam int units, @RequestParam String title,
-                          @RequestHeader(value = "username") String username,
-                          @RequestHeader(value = "password") String password){
-        return service.create(units, title, username, password);
+    private String create(@RequestParam int units, @RequestParam String title, @RequestHeader String token){
+        return service.create(units, title, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_READ_PATH)
-    private String read(@PathVariable Long id,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password){
-        return service.read(id, username, password);
+    private String read(@PathVariable Long id, @RequestHeader String token){
+        return service.read(id, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -42,16 +37,13 @@ public class CourseController {
     private String update(@PathVariable Long id,
                           @RequestParam(required = false) String title,
                           @RequestParam(required = false) Integer units,
-                          @RequestHeader(value = "username") String username, 
-                          @RequestHeader(value = "password") String password){
-        return service.update(id, username, password, title, units);
+                          @RequestHeader String token){
+        return service.update(id, token, title, units);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(COURSE_DELETE_PATH)
-    private void delete(@PathVariable Long id,
-                                  @RequestHeader(value = "username") String username,
-                                  @RequestHeader(value = "password") String password){
-        service.delete(id, username, password);
+    private void delete(@PathVariable Long id, @RequestHeader String token){
+        service.delete(id, token);
     }
 }

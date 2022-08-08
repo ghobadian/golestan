@@ -4,14 +4,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tech.sobhan.golestan.business.exceptions.*;
 import tech.sobhan.golestan.business.exceptions.duplication.*;
-import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.Repository;
-
-import java.util.List;
 
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 
@@ -26,6 +23,10 @@ public class ErrorChecker {
     private boolean isUser(String username, String password){
         User user = repository.getUserByUsername(username);
         return user.getPassword().equals(hash(password));
+    }
+
+    private boolean isUser(String token){
+        return repository.userExistsByToken(token);
     }
 
     private boolean isNotAdmin(String username){
@@ -48,43 +49,56 @@ public class ErrorChecker {
         checkIsActive(username);
     }
 
+    public void checkIsUser(String token) {
+        if(!isUser(token)) throw new UnauthorisedException();
+    }
+
     private void checkIsActive(String username) {
         User user = repository.getUserByUsername(username);
         if(!user.isActive()) throw new UserNotActiveException();
     }
 
-    public void checkIsAdmin(String username, String password) {
-        checkIsUser(username, password);
+//    public void checkIsAdmin(String username, String password) {
+//        checkIsUser(username, password);
+//        if(isNotAdmin(username)) throw new ForbiddenException();
+//    }
+
+    public void checkIsAdmin(String token) {
+        checkIsUser(token);
+        String username = repository.findTokenByToken(token).getUsername();
         if(isNotAdmin(username)) throw new ForbiddenException();
     }
 
-    public void checkIsInstructor(String username, String password) {
-        checkIsUser(username, password);
+//    public void checkIsInstructor(String username, String password) {
+//        checkIsUser(username, password);
+//        if(!isInstructor(username)) throw new ForbiddenException();
+//    }
+
+    public void checkIsInstructor(String token) {
+        checkIsUser(token);
+        String username = repository.findTokenByToken(token).getUsername();
         if(!isInstructor(username)) throw new ForbiddenException();
     }
 
-    public void checkIsInstructorOfCourseSectionOrAdmin(String username, String password, CourseSection courseSection){
-        checkIsUser(username, password);
+    public void checkIsInstructorOfCourseSectionOrAdmin(String token, CourseSection courseSection){
+        checkIsUser(token);
+        String username = repository.findTokenByToken(token).getUsername();
         if(isInstructor(username) && isNotAdmin(username)) throw new ForbiddenException();
         if(isInstructor(username) && isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
     }
 
-    public void checkIsInstructorOfCourseSection(String username, String password, Long courseSectionId) {
+    public void checkIsInstructorOfCourseSection(String token, Long courseSectionId) {
         CourseSection courseSection = repository.findCourseSection(courseSectionId);
-        checkIsInstructorOfCourseSection(username, password, courseSection);
+        checkIsInstructorOfCourseSection(token, courseSection);
     }
-    public void checkIsInstructorOfCourseSection(String username, String password, CourseSection courseSection) {
-        checkIsInstructor(username, password);
+    public void checkIsInstructorOfCourseSection(String token, CourseSection courseSection) {
+        checkIsInstructor(token);
+        String username = repository.findTokenByToken(token).getUsername();
         if(isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
     }
 
-    public void checkCourseExists(Course course) {
-        List<Course> allCourses = repository.findAllCourses();
-        for (Course c : allCourses) {
-            if(course.equals(c)){
-                throw new CourseDuplicationException();
-            }
-        }
+    public void checkCourseExistsByTitle(String title) {
+        if(repository.courseExistsByTitle(title)) throw new CourseDuplicationException();
     }
 
     @Value("${DEFAULT_MAX_IN_EACH_PAGE}")
@@ -129,5 +143,10 @@ public class ErrorChecker {
 
     public void checkNationalId(String nationalId) {
         if(!nationalId.matches("\\d{10}")) throw new InvalidNationalIdException();
+    }
+
+
+    public void checkTokenExistsByUsername(String username) {
+        if(repository.tokenExistsByUsername(username)) throw new TokenDuplicationException();
     }
 }

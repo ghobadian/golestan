@@ -1,5 +1,7 @@
 package tech.sobhan.golestan.controllers;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.models.users.User;
@@ -19,9 +21,8 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(USER_LIST_PATH)
-    private String list(@RequestHeader(value = "username") String username,
-                            @RequestHeader(value = "password") String password){
-        return service.list(username, password);
+    private String list(@RequestHeader String token){
+        return service.list(token);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -33,10 +34,8 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(USER_READ_PATH)
-    private String read(@PathVariable Long id,
-                      @RequestHeader(value = "username") String username,
-                      @RequestHeader(value = "password") String password){
-        return service.read(id, username, password);
+    private String read(@PathVariable Long id, @RequestHeader String token){
+        return service.read(id, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -45,25 +44,36 @@ public class UserController {
                           @RequestParam(required = false) String newUsername,
                           @RequestParam(required = false) String newPassword,
                           @RequestParam(required = false) String phone,
-                          @RequestHeader(value = "username") String username,
-                          @RequestHeader(value = "password") String password){
-        return service.update(name, newUsername, newPassword, phone , username, password);
+                          @RequestHeader String token){
+        return service.update(name, newUsername, newPassword, phone , token);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(USER_DELETE_PATH)
-    private void delete(@PathVariable Long id,
-                          @RequestHeader(value = "username") String username,
-                          @RequestHeader(value = "password") String password){
-        service.delete(id, username, password);
+    private void delete(@PathVariable Long id, @RequestHeader String token){
+        service.delete(id, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(MODIFY_ROLE_PATH)
     public String modifyRole(@PathVariable Long id,
-                             @RequestBody Map<String,String> requestedBody,
-                             @RequestHeader(value = "username") String username,
-                             @RequestHeader(value = "password") String password){
-        return service.modifyRole(id, requestedBody, username, password);
+                             @Parameter(schema = @Schema(example = "salam1 <br> salam2")) @RequestBody Map<String,String> requestedBody,
+                             @RequestHeader String token){
+        return service.modifyRole(id, requestedBody, token);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(LOGIN_PATH)
+    public String login(@RequestParam String username,
+                        @RequestParam String password){
+        return service.login(username, password);
+        //throw error if current user is logging in with the same user
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(LOGOUT_PATH)
+    public String logout(@RequestHeader String token){
+        return service.logout(token);
+        //throw error if current user is logging in with the same user
     }
 }

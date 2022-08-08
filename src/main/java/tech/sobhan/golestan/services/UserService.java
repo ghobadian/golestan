@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.enums.Role;
+import tech.sobhan.golestan.models.Token;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 import static tech.sobhan.golestan.utils.Util.deleteLog;
+import static tech.sobhan.golestan.utils.Util.generateToken;
 
 @Service
 public class UserService {
@@ -40,7 +42,6 @@ public class UserService {
         User user = User.builder().username(username).password(hash(password))
                 .name(name).phone(phone).nationalId(nationalId)
                 .active(false).admin(false).build();
-//        createLog(User.class, user.getId());//todo user id is null because of not being in repository
         return repository.saveUser(user);
     }
 
@@ -131,5 +132,14 @@ public class UserService {
         user.setStudent(student);
         repository.saveStudent(student);
         repository.saveUser(user);
+    }
+
+    public String saveAndSendToken(String username) {
+        Token token = Token.builder().username(username).token(generateToken()).build();
+        return repository.saveToken(token).toString();
+    }
+
+    public void logout(Token token) {
+        repository.deleteToken(token);
     }
 }

@@ -17,13 +17,12 @@ public class CourseSectionController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_SECTION_LIST_PATH)
     private String list(@RequestParam Long termId,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password,
+                        @RequestHeader String token,
                         @RequestParam(required = false) String instructorName,
                         @RequestParam(required = false) Integer pageNumber,
                         @RequestParam(required = false) Integer maxInEachPage,
                         @RequestParam(required = false) String courseName){
-        return service.list(termId, username, password, instructorName, courseName, pageNumber, maxInEachPage);
+        return service.list(termId, token, instructorName, courseName, pageNumber, maxInEachPage);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,17 +30,14 @@ public class CourseSectionController {
     private String create(@RequestParam Long courseId,
                           @RequestParam Long instructorId,
                           @RequestParam Long termId,
-                          @RequestHeader(value = "username") String username,
-                          @RequestHeader(value = "password") String password){
-        return service.create(courseId, instructorId, termId, username, password);
+                          @RequestHeader String token){
+        return service.create(courseId, instructorId, termId, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_SECTION_READ_PATH)
-    private String read(@PathVariable Long id,
-                            @RequestHeader(value = "username") String username,
-                            @RequestHeader(value = "password") String password){
-        return service.read(id, username, password);
+    private String read(@PathVariable Long id, @RequestHeader String token){
+        return service.read(id, token);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -50,16 +46,14 @@ public class CourseSectionController {
                           @RequestParam(required = false) Long courseId,
                           @RequestParam(required = false) Long instructorId,
                           @PathVariable Long courseSectionId,
-                          @RequestHeader(value = "username") String username,
-                          @RequestHeader(value = "password") String password){
-        return service.update(termId, courseId, instructorId, courseSectionId, username, password);
+                          @RequestHeader String token){
+        return service.update(termId, courseId, instructorId, courseSectionId, token);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(COURSE_SECTION_DELETE_PATH)
     private void delete(@PathVariable Long id,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password){
-        service.delete(id, username, password);
+                        @RequestHeader String token){
+        service.delete(id, token);
     }
 }

@@ -16,33 +16,33 @@ public class InstructorSecurityService {
         this.errorChecker = errorChecker;
     }
 
-    public String list(String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String list(String token) {
+        errorChecker.checkIsUser(token);
         return service.list().toString();
     }
 
-    public String read(Long id, String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String read(Long id, String token) {
+        errorChecker.checkIsUser(token);
         return service.read(id).toString();
     }
 
-    public String update(Rank rank, Long instructorId, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    public String update(Rank rank, Long instructorId, String token) {
+        errorChecker.checkIsAdmin(token);
         return service.update(rank, instructorId);
     }
 
-    public void delete(Long instructorId, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    public void delete(Long instructorId, String token) {
+        errorChecker.checkIsAdmin(token);
         service.delete(instructorId);
     }
 
-    public String giveMark(String username, String password, Long courseSectionId, Long studentId, Double score) {
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
+    public String giveMark(String token, Long courseSectionId, Long studentId, Double score) {
+        errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         return service.giveMark(courseSectionId, studentId, score);
     }
 
-    public String giveMultipleMarks(String username, String password, Long courseSectionId, JSONArray studentIds, JSONArray scores) {
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
+    public String giveMultipleMarks(String token, Long courseSectionId, JSONArray studentIds, JSONArray scores) {
+        errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         return service.giveMultipleMarks(courseSectionId, studentIds, scores);
     }
 }

@@ -18,50 +18,41 @@ public class InstructorController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_LIST_PATH)
-    private String list(@RequestHeader(value = "username") String username,
-                                  @RequestHeader(value = "password") String password){//todo send also the user
-        return service.list(username, password);
+    private String list(@RequestHeader String token){//todo send also the user
+        return service.list(token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_READ_PATH)
-    private String read(@PathVariable Long id,
-                            @RequestHeader(value = "username") String username,
-                            @RequestHeader(value = "password") String password){
-        return service.read(id, username, password);
+    private String read(@PathVariable Long id, @RequestHeader String token){
+        return service.read(id, token);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(INSTRUCTOR_DELETE_PATH)
-    private void delete(@PathVariable Long instructorId,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password){
-        service.delete(instructorId, username, password);
+    private void delete(@PathVariable Long instructorId, @RequestHeader String token){
+        service.delete(instructorId, token);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(INSTRUCTOR_UPDATE_PATH)
-    private void update(@RequestParam Rank rank, @PathVariable Long instructorId,
-                        @RequestHeader(value = "username") String username,
-                        @RequestHeader(value = "password") String password){
-        service.update(rank, instructorId, username, password);
+    private void update(@RequestParam Rank rank, @PathVariable Long instructorId, @RequestHeader String token){
+        service.update(rank, instructorId, token);
     }
 
     @PostMapping(GIVE_SINGLE_MARK_PATH)
     public String giveMark(@RequestParam Long courseSectionId,
                            @PathVariable Long studentId,
                            @RequestParam Double score,
-                           @RequestHeader(value = "username") String username,
-                           @RequestHeader(value = "password") String password){
-        return service.giveMark(username, password, courseSectionId, studentId, score);
+                           @RequestHeader String token){
+        return service.giveMark(token, courseSectionId, studentId, score);
     }
 
     @PostMapping(GIVE_MULTIPLE_MARK_PATH)
     public String giveMultipleMarks(@RequestParam Long courseSectionId,
                                     @RequestParam JSONArray studentIds,
                                     @RequestParam JSONArray scores,
-                                    @RequestHeader(value = "username") String username,
-                                    @RequestHeader(value = "password") String password){
-        return service.giveMultipleMarks(username, password, courseSectionId, studentIds, scores);
+                                    @RequestHeader String token){
+        return service.giveMultipleMarks(token, courseSectionId, studentIds, scores);
     }
 }

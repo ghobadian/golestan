@@ -15,27 +15,22 @@ public class StudentController {
 
     @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)//todo move to studentController
     public String listStudentsOfSpecifiedCourseSection(@RequestParam Long courseSectionId,
-                                                       @RequestHeader(value = "username") String username,
-                                                       @RequestHeader(value = "password") String password){
-        return service.listCourseSectionStudents(courseSectionId, username, password);
+                                                       @RequestHeader String token){
+        return service.listCourseSectionStudents(courseSectionId, token);
     }
     @PostMapping(SIGNUP_SECTION_PATH)
     public String signUpSection(@RequestParam Long courseSectionId,
-                              @RequestHeader(value = "username") String username,
-                              @RequestHeader(value = "password") String password){
-        return service.signUpSection(courseSectionId, username, password);
+                              @RequestHeader String token){
+        return service.signUpSection(courseSectionId, token);
     }
 
     @GetMapping(SEE_SCORES_IN_TERM_PATH)
-    public String seeScoresInSpecifiedTerm(@RequestParam Long termId,
-                                              @RequestHeader(value = "username") String username,
-                                              @RequestHeader(value = "password") String password){
-        return service.seeScoresInSpecifiedTerm(termId, username, password).toString();
+    public String seeScoresInSpecifiedTerm(@RequestParam Long termId, @RequestHeader String token){
+        return service.seeScoresInSpecifiedTerm(termId, token).toString();
     }
 
     @GetMapping(SEE_SUMMERY_PATH)
-    public String seeSummery(@RequestHeader(value = "username") String username,
-                                @RequestHeader(value = "password") String password){
-        return service.seeSummery(username, password);
+    public String seeSummery(@RequestHeader String token){
+        return service.seeSummery(token);
     }
 }

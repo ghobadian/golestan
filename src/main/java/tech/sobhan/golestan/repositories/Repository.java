@@ -1,10 +1,7 @@
 package tech.sobhan.golestan.repositories;
 
 import tech.sobhan.golestan.business.exceptions.notFound.*;
-import tech.sobhan.golestan.models.Course;
-import tech.sobhan.golestan.models.CourseSection;
-import tech.sobhan.golestan.models.CourseSectionRegistration;
-import tech.sobhan.golestan.models.Term;
+import tech.sobhan.golestan.models.*;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
@@ -24,12 +21,15 @@ public class Repository {
     private final CourseSectionRepository courseSectionRepository;
     private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
 
+    private final TokenRepository tokenRepository;
+
     public Repository(UserRepository userRepository,
                       StudentRepository studentRepository, CourseRepository courseRepository,
                       InstructorRepository instructorRepository,
                       TermRepository termRepository,
                       CourseSectionRepository courseSectionRepository,
-                      CourseSectionRegistrationRepository courseSectionRegistrationRepository) {
+                      CourseSectionRegistrationRepository courseSectionRegistrationRepository,
+                      TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
@@ -37,6 +37,7 @@ public class Repository {
         this.termRepository = termRepository;
         this.courseSectionRepository = courseSectionRepository;
         this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
+        this.tokenRepository = tokenRepository;
     }
 
     public User findUser(Long id) {
@@ -44,7 +45,6 @@ public class Repository {
     }
 
     public List<CourseSection> findCourseSectionByTerm(Term term){
-        //        if(courseSections.isEmpty()) throw new CourseSectionNotFoundException();
         return courseSectionRepository.findByTerm(term);
     }
 
@@ -291,5 +291,38 @@ public class Repository {
 
     public List<CourseSectionRegistration> findCourseSectionRegistrationByStudent(Student student) {
         return courseSectionRegistrationRepository.findByStudent(student);
+    }
+
+    public Token saveToken(Token token){
+        return tokenRepository.save(token);
+    }
+
+    public Token findToken(String username){
+        return tokenRepository.findById(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public void deleteToken(Token token){
+        tokenRepository.delete(token);
+    }
+
+
+    public boolean userExistsByToken(String token) {
+        return tokenRepository.existsByToken(token);
+    }
+
+    public Token findTokenByToken(String token) {
+        return tokenRepository.findByToken(token);
+    }
+
+    public boolean tokenExistsByUsername(String username) {
+        return tokenRepository.existsByUsername(username);
+    }
+
+    public boolean courseExistsByTitle(String title) {
+        return courseRepository.existsByTitle(title);
+    }
+
+    public List<Token> findAllTokens(){
+        return tokenRepository.findAll();
     }
 }

@@ -22,16 +22,16 @@ public class CourseSectionSecurityService {
         this.repository = repository;
     }
 
-    public String list(Long termId, String username, String password, String instructorName,
+    public String list(Long termId, String token, String instructorName,
                        String courseName, Integer pageNumber, Integer maxInEachPage) {
-        errorChecker.checkIsUser(username, password);
+        errorChecker.checkIsUser(token);
         return service.list(termId, instructorName, courseName, pageNumber, maxInEachPage);
     }
 
-    public String create(Long courseId, Long instructorId, Long termId, String username, String password) {
+    public String create(Long courseId, Long instructorId, Long termId, String token) {
         CourseSection courseSection = buildCourseSection(courseId, instructorId, termId);
         Term term = repository.findTerm(termId);
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSection);
+        errorChecker.checkIsInstructorOfCourseSection(token, courseSection);
         errorChecker.checkCourseSectionExists(term, courseSection);
         return service.create(courseSection).toString();
     }
@@ -43,19 +43,19 @@ public class CourseSectionSecurityService {
         return CourseSection.builder().instructor(instructor).course(course).term(term).build();
     }
 
-    public String read(Long id, String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String read(Long id, String token) {
+        errorChecker.checkIsUser(token);
         return service.read(id).toString();
     }
 
-    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId, String username, String password) {//todo add DTO
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
+    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId, String token) {//todo add DTO
+        errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         return service.update(termId, courseId, instructorId, courseSectionId);
     }
 
-    public void delete(Long courseSectionId, String username, String password) {
+    public void delete(Long courseSectionId, String token) {
         CourseSection courseSection = repository.findCourseSection(courseSectionId);
-        errorChecker.checkIsInstructorOfCourseSection(username, password, courseSectionId);
+        errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         errorChecker.checkCourseSectionIsNotEmpty(courseSection);
         service.delete(courseSection);
     }

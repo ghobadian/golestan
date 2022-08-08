@@ -67,8 +67,7 @@ public class IntegrationTest {
                 "\"course_name\":\"BodyBuilding0\",\"course_units\":5," +
                 "\"instructor\":\""+instructor+"\",\"score\":19.75}]";
         mockMvc.perform(get("/student/see_scores/")
-                .header("username", "student0")
-                .header("password", "student0")
+                .header("token", "student0")
                 .param("termId", String.valueOf(term.getId())))
                 .andExpect(content().string(expectedResponse));
     }
@@ -78,8 +77,7 @@ public class IntegrationTest {
         Student student = repository.findUserByUsername("student0").getStudent();
         CourseSection courseSection = repository.findAllCourseSections().get(0);
         mockMvc.perform(post("/instructor/give_mark/{studentId}", student.getId())
-                .header("username", "instructor0")
-                .header("password", "instructor0")
+                .header("token", "instructor0")
                 .param("courseSectionId", String.valueOf(courseSection.getId()))
                 .param("score", String.valueOf(19.75)));
         CourseSectionRegistration courseSectionRegistration = repository
@@ -91,8 +89,7 @@ public class IntegrationTest {
     private void signUpCourseSection() {
         CourseSection courseSection = repository.findAllCourseSections().get(0);
         mockMvc.perform(post("/student/sign_up_section")
-                .header("username", "student0")
-                .header("password", "student0")
+                .header("token", "student0")
                 .param("courseSectionId", String.valueOf(courseSection.getId())));
         CourseSectionRegistration courseSectionRegistration = repository
                 .findCourseSectionRegistrationByCourseSection(courseSection).get(0);
@@ -114,8 +111,7 @@ public class IntegrationTest {
                 .param("courseSectionId", String.valueOf(courseSection.getId()))
                 .param("studentIds", String.valueOf(studentIds))
                 .param("scores", String.valueOf(expectedScores))
-                .header("username", "instructor0")
-                .header("password", "instructor0"));
+                .header("token", "instructor0"));
         List<CourseSectionRegistration> courseSectionRegistrations = repository
                 .findCourseSectionRegistrationByCourseSection(courseSection);
         JSONArray actualScores = new JSONArray(courseSectionRegistrations

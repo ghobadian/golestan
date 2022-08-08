@@ -23,27 +23,30 @@ public class StudentSecurityService {
         this.repository = repository;
     }
 
-    public String signUpSection(Long courseSectionId, String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String signUpSection(Long courseSectionId, String token) {
+        errorChecker.checkIsUser(token);
+        String username = repository.findTokenByToken(token).getUsername();
         CourseSection courseSection = repository.findCourseSection(courseSectionId);
         Student student = repository.findStudentByUsername(username);
         errorChecker.checkCourseSectionRegistrationExists(courseSection, student);
         return service.signUpSection(student, courseSection);
     }
 
-    public JSONArray seeScoresInSpecifiedTerm(Long termId, String username, String password){
-        errorChecker.checkIsUser(username, password);
+    public JSONArray seeScoresInSpecifiedTerm(Long termId, String token){
+        errorChecker.checkIsUser(token);
+        String username = repository.findTokenByToken(token).getUsername();
         return service.seeScoresInSpecifiedTerm(termId, username);
     }
 
-    public String seeSummery(String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String seeSummery(String token) {
+        errorChecker.checkIsUser(token);
+        String username = repository.findTokenByToken(token).getUsername();
         return service.seeSummery(username);
     }
 
-    public String listCourseSectionStudents(Long courseSectionId, String username, String password) {
+    public String listCourseSectionStudents(Long courseSectionId, String token) {
         CourseSection courseSection = repository.findCourseSection(courseSectionId);
-        errorChecker.checkIsInstructorOfCourseSectionOrAdmin(username, password, courseSection);
+        errorChecker.checkIsInstructorOfCourseSectionOrAdmin(token, courseSection);
         List<CourseSectionRegistration> courseSectionRegistrations = repository
                 .findCourseSectionRegistrationByCourseSection(courseSection);
         return service.listCourseSectionStudents(courseSectionRegistrations);

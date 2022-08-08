@@ -14,30 +14,30 @@ public class TermSecurityService {
         this.errorChecker = errorChecker;
     }
 
-    public String list(String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String list(String token) {
+        errorChecker.checkIsUser(token);
         return service.list().toString();
     }
 
-    public String create(String title, boolean open, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    public String create(String title, boolean open, String token) {
+        errorChecker.checkIsAdmin(token);
         errorChecker.checkTermExists(title);
         errorChecker.checkTermExists(title);
         return service.create(title, open).toString();
     }
 
-    public String read(Long id, String username, String password) {
-        errorChecker.checkIsUser(username, password);
+    public String read(Long id, String token) {
+        errorChecker.checkIsUser(token);
         return service.read(id).toString();
     }
 
-    public String update(String title, Boolean open, Long termId, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    public String update(String title, Boolean open, Long termId, String token) {
+        errorChecker.checkIsAdmin(token);
         return service.update(title, open, termId).toString();
     }
 
-    public void delete(Long id, String username, String password) {
-        errorChecker.checkIsAdmin(username, password);
+    public void delete(Long id, String token) {
+        errorChecker.checkIsAdmin(token);
         service.delete(id);
     }
 }
