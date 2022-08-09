@@ -29,11 +29,10 @@ public class InstructorService {
 
 
 
-    public String update(Rank rank, Long instructorId) {
+    public Instructor update(Rank rank, Long instructorId) {
         Instructor instructor = repository.findInstructor(instructorId);
         instructor.setRank(rank);
-        repository.saveInstructor(instructor);
-        return "OK";
+        return repository.saveInstructor(instructor);
     }
 
     public void delete(Long instructorId) {
@@ -43,14 +42,14 @@ public class InstructorService {
         repository.deleteInstructor(instructor);
     }
 
-    public String giveMark(Long courseSectionId, Long studentId, Double score) {
+    public CourseSectionRegistration giveMark(Long courseSectionId, Long studentId, Double score) {
         CourseSection courseSection = repository.findCourseSection(courseSectionId);//todo move to security service
         Student student = repository.findStudent(studentId);
         CourseSectionRegistration courseSectionRegistration = repository
                 .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);
         courseSectionRegistration.setScore(score);
-        repository.saveCourseSectionRegistration(courseSectionRegistration);
-        return "OK";
+        return repository.saveCourseSectionRegistration(courseSectionRegistration);
+//        return "OK";
     }
 
     public String giveMultipleMarks(Long courseSectionId, JSONArray studentIds, JSONArray scores) {

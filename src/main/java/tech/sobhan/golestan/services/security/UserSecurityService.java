@@ -58,6 +58,6 @@ public class UserSecurityService {
     public String logout(String token) {
         errorChecker.checkIsUser(token);
         service.logout(repository.findTokenByToken(token));
-        return null;//todo
+        return "logged out successfully";
     }
 }

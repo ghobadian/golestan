@@ -5,6 +5,8 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.enums.Rank;
+import tech.sobhan.golestan.models.CourseSectionRegistration;
+import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.services.security.InstructorSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
@@ -34,15 +36,15 @@ public class InstructorController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(INSTRUCTOR_UPDATE_PATH)
-    private void update(@RequestParam Rank rank, @PathVariable Long instructorId, @RequestHeader String token){
-        service.update(rank, instructorId, token);
+    private Instructor update(@RequestParam Rank rank, @PathVariable Long instructorId, @RequestHeader String token){
+        return service.update(rank, instructorId, token);
     }
 
     @PostMapping(GIVE_SINGLE_MARK_PATH)
-    public String giveMark(@RequestParam Long courseSectionId,
-                           @PathVariable Long studentId,
-                           @RequestParam Double score,
-                           @RequestHeader String token){
+    public CourseSectionRegistration giveMark(@RequestParam Long courseSectionId,
+                                              @PathVariable Long studentId,
+                                              @RequestParam Double score,
+                                              @RequestHeader String token){
         return service.giveMark(token, courseSectionId, studentId, score);
     }
 

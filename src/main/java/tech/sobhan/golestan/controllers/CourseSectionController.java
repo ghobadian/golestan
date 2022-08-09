@@ -3,6 +3,7 @@ package tech.sobhan.golestan.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.services.security.CourseSectionSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
@@ -40,11 +41,11 @@ public class CourseSectionController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(COURSE_SECTION_UPDATE_PATH)
-    private String update(@RequestParam(required = false) Long termId,
-                          @RequestParam(required = false) Long courseId,
-                          @RequestParam(required = false) Long instructorId,
-                          @PathVariable Long courseSectionId,
-                          @RequestHeader String token){
+    private CourseSection update(@RequestParam(required = false) Long termId,
+                                 @RequestParam(required = false) Long courseId,
+                                 @RequestParam(required = false) Long instructorId,
+                                 @PathVariable Long courseSectionId,
+                                 @RequestHeader String token){
         return service.update(termId, courseId, instructorId, courseSectionId, token);
     }
 

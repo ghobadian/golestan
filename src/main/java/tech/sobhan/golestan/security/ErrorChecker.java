@@ -58,21 +58,11 @@ public class ErrorChecker {
         if(!user.isActive()) throw new UserNotActiveException();
     }
 
-//    public void checkIsAdmin(String username, String password) {
-//        checkIsUser(username, password);
-//        if(isNotAdmin(username)) throw new ForbiddenException();
-//    }
-
     public void checkIsAdmin(String token) {
         checkIsUser(token);
         String username = repository.findTokenByToken(token).getUsername();
         if(isNotAdmin(username)) throw new ForbiddenException();
     }
-
-//    public void checkIsInstructor(String username, String password) {
-//        checkIsUser(username, password);
-//        if(!isInstructor(username)) throw new ForbiddenException();
-//    }
 
     public void checkIsInstructor(String token) {
         checkIsUser(token);

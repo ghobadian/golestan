@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.enums.Rank;
+import tech.sobhan.golestan.models.CourseSectionRegistration;
+import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.services.InstructorService;
 
@@ -23,7 +25,7 @@ public class InstructorSecurityService {
         return service.read(id).toString();
     }
 
-    public String update(Rank rank, Long instructorId, String token) {
+    public Instructor update(Rank rank, Long instructorId, String token) {
         errorChecker.checkIsAdmin(token);
         return service.update(rank, instructorId);
     }
@@ -33,7 +35,7 @@ public class InstructorSecurityService {
         service.delete(instructorId);
     }
 
-    public String giveMark(String token, Long courseSectionId, Long studentId, Double score) {
+    public CourseSectionRegistration giveMark(String token, Long courseSectionId, Long studentId, Double score) {
         errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         return service.giveMark(courseSectionId, studentId, score);
     }

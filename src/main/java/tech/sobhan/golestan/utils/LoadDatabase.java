@@ -13,9 +13,7 @@ import static tech.sobhan.golestan.security.PasswordEncoder.hash;
 public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(Repository repository){
-        return args -> {
-            loadAdmin(repository);
-        };
+        return args -> loadAdmin(repository);
     }
 
     @Value("${admin.username}")

@@ -22,14 +22,11 @@ import java.util.Optional;
 public class StudentService {
     private final Repository repository;
 
-//    public List<Student> list() {//todo find usage
-//        return repository.findAllStudents();
-//    }
-    public String signUpSection(Student student, CourseSection courseSection) {
+public CourseSectionRegistration signUpSection(Student student, CourseSection courseSection) {
         CourseSectionRegistration csr = CourseSectionRegistration.builder()
                 .student(student).courseSection(courseSection).build();
-        repository.saveCourseSectionRegistration(csr);
-        return "Successfully signed up for course section.";
+        return repository.saveCourseSectionRegistration(csr);
+//        return "Successfully signed up for course section.";
     }
 
     public JSONArray seeScoresInSpecifiedTerm(Long termId, String username) {

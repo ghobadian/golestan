@@ -43,7 +43,7 @@ public class CourseSectionSecurityService {
         return service.read(id).toString();
     }
 
-    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId, String token) {//todo add DTO
+    public CourseSection update(Long termId, Long courseId, Long instructorId, Long courseSectionId, String token) {//todo add DTO
         errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         return service.update(termId, courseId, instructorId, courseSectionId);
     }

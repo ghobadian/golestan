@@ -2,6 +2,7 @@ package tech.sobhan.golestan.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.services.security.StudentSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
@@ -17,8 +18,8 @@ public class StudentController {
         return service.listCourseSectionStudents(courseSectionId, token);
     }
     @PostMapping(SIGNUP_SECTION_PATH)
-    public String signUpSection(@RequestParam Long courseSectionId,
-                              @RequestHeader String token){
+    public CourseSectionRegistration signUpSection(@RequestParam Long courseSectionId,
+                                                   @RequestHeader String token){
         return service.signUpSection(courseSectionId, token);
     }
 

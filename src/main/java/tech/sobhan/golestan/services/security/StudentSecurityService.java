@@ -19,7 +19,7 @@ public class StudentSecurityService {
     private final StudentService service;
     private final Repository repository;
 
-    public String signUpSection(Long courseSectionId, String token) {
+    public CourseSectionRegistration signUpSection(Long courseSectionId, String token) {
         errorChecker.checkIsUser(token);
         String username = repository.findTokenByToken(token).getUsername();
         CourseSection courseSection = repository.findCourseSection(courseSectionId);

@@ -54,14 +54,20 @@ public class CourseSectionService {
     @Value("${DEFAULT_MAX_IN_EACH_PAGE}")
     private static Integer defaultMaxInEachPage;
     private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
-        if(pageNumber == null && maxInEachPage==null){
-            return filteredList;
-        }else if(pageNumber != null && maxInEachPage != null){
-            return filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
-        }else if(pageNumber!= null && maxInEachPage == null){
-            return filteredList.subList((pageNumber - 1)  * defaultMaxInEachPage, (pageNumber)  * defaultMaxInEachPage);
+        if(pageNumber == null){
+            if(maxInEachPage == null){
+                return filteredList;
+
+            }else{
+                return filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
+            }
         }else{
-            return filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
+            if(maxInEachPage == null){
+                return filteredList.subList((pageNumber - 1)  * defaultMaxInEachPage, (pageNumber)  * defaultMaxInEachPage);
+
+            }else{
+                return filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
+            }
         }
     }
 
@@ -99,25 +105,36 @@ public class CourseSectionService {
         return output;
     }
 
-    public String update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {
+    public CourseSection update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {
         CourseSection courseSection = repository.findCourseSection(courseSectionId);
-        try{
-            Term term = repository.findTerm(termId);
-            courseSection.setTerm(term);
-        }catch (TermNotFoundException ignored){
-        }
-        try{
-            Course course = repository.findCourse(courseId);
-            courseSection.setCourse(course);
-        }catch (CourseNotFoundException ignored){
-        }
+        updateTerm(termId, courseSection);
+        updateCourse(courseId, courseSection);
+        updateInstructor(instructorId, courseSection);
+        return repository.saveCourseSection(courseSection);
+    }
+
+    private void updateInstructor(Long instructorId, CourseSection courseSection) {
         try{
             Instructor instructor = repository.findInstructor(instructorId);
             courseSection.setInstructor(instructor);
         }catch (InstructorNotFoundException ignored){
         }
-        repository.saveCourseSection(courseSection);
-        return "OK";
+    }
+
+    private void updateCourse(Long courseId, CourseSection courseSection) {
+        try{
+            Course course = repository.findCourse(courseId);
+            courseSection.setCourse(course);
+        }catch (CourseNotFoundException ignored){
+        }
+    }
+
+    private void updateTerm(Long termId, CourseSection courseSection) {
+        try{
+            Term term = repository.findTerm(termId);
+            courseSection.setTerm(term);
+        }catch (TermNotFoundException ignored){
+        }
     }
 
     public void delete(CourseSection courseSection){
