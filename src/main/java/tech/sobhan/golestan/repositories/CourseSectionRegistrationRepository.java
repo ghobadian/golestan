@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface CourseSectionRegistrationRepository extends JpaRepository<CourseSectionRegistration, Long> {
     Optional<CourseSectionRegistration> findByCourseSectionAndStudent(CourseSection courseSection, Student student);
 
-    List<CourseSectionRegistration> findByStudent(Student student);//todo remove queries
+    List<CourseSectionRegistration> findByStudent(Student student);
 
     List<CourseSectionRegistration> findByCourseSection(CourseSection courseSection);
 

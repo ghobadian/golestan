@@ -1,15 +1,13 @@
 package tech.sobhan.golestan.models.users;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @AllArgsConstructor @NoArgsConstructor
 @Data @Builder
+@ToString(of = {"username", "name", "phone", "nationalId"})
+@EqualsAndHashCode(of = {"username", "phone", "nationalId"})
 @Entity @Table(name = "users")
 public class User {
     @Id @GeneratedValue private Long id;
@@ -33,28 +31,4 @@ public class User {
     @OneToOne
     @JoinColumn(name = "instructor", unique = true)
     private Instructor instructor = null;
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(username, phone, nationalId);
-    }
-
-    @Override
-    public User clone(){
-        return User.builder().username(username).password(password).name(name).phone(phone)
-                .nationalId(nationalId).admin(admin).active(active).build();
-    }
-
-    @Override
-    public String toString() {
-        return "User(username="+username+", name="+name+", phone="+phone+", nationalId="+nationalId+")";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(username, user.username) && Objects.equals(phone, user.phone) && Objects.equals(nationalId, user.nationalId);
-    }
 }

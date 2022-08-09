@@ -28,9 +28,9 @@ public class Util {
 
     private static String randomSmallChar(){
         return String.valueOf(Character.valueOf((char) (RANDOM.nextInt(26) + 97)));
-    };
+    }
 
     private static String randomCapitalChar(){
         return String.valueOf(Character.valueOf( (char)(RANDOM.nextInt(26) + 65)));
-    };
+    }
 }
