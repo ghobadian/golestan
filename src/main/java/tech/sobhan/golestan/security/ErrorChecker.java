@@ -91,7 +91,7 @@ public class ErrorChecker {
         if(repository.courseExistsByTitle(title)) throw new CourseDuplicationException();
     }
 
-    @Value("${DEFAULT_MAX_IN_EACH_PAGE}")
+    @Value("${defaultMaxInEachPage}")
     private static Integer defaultMaxInEachPage;//todo fix two responses when advising exception
     public static  void checkPaginationErrors(int size, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber==null)

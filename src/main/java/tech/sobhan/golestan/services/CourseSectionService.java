@@ -51,7 +51,7 @@ public class CourseSectionService {
         return output;
     }
 
-    @Value("${DEFAULT_MAX_IN_EACH_PAGE}")
+    @Value("${defaultMaxInEachPage}")
     private static Integer defaultMaxInEachPage;
     private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber == null){
