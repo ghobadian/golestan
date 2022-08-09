@@ -11,6 +11,7 @@ import tech.sobhan.golestan.services.security.UserSecurityService;
 import java.util.Map;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
+import static tech.sobhan.golestan.documentation.UserController.GIVE_ROLE_SCHEMA;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +56,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(MODIFY_ROLE_PATH)
     public String modifyRole(@PathVariable Long id,
-                             @Parameter(schema = @Schema(example = "salam1 <br> salam2")) @RequestBody Map<String,String> requestedBody,
+                             @Parameter(schema = @Schema(example = GIVE_ROLE_SCHEMA)) @RequestBody Map<String,String> requestedBody,
                              @RequestHeader String token){
         return service.modifyRole(id, requestedBody, token);
     }
