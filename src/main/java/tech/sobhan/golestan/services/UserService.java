@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
@@ -20,19 +21,11 @@ import static tech.sobhan.golestan.utils.Util.deleteLog;
 import static tech.sobhan.golestan.utils.Util.generateToken;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final Repository repository;
     private final InstructorService instructorService;
     private final StudentService studentService;
-
-
-    public UserService(Repository repository,
-                       InstructorService instructorService,
-                       StudentService studentService) {
-        this.repository = repository;
-        this.instructorService = instructorService;
-        this.studentService = studentService;
-    }
 
     public List<User> list() {
         return repository.findAllUsers();

@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.CourseSection;
@@ -12,16 +13,11 @@ import tech.sobhan.golestan.services.StudentService;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StudentSecurityService {
     private final ErrorChecker errorChecker;
     private final StudentService service;
     private final Repository repository;
-
-    public StudentSecurityService(ErrorChecker errorChecker, StudentService service, Repository repository) {
-        this.errorChecker = errorChecker;
-        this.service = service;
-        this.repository = repository;
-    }
 
     public String signUpSection(Long courseSectionId, String token) {
         errorChecker.checkIsUser(token);

@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.security.TermSecurityService;
@@ -7,12 +8,9 @@ import tech.sobhan.golestan.services.security.TermSecurityService;
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
+@RequiredArgsConstructor
 public class TermController {
     private final TermSecurityService service;
-
-    public TermController(TermSecurityService service) {
-        this.service = service;
-    }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(TERM_LIST_PATH)

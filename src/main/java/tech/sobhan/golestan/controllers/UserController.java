@@ -2,6 +2,7 @@ package tech.sobhan.golestan.controllers;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.models.users.User;
@@ -12,12 +13,9 @@ import java.util.Map;
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
     private final UserSecurityService service;
-
-    public UserController(UserSecurityService service) {
-        this.service = service;
-    }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(USER_LIST_PATH)

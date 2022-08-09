@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -9,12 +10,9 @@ import tech.sobhan.golestan.services.security.InstructorSecurityService;
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
+@RequiredArgsConstructor
 public class InstructorController {
     private final InstructorSecurityService service;
-
-    public InstructorController(InstructorSecurityService service) {
-        this.service = service;
-    }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_LIST_PATH)

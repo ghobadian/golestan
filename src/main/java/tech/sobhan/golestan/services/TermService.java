@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.repositories.Repository;
@@ -9,12 +10,9 @@ import java.util.List;
 import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
+@RequiredArgsConstructor
 public class TermService {
     private final Repository repository;
-
-    public TermService(Repository repository) {
-        this.repository = repository;
-    }
 
     public List<Term> list() {
         return repository.findAllTerms();

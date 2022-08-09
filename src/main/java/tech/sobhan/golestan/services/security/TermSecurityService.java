@@ -1,18 +1,15 @@
 package tech.sobhan.golestan.services.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.services.TermService;
 
 @Service
+@RequiredArgsConstructor
 public class TermSecurityService {
     private final TermService service;
     private final ErrorChecker errorChecker;
-
-    public TermSecurityService(TermService service, ErrorChecker errorChecker) {
-        this.service = service;
-        this.errorChecker = errorChecker;
-    }
 
     public String list(String token) {
         errorChecker.checkIsUser(token);

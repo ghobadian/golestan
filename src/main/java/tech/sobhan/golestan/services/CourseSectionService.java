@@ -1,6 +1,6 @@
 package tech.sobhan.golestan.services;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -21,13 +21,9 @@ import static tech.sobhan.golestan.security.ErrorChecker.checkPaginationErrors;
 import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class CourseSectionService {
     private final Repository repository;
-
-    public CourseSectionService(Repository repository) {
-        this.repository = repository;
-    }
 
     public String list(Long termId, String instructorName,
                        String courseName, Integer pageNumber, Integer maxInEachPage) {

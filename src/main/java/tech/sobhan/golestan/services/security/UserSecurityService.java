@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.repositories.Repository;
@@ -9,16 +10,11 @@ import tech.sobhan.golestan.services.UserService;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class UserSecurityService {
     private final ErrorChecker errorChecker;
     private final UserService service;
     private final Repository repository;
-
-    public UserSecurityService(ErrorChecker errorChecker, UserService service, Repository repository) {
-        this.errorChecker = errorChecker;
-        this.service = service;
-        this.repository = repository;
-    }
 
     public String list(String token) {
         errorChecker.checkIsUser(token);

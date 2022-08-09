@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.enums.Rank;
@@ -7,14 +8,10 @@ import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.services.InstructorService;
 
 @Service
+@RequiredArgsConstructor
 public class InstructorSecurityService {
     private final InstructorService service;
     private final ErrorChecker errorChecker;
-
-    public InstructorSecurityService(InstructorService service, ErrorChecker errorChecker) {
-        this.service = service;
-        this.errorChecker = errorChecker;
-    }
 
     public String list(String token) {
         errorChecker.checkIsUser(token);

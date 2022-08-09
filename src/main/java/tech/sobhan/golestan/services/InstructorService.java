@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,9 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 public class InstructorService {
     private final Repository repository;
-
-    public InstructorService(Repository repository) {
-        this.repository = repository;
-    }
 
     public List<Instructor> list() {
         return repository.findAllInstructors();

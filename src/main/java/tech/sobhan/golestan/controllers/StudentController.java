@@ -1,17 +1,15 @@
 package tech.sobhan.golestan.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.services.security.StudentSecurityService;
 
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
+@RequiredArgsConstructor
 public class StudentController {
     private final StudentSecurityService service;
-
-    public StudentController(StudentSecurityService service) {
-        this.service = service;
-    }
 
     @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)//todo move to studentController
     public String listStudentsOfSpecifiedCourseSection(@RequestParam Long courseSectionId,

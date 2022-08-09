@@ -1,19 +1,16 @@
 package tech.sobhan.golestan.services.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.services.CourseService;
 
 @Service
+@RequiredArgsConstructor
 public class CourseSecurityService {
     private final ErrorChecker errorChecker;
     private final CourseService service;
-
-    public CourseSecurityService(ErrorChecker errorChecker, CourseService service) {
-        this.errorChecker = errorChecker;
-        this.service = service;
-    }
 
     public String list(String token) {
         errorChecker.checkIsUser(token);

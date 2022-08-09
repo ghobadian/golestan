@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.repositories.Repository;
@@ -10,12 +11,9 @@ import static tech.sobhan.golestan.utils.Util.createLog;
 import static tech.sobhan.golestan.utils.Util.deleteLog;
 
 @Service
+@RequiredArgsConstructor
 public class CourseService {
     private final Repository repository;
-
-    public CourseService(Repository repository) {
-        this.repository = repository;
-    }
 
     public List<Course> list() {
         return repository.findAllCourses();

@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -17,12 +18,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class StudentService {
     private final Repository repository;
-
-    public StudentService(Repository repository) {
-        this.repository = repository;
-    }
 
 //    public List<Student> list() {//todo find usage
 //        return repository.findAllStudents();

@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.services.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
@@ -10,17 +11,11 @@ import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.services.CourseSectionService;
 
 @Service
+@RequiredArgsConstructor
 public class CourseSectionSecurityService {
     private final ErrorChecker errorChecker;
     private final CourseSectionService service;
-
     private final Repository repository;
-
-    public CourseSectionSecurityService(ErrorChecker errorChecker, CourseSectionService service, Repository repository) {
-        this.errorChecker = errorChecker;
-        this.service = service;
-        this.repository = repository;
-    }
 
     public String list(Long termId, String token, String instructorName,
                        String courseName, Integer pageNumber, Integer maxInEachPage) {
