@@ -8,9 +8,9 @@ import tech.sobhan.golestan.business.exceptions.PageNumberException;
 @Component
 @RequiredArgsConstructor
 public class PaginationErrorChecker {
-
     @Value("${defaultMaxInEachPage}")
     private static Integer defaultMaxInEachPage;//todo fix two responses when advising exception
+
     public static void checkPaginationErrors(int size, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber ==null)
             if(maxInEachPage < 1) throw new PageNumberException();

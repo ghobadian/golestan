@@ -4,9 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.notFound.CourseNotFoundException;
-import tech.sobhan.golestan.business.exceptions.notFound.InstructorNotFoundException;
-import tech.sobhan.golestan.business.exceptions.notFound.TermNotFoundException;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
@@ -54,31 +51,21 @@ public class CourseSectionService {
     private static Integer defaultMaxInEachPage;
     private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {//todo clean it
         if(pageNumber == null) {
-            if(maxInEachPage == null) {
-                return filteredList;
-
-            }else{
-                return filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
-            }
+            return maxInEachPage == null ? filteredList :
+                    filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
         }else{
-            if(maxInEachPage == null) {
-                return filteredList.subList((pageNumber - 1)  * defaultMaxInEachPage, (pageNumber)  * defaultMaxInEachPage);
-
-            }else{
-                return filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
-            }
+            return maxInEachPage == null ?
+                    filteredList.subList((pageNumber - 1)  * defaultMaxInEachPage, (pageNumber)  * defaultMaxInEachPage) :
+                    filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
         }
     }
 
     private List<CourseSection> filterList(Term term, String instructorName, String courseName) {//todo clean it
-        if(instructorName!=null && courseName == null) {
-            return repo.findCourseSectionByInstructorName(instructorName);
-        }else if(instructorName==null && courseName!= null) {
-            return repo.findCourseSectionByCourseName(courseName);
-        }else if(instructorName!=null && courseName!= null) {
-            return repo.findCourseSectionByInstructorNameAndCourseName(instructorName, courseName);
-        }else{
-            return list(term);
+        if(instructorName == null) {
+            return courseName == null ? list(term) : repo.findCourseSectionByCourseName(courseName);
+        } else {
+            return courseName == null ? repo.findCourseSectionByInstructorName(instructorName) :
+                    repo.findCourseSectionByInstructorNameAndCourseName(instructorName, courseName);
         }
     }
 
@@ -106,26 +93,23 @@ public class CourseSectionService {
     }
 
     private void updateInstructor(Long instructorId, CourseSection courseSection) {
-        try{
+        if(repo.instructorExistsById(instructorId)) {
             Instructor instructor = repo.findInstructor(instructorId);
             courseSection.setInstructor(instructor);
-        }catch (InstructorNotFoundException ignored) {
         }
     }
 
     private void updateCourse(Long courseId, CourseSection courseSection) {
-        try{
+        if(repo.courseExistsById(courseId)) {
             Course course = repo.findCourse(courseId);
             courseSection.setCourse(course);
-        }catch (CourseNotFoundException ignored) {
         }
     }
 
     private void updateTerm(Long termId, CourseSection courseSection) {
-        try{
+        if(repo.termExistsById(termId)) {
             Term term = repo.findTerm(termId);
             courseSection.setTerm(term);
-        }catch (TermNotFoundException ignored) {
         }
     }
 

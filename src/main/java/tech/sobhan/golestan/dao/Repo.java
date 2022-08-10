@@ -9,9 +9,7 @@ import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -198,10 +196,7 @@ public class Repo {
     }
 
     public List<CourseSection> findCourseSectionByInstructorNameAndCourseName(String instructorName, String courseName) {
-        Set<CourseSection> courseSectionsByInstructorName = new HashSet<>(findCourseSectionByCourseName(courseName));//todo چطور با کوئری بنویسم؟
-        Set<CourseSection> courseSectionsByCourseName = new HashSet<>(findCourseSectionByInstructorName(instructorName));
-        courseSectionsByCourseName.retainAll(courseSectionsByInstructorName);
-        return new ArrayList<>(courseSectionsByCourseName);
+        return courseSectionRepository.findByCourse_TitleAndInstructorUserName(instructorName, courseName);
     }
 
     public List<User> findAllUsers() {
@@ -288,5 +283,17 @@ public class Repo {
 
     public boolean userExistsByInstructor(Long instructorId) {
         return userRepository.existsByInstructorId(instructorId);
+    }
+
+    public boolean termExistsById(Long termId) {
+        return termRepository.existsById(termId);
+    }
+
+    public boolean courseExistsById(Long courseId) {
+        return courseRepository.existsById(courseId);
+    }
+
+    public boolean instructorExistsById(Long instructorId) {
+        return instructorRepository.existsById(instructorId);
     }
 }

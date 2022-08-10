@@ -8,7 +8,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data @Builder
 @ToString(of = {"username", "name", "phone", "nationalId"})
-@EqualsAndHashCode(of = {"username", "phone", "nationalId"})
+@EqualsAndHashCode(of = "username")
 @Entity @Table(name = "users", indexes = @Index(columnList = "username"))
 public class User {
     @Id 

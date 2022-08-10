@@ -36,7 +36,7 @@ public CourseSectionRegistration signUpSection(Student student, CourseSection co
         return StudentAverageDTO.builder().average(findAverage(csrs)).courseSections(courseSections).build();//todo emtiazi
     }
 
-    private CourseSectionDTO2 getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration) {
+    public CourseSectionDTO2 getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration) {
         CourseSection courseSection = courseSectionRegistration.getCourseSection();
         Course course = courseSection.getCourse();
         return CourseSectionDTO2.builder().id(courseSection.getId()).courseName(course.getTitle())
@@ -46,7 +46,7 @@ public CourseSectionRegistration signUpSection(Student student, CourseSection co
     private InstructorDTO getInstructorDTO(CourseSection courseSection) {
         Long instructorId = courseSection.getInstructor().getId();
         String instructorName = "";
-        if(repo.userExistsByInstructor(instructorId)){
+        if(repo.userExistsByInstructor(instructorId)) {
             instructorName = repo.findUserByInstructor(instructorId).getName();
         }
         return InstructorDTO.builder().name(instructorName)
