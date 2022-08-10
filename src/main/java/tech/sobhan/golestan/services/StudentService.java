@@ -1,6 +1,7 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
@@ -16,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class StudentService {
     private final Repo repo;
@@ -86,14 +88,11 @@ public CourseSectionRegistration signUpSection(Student student, CourseSection co
         return courseSectionRegistrations.isEmpty() ? 0 : findAverage(courseSectionRegistrations);
     }
 
-
-
-
-
     public void delete(Long studentId) {
         Student student = repo.findStudent(studentId);
         List<CourseSectionRegistration> csrs = repo.findCourseSectionRegistrationByStudent(student);
         csrs.forEach(csr -> csr.setStudent(null));
         repo.deleteStudent(student);
+        log.info("Student with id" + studentId + "created");
     }
 }

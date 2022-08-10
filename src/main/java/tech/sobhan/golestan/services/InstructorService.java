@@ -1,6 +1,7 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class InstructorService {
     private final Repo repo;
@@ -28,8 +30,6 @@ public class InstructorService {
         return repo.findInstructor(instructorId);
     }
 
-
-
     public Instructor update(Rank rank, Long instructorId) {
         Instructor instructor = repo.findInstructor(instructorId);
         instructor.setRank(rank);
@@ -41,6 +41,7 @@ public class InstructorService {
         List<CourseSection> courseSectionsOfInstructor = repo.findCourseSectionByInstructor(instructor);
         courseSectionsOfInstructor.forEach(cs -> cs.setInstructor(null));
         repo.deleteInstructor(instructor);
+        log.info("Instructor with id" + instructor.getId() + "deleted");
     }
 
     public CourseSectionRegistration giveMark(Long courseSectionId, Long studentId, Double score) {

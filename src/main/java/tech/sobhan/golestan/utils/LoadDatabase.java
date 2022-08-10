@@ -14,22 +14,29 @@ import tech.sobhan.golestan.security.PasswordEncoder;
 @RequiredArgsConstructor
 public class LoadDatabase {
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${admin.username}")
+    private String adminUsername;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
     @Bean
     CommandLineRunner initDatabase(Repo repo) {
         return args -> loadAdmin(repo);
     }
 
-    @Value("${admin.username}")
-    private String adminUsername;
-    @Value("${admin.password}")
-    private String adminPassword;
     private void loadAdmin(Repo repo) {
-        if(repo.userExistsByAdminPrivilege()) {
-            repo.deleteUsersWithAdminPrivilege();
-        }
+        deleteAllAdmins(repo);
         User admin = User.builder().username(adminUsername).password((adminPassword)).name("admin").phone("1234")
                 .nationalId("1234").admin(true).active(true).build();
         admin.setPassword(passwordEncoder.hash(admin.getPassword()));
         repo.saveUser(admin);
+    }
+
+    private void deleteAllAdmins(Repo repo) {
+        if(repo.userExistsByAdminPrivilege()) {
+            repo.deleteUsersWithAdminPrivilege();
+        }
     }
 }

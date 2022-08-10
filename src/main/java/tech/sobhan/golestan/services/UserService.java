@@ -1,7 +1,9 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.enums.Role;
@@ -9,19 +11,12 @@ import tech.sobhan.golestan.models.Token;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.security.PasswordEncoder;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-
-import static tech.sobhan.golestan.utils.Util.deleteLog;
-import static tech.sobhan.golestan.utils.Util.generateToken;
+import java.util.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final Repo repo;
@@ -38,6 +33,7 @@ public class UserService {
         User user = User.builder().username(username).password(passwordEncoder.hash(password))
                 .name(name).phone(phone).nationalId(nationalId)
                 .active(false).admin(false).build();
+        log.info("User with username " + username + " created");
         return repo.saveUser(user);
     }
 
@@ -83,7 +79,7 @@ public class UserService {
         deleteInstructorOfUser(user);
         deleteStudentOfUser(user);
         repo.deleteUser(user);
-        deleteLog(User.class, id);
+        log.info("User with id" + id + "deleted");
     }
 
     private void deleteStudentOfUser(User user) {
@@ -131,7 +127,8 @@ public class UserService {
     }
 
     public String saveAndSendToken(String username) {
-        Token token = Token.builder().username(username).token(generateToken()).build();
+        String tokenContent = UUID.randomUUID().toString();
+        Token token = Token.builder().username(username).token(tokenContent).build();
         return repo.saveToken(token).toString();
     }
 

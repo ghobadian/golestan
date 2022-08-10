@@ -1,15 +1,15 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.dao.Repo;
+import tech.sobhan.golestan.models.Term;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.utils.Util.createLog;
-
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TermService {
     private final Repo repo;
@@ -20,7 +20,7 @@ public class TermService {
 
     public Term create(String title, boolean open) {
         Term term = Term.builder().title(title).open(open).build();
-        createLog(Term.class, term.getId());
+        log.info("Term with title:" + title + "created");
         return repo.saveTerm(term);
     }
 
@@ -50,5 +50,6 @@ public class TermService {
     public void delete(Long id) {
         Term term = repo.findTerm(id);
         repo.deleteTerm(term);
+        log.info("Term with title:" + term.getTitle() + "deleted");
     }
 }

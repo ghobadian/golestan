@@ -1,16 +1,15 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.dao.Repo;
+import tech.sobhan.golestan.models.Course;
 
 import java.util.List;
 
-import static tech.sobhan.golestan.utils.Util.createLog;
-import static tech.sobhan.golestan.utils.Util.deleteLog;
-
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CourseService {
     private final Repo repo;
@@ -20,7 +19,7 @@ public class CourseService {
     }
 
     public Course create(Course course) {
-        createLog(Course.class, course.getId());
+        log.info("Course" + course.getTitle() + "created");
         return repo.saveCourse(course);
     }
 
@@ -50,6 +49,6 @@ public class CourseService {
     public void delete(Long courseId) {
         Course course = repo.findCourse(courseId);
         repo.deleteCourse(course);
-        deleteLog(Course.class, courseId);
+        log.info("Course" + course.getTitle() + "deleted");
     }
 }

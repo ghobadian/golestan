@@ -1,11 +1,13 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.business.exceptions.notFound.CourseNotFoundException;
 import tech.sobhan.golestan.business.exceptions.notFound.InstructorNotFoundException;
 import tech.sobhan.golestan.business.exceptions.notFound.TermNotFoundException;
+import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
@@ -15,15 +17,14 @@ import tech.sobhan.golestan.models.dto.StudentDTO;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.dao.Repo;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static tech.sobhan.golestan.security.PaginationErrorChecker.checkPaginationErrors;
-import static tech.sobhan.golestan.utils.Util.createLog;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CourseSectionService {
     private final Repo repo;
@@ -69,7 +70,7 @@ public class CourseSectionService {
         }
     }
 
-    private List<CourseSection> filterList(Term term, String instructorName, String courseName) {
+    private List<CourseSection> filterList(Term term, String instructorName, String courseName) {//todo clean it
         if(instructorName!=null && courseName == null) {
             return repo.findCourseSectionByInstructorName(instructorName);
         }else if(instructorName==null && courseName!= null) {
@@ -86,7 +87,7 @@ public class CourseSectionService {
     }
 
     public CourseSection create(CourseSection courseSection) {
-        createLog(CourseSection.class, courseSection.getId());
+        log.info("CourseSection " + courseSection + "created");
         return repo.saveCourseSection(courseSection);
     }
 
@@ -129,6 +130,7 @@ public class CourseSectionService {
     }
 
     public void delete(CourseSection courseSection) {
+        log.info("CourseSection " + courseSection + "deleted");
         repo.deleteCourseSection(courseSection);
     }
 }
