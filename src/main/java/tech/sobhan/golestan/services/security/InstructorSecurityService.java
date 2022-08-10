@@ -9,20 +9,22 @@ import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.security.ErrorChecker;
 import tech.sobhan.golestan.services.InstructorService;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class InstructorSecurityService {
     private final InstructorService service;
     private final ErrorChecker errorChecker;
 
-    public String list(String token) {
+    public List<Instructor> list(String token) {
         errorChecker.checkIsUser(token);
-        return service.list().toString();
+        return service.list();
     }
 
-    public String read(Long id, String token) {
+    public Instructor read(Long id, String token) {
         errorChecker.checkIsUser(token);
-        return service.read(id).toString();
+        return service.read(id);
     }
 
     public Instructor update(Rank rank, Long instructorId, String token) {
@@ -40,7 +42,7 @@ public class InstructorSecurityService {
         return service.giveMark(courseSectionId, studentId, score);
     }
 
-    public String giveMultipleMarks(String token, Long courseSectionId, JSONArray studentIds, JSONArray scores) {
+    public List<CourseSectionRegistration> giveMultipleMarks(String token, Long courseSectionId, JSONArray studentIds, JSONArray scores) {
         errorChecker.checkIsInstructorOfCourseSection(token, courseSectionId);
         return service.giveMultipleMarks(courseSectionId, studentIds, scores);
     }

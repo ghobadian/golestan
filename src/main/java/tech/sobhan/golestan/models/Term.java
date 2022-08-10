@@ -14,7 +14,9 @@ import javax.persistence.Id;
 @EqualsAndHashCode(of = "title")
 @Entity
 public class Term{
-    @Id @GeneratedValue private Long id;
+    @Id 
+    @GeneratedValue
+    private Long id;
     private String title;
     private boolean open;
 }

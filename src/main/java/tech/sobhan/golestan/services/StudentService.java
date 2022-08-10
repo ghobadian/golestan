@@ -1,68 +1,54 @@
 package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import tech.sobhan.golestan.business.exceptions.notFound.StudentNotFoundException;
+import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
+import tech.sobhan.golestan.models.dto.*;
 import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.repositories.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class StudentService {
-    private final Repository repository;
+    private final Repo repo;
 
 public CourseSectionRegistration signUpSection(Student student, CourseSection courseSection) {
         CourseSectionRegistration csr = CourseSectionRegistration.builder()
                 .student(student).courseSection(courseSection).build();
-        return repository.saveCourseSectionRegistration(csr);
-//        return "Successfully signed up for course section.";
+        return repo.saveCourseSectionRegistration(csr);
     }
 
-    public JSONArray seeScoresInSpecifiedTerm(Long termId, String username) {
-        Student student = repository.findStudentByUsername(username);
-        Term term = repository.findTerm(termId);
-        List<CourseSectionRegistration> csrs = repository.findCSRsByStudentAndTerm(student, term);
-        JSONObject average = toJson(findAverage(csrs));//todo emtiazi
-        JSONArray output = new JSONArray();
-        if(average!=null)   output.put(average);
-        csrs.forEach(csr -> output.put(getCourseSectionDetails(csr)));
-        return output;
+    public StudentAverageDTO seeScoresInSpecifiedTerm(Long termId, String username) {
+        Student student = repo.findStudentByUsername(username);
+        Term term = repo.findTerm(termId);
+        List<CourseSectionRegistration> csrs = repo.findCSRsByStudentAndTerm(student, term);
+        List<CourseSectionDTO2> courseSections = csrs.stream().map(this::getCourseSectionDetails).collect(Collectors.toList());
+        return StudentAverageDTO.builder().average(findAverage(csrs)).courseSections(courseSections).build();//todo emtiazi
     }
 
-    private JSONObject toJson(double average) {
-        try{
-            return new JSONObject("{average:"+average+"}");
-        }catch (JSONException j){
-            j.printStackTrace();
-            return null;
-        }
-    }
-
-    private JSONObject getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration){
+    private CourseSectionDTO2 getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration) {
         CourseSection courseSection = courseSectionRegistration.getCourseSection();
         Course course = courseSection.getCourse();
-        JSONObject courseSectionDetails = new JSONObject();
-        try{
-            courseSectionDetails.put("course_section_id", courseSection.getId());
-            courseSectionDetails.put("course_name", course.getTitle());
-            courseSectionDetails.put("course_units", course.getUnits());
-            courseSectionDetails.put("instructor", courseSection.getInstructor());
-            courseSectionDetails.put("score", courseSectionRegistration.getScore());
-        }catch (JSONException j){
-            j.printStackTrace();
+        return CourseSectionDTO2.builder().id(courseSection.getId()).courseName(course.getTitle())
+                .courseUnits(course.getUnits()).instructor(getInstructorDTO(courseSection)).build();
+    }
+
+    private InstructorDTO getInstructorDTO(CourseSection courseSection) {
+        Long instructorId = courseSection.getInstructor().getId();
+        String instructorName = "";
+        if(repo.userExistsByInstructor(instructorId)){
+            instructorName = repo.findUserByInstructor(instructorId).getName();
         }
-        return courseSectionDetails;
+        return InstructorDTO.builder().name(instructorName)
+                .rank(courseSection.getInstructor().getRank()).build();
     }
 
     private double findAverage(List<CourseSectionRegistration> courseSectionRegistrations) {
@@ -74,78 +60,40 @@ public CourseSectionRegistration signUpSection(Student student, CourseSection co
     }
 
 
-    public String seeSummery(String username) {
-        User user = repository.findUserByUsername(username);
-        Student student = Optional.ofNullable(user.getStudent()).orElseThrow(StudentNotFoundException::new);
-        double totalSum = 0;
-
-        List<Term> terms = repository.findAllTerms();
-
-        JSONArray output = new JSONArray();
-        for (Term term : terms) {
-            JSONObject termDetails = new JSONObject();
-            double averageInSpecifiedTerm = averageInSpecifiedTerm(term, student);
-            findTermDetails(term, termDetails, averageInSpecifiedTerm);
-            totalSum += averageInSpecifiedTerm;
-            output.put(termDetails);
-        }
-        addTotalAverage(totalSum, terms.size(), output);
-        return output.toString();
+    public SummeryDTO seeSummery(String username) {
+        Student student = repo.findStudentByUsername(username);
+        AtomicReference<Double> totalSum = new AtomicReference<>((double) 0);
+        List<Term> terms = repo.findAllTerms();
+        List<TermDTO> allTermDetails = new ArrayList<>();
+        terms.forEach(term -> {
+            Double averageInSpecifiedTerm = findAverageByTerm(term, student);
+            TermDTO termDetails = TermDTO.builder().termId(term.getId()).termTitle(term.getTitle())
+                    .studentAverage(averageInSpecifiedTerm).build();
+            totalSum.updateAndGet(v -> (v + averageInSpecifiedTerm));
+            allTermDetails.add(termDetails);
+        });
+        return SummeryDTO.builder().termDetails(allTermDetails).totalAverage(calcTotalAverage(totalSum.get(), terms)).build();
     }
 
-    private void addTotalAverage(double totalSum, int numberOfTerms, JSONArray output) {
-        double totalAverage = totalSum / numberOfTerms;
-        try{
-            output.put(new JSONObject("{totalAverage:"+totalAverage+"}"));
-        }catch (JSONException j){
-            j.printStackTrace();
-        }
+    private double calcTotalAverage(double totalSum, List<Term> terms) {
+        int numberOfTerms = terms.size();
+        return totalSum / numberOfTerms;
     }
 
-    private void findTermDetails(Term term, JSONObject termDetails, double averageInSpecifiedTerm) {
-        try{
-            termDetails.put("term_id", term.getId());
-            termDetails.put("term", term.getTitle());
-            termDetails.put("average", averageInSpecifiedTerm);
-        }catch (JSONException j){
-            j.printStackTrace();
-        }
-    }
-
-    private double averageInSpecifiedTerm(Term term, Student studentId) {
+    private double findAverageByTerm(Term term, Student studentId) {
         List<CourseSectionRegistration> courseSectionRegistrations =
-                repository.findCSRsByStudentAndTerm(studentId, term);
+                repo.findCSRsByStudentAndTerm(studentId, term);
         return courseSectionRegistrations.isEmpty() ? 0 : findAverage(courseSectionRegistrations);
     }
 
-    public String listCourseSectionStudents(List<CourseSectionRegistration> courseSectionRegistrations) {
-        JSONArray output = new JSONArray();
-        for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {
-            Student student = courseSectionRegistration.getStudent();
-            User user = repository.findUserByStudent(student.getId());
-            JSONObject studentDetails = getStudentDetails(courseSectionRegistration, student, user);
-            output.put(studentDetails);
-        }
-        return output.toString();
-    }
 
-    private JSONObject getStudentDetails(CourseSectionRegistration courseSectionRegistration, Student student, User user){
-        JSONObject studentDetails = new JSONObject();
-        try{
-            studentDetails.put("studentId", student.getId());
-            studentDetails.put("studentName", user.getName());
-            studentDetails.put("studentNumber", student.getId());
-            studentDetails.put("score", courseSectionRegistration.getScore());
-        }catch (JSONException j){
-            j.printStackTrace();
-        }
-        return studentDetails;
-    }
+
+
 
     public void delete(Long studentId) {
-        Student student = repository.findStudent(studentId);
-        List<CourseSectionRegistration> csrs = repository.findCourseSectionRegistrationByStudent(student);
+        Student student = repo.findStudent(studentId);
+        List<CourseSectionRegistration> csrs = repo.findCourseSectionRegistrationByStudent(student);
         csrs.forEach(csr -> csr.setStudent(null));
-        repository.deleteStudent(student);
+        repo.deleteStudent(student);
     }
 }

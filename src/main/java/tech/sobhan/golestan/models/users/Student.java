@@ -15,7 +15,9 @@ import java.util.Date;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Student{
-    @Id @GeneratedValue private Long id;
+    @Id 
+    @GeneratedValue
+    private Long id;
     private Degree degree;
     private Date startDate;
 }

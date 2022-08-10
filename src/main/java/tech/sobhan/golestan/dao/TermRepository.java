@@ -1,4 +1,4 @@
-package tech.sobhan.golestan.repositories;
+package tech.sobhan.golestan.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

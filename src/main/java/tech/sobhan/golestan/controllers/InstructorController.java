@@ -9,6 +9,8 @@ import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.services.security.InstructorSecurityService;
 
+import java.util.List;
+
 import static tech.sobhan.golestan.constants.ApiPaths.*;
 
 @RestController
@@ -18,25 +20,25 @@ public class InstructorController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_LIST_PATH)
-    private String list(@RequestHeader String token){//todo send also the user
+    private List<Instructor> list(@RequestHeader String token) {//todo send also the user
         return service.list(token);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_READ_PATH)
-    private String read(@PathVariable Long id, @RequestHeader String token){
+    private Instructor read(@PathVariable Long id, @RequestHeader String token) {
         return service.read(id, token);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(INSTRUCTOR_DELETE_PATH)
-    private void delete(@PathVariable Long instructorId, @RequestHeader String token){
+    private void delete(@PathVariable Long instructorId, @RequestHeader String token) {
         service.delete(instructorId, token);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(INSTRUCTOR_UPDATE_PATH)
-    private Instructor update(@RequestParam Rank rank, @PathVariable Long instructorId, @RequestHeader String token){
+    private Instructor update(@RequestParam Rank rank, @PathVariable Long instructorId, @RequestHeader String token) {
         return service.update(rank, instructorId, token);
     }
 
@@ -44,15 +46,15 @@ public class InstructorController {
     public CourseSectionRegistration giveMark(@RequestParam Long courseSectionId,
                                               @PathVariable Long studentId,
                                               @RequestParam Double score,
-                                              @RequestHeader String token){
+                                              @RequestHeader String token) {
         return service.giveMark(token, courseSectionId, studentId, score);
     }
 
     @PostMapping(GIVE_MULTIPLE_MARK_PATH)
-    public String giveMultipleMarks(@RequestParam Long courseSectionId,
+    public List<CourseSectionRegistration> giveMultipleMarks(@RequestParam Long courseSectionId,
                                     @RequestParam JSONArray studentIds,
                                     @RequestParam JSONArray scores,
-                                    @RequestHeader String token){
+                                    @RequestHeader String token) {
         return service.giveMultipleMarks(token, courseSectionId, studentIds, scores);
     }
 }

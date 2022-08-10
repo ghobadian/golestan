@@ -9,12 +9,16 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Data
-@Builder @AllArgsConstructor @NoArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(exclude = "id")
 @ToString(exclude = "id")
 @Entity
 public class CourseSection {
-    @Id @GeneratedValue private Long id;
+    @Id 
+    @GeneratedValue
+    private Long id;
     @ManyToOne
     private Term term;
     @ManyToOne

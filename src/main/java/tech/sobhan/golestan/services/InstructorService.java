@@ -9,65 +9,66 @@ import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.repositories.Repository;
+import tech.sobhan.golestan.dao.Repo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
 public class InstructorService {
-    private final Repository repository;
+    private final Repo repo;
 
     public List<Instructor> list() {
-        return repository.findAllInstructors();
+        return repo.findAllInstructors();
     }
 
     public Instructor read(Long instructorId) {
-        return repository.findInstructor(instructorId);
+        return repo.findInstructor(instructorId);
     }
 
 
 
     public Instructor update(Rank rank, Long instructorId) {
-        Instructor instructor = repository.findInstructor(instructorId);
+        Instructor instructor = repo.findInstructor(instructorId);
         instructor.setRank(rank);
-        return repository.saveInstructor(instructor);
+        return repo.saveInstructor(instructor);
     }
 
     public void delete(Long instructorId) {
-        Instructor instructor = repository.findInstructor(instructorId);
-        List<CourseSection> courseSectionsOfInstructor = repository.findCourseSectionByInstructor(instructor);
+        Instructor instructor = repo.findInstructor(instructorId);
+        List<CourseSection> courseSectionsOfInstructor = repo.findCourseSectionByInstructor(instructor);
         courseSectionsOfInstructor.forEach(cs -> cs.setInstructor(null));
-        repository.deleteInstructor(instructor);
+        repo.deleteInstructor(instructor);
     }
 
     public CourseSectionRegistration giveMark(Long courseSectionId, Long studentId, Double score) {
-        CourseSection courseSection = repository.findCourseSection(courseSectionId);//todo move to security service
-        Student student = repository.findStudent(studentId);
-        CourseSectionRegistration courseSectionRegistration = repository
+        CourseSection courseSection = repo.findCourseSection(courseSectionId);//todo move to security service
+        Student student = repo.findStudent(studentId);
+        CourseSectionRegistration courseSectionRegistration = repo
                 .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);
         courseSectionRegistration.setScore(score);
-        return repository.saveCourseSectionRegistration(courseSectionRegistration);
-//        return "OK";
+        return repo.saveCourseSectionRegistration(courseSectionRegistration);
     }
 
-    public String giveMultipleMarks(Long courseSectionId, JSONArray studentIds, JSONArray scores) {
+    public List<CourseSectionRegistration> giveMultipleMarks(Long courseSectionId, JSONArray studentIds, JSONArray scores) {
         int numberOfStudents = studentIds.length();
         int numberOfScores = scores.length();
         if(numberOfScores != numberOfStudents) throw new RuntimeException("sizes are not the same");
+        List<CourseSectionRegistration> response = new ArrayList<>();
         IntStream.range(0,numberOfStudents).forEach(i -> {
             Long studentId = parseId(studentIds, i);
             Double score = parseScore(scores, i);
-            giveMark(courseSectionId, studentId, score);
+            response.add(giveMark(courseSectionId, studentId, score));
         });
-        return "OK";
+        return response;
     }
 
     private Double parseScore(JSONArray scores, int i) {
         try{
             return Double.parseDouble(String.valueOf(scores.get(i)));
-        }catch (JSONException j){
+        }catch (JSONException j) {
             j.printStackTrace();
             return null;
         }
@@ -76,7 +77,7 @@ public class InstructorService {
     private Long parseId(JSONArray studentIds, int i)  {
         try{
             return Long.parseLong(String.valueOf(studentIds.get(i)));
-        }catch (JSONException j){
+        }catch (JSONException j) {
             j.printStackTrace();
             return null;
         }

@@ -15,6 +15,8 @@ import javax.persistence.Id;
 @ToString(of = "rank")
 @NoArgsConstructor
 public class Instructor {
-    @Id @GeneratedValue private Long id;
+    @Id 
+    @GeneratedValue
+    private Long id;
     private Rank rank;
 }

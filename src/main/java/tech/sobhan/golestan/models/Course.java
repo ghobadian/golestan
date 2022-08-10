@@ -14,7 +14,9 @@ import javax.persistence.Id;
 @ToString(of = {"title", "units"})
 @Entity
 public class Course {
-    @Id @GeneratedValue private Long id;
+    @Id 
+    @GeneratedValue
+    private Long id;
     private String title;
     private int units;
 }

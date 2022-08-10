@@ -4,13 +4,16 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Data @Builder
 @ToString(of = {"username", "name", "phone", "nationalId"})
 @EqualsAndHashCode(of = {"username", "phone", "nationalId"})
-@Entity @Table(name = "users")
+@Entity @Table(name = "users", indexes = @Index(columnList = "username"))
 public class User {
-    @Id @GeneratedValue private Long id;
+    @Id 
+    @GeneratedValue
+    private Long id;
     @Column(name = "username", nullable = false, unique = true)
     private String username;
     @Column(name = "password", nullable = false)

@@ -1,4 +1,4 @@
-package tech.sobhan.golestan.repositories;
+package tech.sobhan.golestan.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,12 +13,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByStudentId(Long studentId);
 
-    List<User> findByName(String name);
-
     Optional<User> findByInstructorId(Long instructor_id);
 
     Optional<User> findByPhone(String phone);
 
     Optional<User> findByNationalId(String nationalId);
+
     List<User> findByAdminTrue();
+
+    boolean existsByInstructorId(Long instructorId);
 }

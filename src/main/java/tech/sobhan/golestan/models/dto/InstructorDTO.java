@@ -10,7 +10,8 @@ import tech.sobhan.golestan.enums.Rank;
 @Component
 @Data
 @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class InstructorDTO {
     private String name;
     private Rank rank;

@@ -1,5 +1,7 @@
-package tech.sobhan.golestan.repositories;
+package tech.sobhan.golestan.dao;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 import tech.sobhan.golestan.business.exceptions.notFound.*;
 import tech.sobhan.golestan.models.*;
 import tech.sobhan.golestan.models.users.Instructor;
@@ -10,9 +12,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@org.springframework.stereotype.Repository
-public class Repository {
+@RequiredArgsConstructor
+@Repository
+public class Repo {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
@@ -20,31 +24,13 @@ public class Repository {
     private final TermRepository termRepository;
     private final CourseSectionRepository courseSectionRepository;
     private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
-
     private final TokenRepository tokenRepository;
-
-    public Repository(UserRepository userRepository,
-                      StudentRepository studentRepository, CourseRepository courseRepository,
-                      InstructorRepository instructorRepository,
-                      TermRepository termRepository,
-                      CourseSectionRepository courseSectionRepository,
-                      CourseSectionRegistrationRepository courseSectionRegistrationRepository,
-                      TokenRepository tokenRepository) {
-        this.userRepository = userRepository;
-        this.studentRepository = studentRepository;
-        this.courseRepository = courseRepository;
-        this.instructorRepository = instructorRepository;
-        this.termRepository = termRepository;
-        this.courseSectionRepository = courseSectionRepository;
-        this.courseSectionRegistrationRepository = courseSectionRegistrationRepository;
-        this.tokenRepository = tokenRepository;
-    }
 
     public User findUser(Long id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    public List<CourseSection> findCourseSectionByTerm(Term term){
+    public List<CourseSection> findCourseSectionByTerm(Term term) {
         return courseSectionRepository.findByTerm(term);
     }
 
@@ -98,12 +84,6 @@ public class Repository {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public List<CourseSectionRegistration> findAllCourseSectionRegistrations() {
-        List<CourseSectionRegistration> courseSectionRegistrations = courseSectionRegistrationRepository.findAll();
-        if(courseSectionRegistrations.isEmpty()) throw new CourseSectionNotFoundException();
-        return courseSectionRegistrations;
-    }
-
     public List<Instructor> findAllInstructors() {
         return instructorRepository.findAll();
     }
@@ -139,15 +119,15 @@ public class Repository {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public boolean userExistsByPhone(String phone){
+    public boolean userExistsByPhone(String phone) {
         return userRepository.findByPhone(phone).isPresent();
     }
 
-    public boolean userExistsByUsername(String username){
+    public boolean userExistsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
 
-    public boolean userExistsByNationalId(String nationalId){
+    public boolean userExistsByNationalId(String nationalId) {
         return userRepository.findByNationalId(nationalId).isPresent();
     }
 
@@ -179,7 +159,7 @@ public class Repository {
         return courseRepository.findAll();
     }
 
-    public List<CourseSection> findAllCourseSections(){
+    public List<CourseSection> findAllCourseSections() {
         return courseSectionRepository.findAll();
     }
 
@@ -196,17 +176,17 @@ public class Repository {
     }
 
     public List<CourseSection> findCourseSectionByInstructorName(String instructorName) {
-        List<CourseSection> allCourseSections = findAllCourseSections();
+        List<CourseSection> allCourseSections = findAllCourseSections();//todo چطور بهینه کنم؟
         List<CourseSection> output = new ArrayList<>();
         for (CourseSection courseSection : allCourseSections) {
             Long currentCourseSectionInstructorId = courseSection.getInstructor().getId();
             String currentCourseSectionInstructorName;
             try{
                 currentCourseSectionInstructorName = findUserByInstructor(currentCourseSectionInstructorId).getName();
-            }catch (UserNotFoundException u){
+            }catch (UserNotFoundException u) {
                 continue;
             }
-            if(instructorName.equals(currentCourseSectionInstructorName)){
+            if(instructorName.equals(currentCourseSectionInstructorName)) {
                 output.add(courseSection);
             }
         }
@@ -218,7 +198,7 @@ public class Repository {
     }
 
     public List<CourseSection> findCourseSectionByInstructorNameAndCourseName(String instructorName, String courseName) {
-        Set<CourseSection> courseSectionsByInstructorName = new HashSet<>(findCourseSectionByCourseName(courseName));
+        Set<CourseSection> courseSectionsByInstructorName = new HashSet<>(findCourseSectionByCourseName(courseName));//todo چطور با کوئری بنویسم؟
         Set<CourseSection> courseSectionsByCourseName = new HashSet<>(findCourseSectionByInstructorName(instructorName));
         courseSectionsByCourseName.retainAll(courseSectionsByInstructorName);
         return new ArrayList<>(courseSectionsByCourseName);
@@ -261,20 +241,9 @@ public class Repository {
 
     public List<CourseSectionRegistration> findCSRsByStudentAndTerm(Student student, Term term) {
         List<CourseSectionRegistration> csrs = findCSRByStudent(student);
-        List<CourseSection> courseSections = findCourseSectionByTerm(term);
-        Set<CourseSectionRegistration> output = new HashSet<>();
-        filterCSRsOfSpecifiedTerm(csrs, courseSections, output);
-        return new ArrayList<>(output);
-    }
-
-    private static void filterCSRsOfSpecifiedTerm(List<CourseSectionRegistration> courseSectionRegistrations, List<CourseSection> courseSections, Set<CourseSectionRegistration> output) {
-        for (CourseSectionRegistration courseSectionRegistration : courseSectionRegistrations) {//todo use set and retainAll
-            for (CourseSection courseSection : courseSections) {
-                if(courseSection.equals(courseSectionRegistration.getCourseSection())){
-                    output.add(courseSectionRegistration);
-                }
-            }
-        }
+        List<CourseSection> courseSectionsWithSameTerm = findCourseSectionByTerm(term);
+        return csrs.stream().filter(csr -> courseSectionsWithSameTerm
+                .contains(csr.getCourseSection())).collect(Collectors.toList());
     }
 
     public void deleteUser(User user) {
@@ -293,18 +262,13 @@ public class Repository {
         return courseSectionRegistrationRepository.findByStudent(student);
     }
 
-    public Token saveToken(Token token){
+    public Token saveToken(Token token) {
         return tokenRepository.save(token);
     }
 
-    public Token findToken(String username){
-        return tokenRepository.findById(username).orElseThrow(UserNotFoundException::new);
-    }
-
-    public void deleteToken(Token token){
+    public void deleteToken(Token token) {
         tokenRepository.delete(token);
     }
-
 
     public boolean userExistsByToken(String token) {
         return tokenRepository.existsByToken(token);
@@ -322,7 +286,7 @@ public class Repository {
         return courseRepository.existsByTitle(title);
     }
 
-    public List<Token> findAllTokens(){
-        return tokenRepository.findAll();
+    public boolean userExistsByInstructor(Long instructorId) {
+        return userRepository.existsByInstructorId(instructorId);
     }
 }
