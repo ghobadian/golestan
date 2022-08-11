@@ -34,8 +34,6 @@ public class StudentService {
         return signUpSection(repo.findStudent(studentId), repo.findCourseSection(courseSectionId));
     }
 
-
-
     public EntityModel<StudentAverageDTO> seeScoresInSpecifiedTerm(Long termId, String token) {
         String username = repo.findUsernameByToken(token);
         Student student = repo.findStudentByUsername(username);
