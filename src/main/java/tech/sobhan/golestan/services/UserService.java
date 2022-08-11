@@ -7,7 +7,6 @@ import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.enums.Role;
-import tech.sobhan.golestan.models.Token;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
@@ -79,7 +78,7 @@ public class UserService {
         deleteInstructorOfUser(user);
         deleteStudentOfUser(user);
         repo.deleteUser(user);
-        log.info("User with id" + id + "deleted");
+        log.info("User with id " + id + " deleted");
     }
 
     private void deleteStudentOfUser(User user) {
@@ -111,7 +110,8 @@ public class UserService {
 
 
     private User addRoleInstructor(Map<String, String> requestedBody, User user) {
-        Instructor instructor = Instructor.builder().rank(Rank.valueOf(requestedBody.get("rank").toUpperCase())).build();
+        Instructor instructor = Instructor.builder().rank(Rank.valueOf(requestedBody.get("rank").toUpperCase()))
+                .name(user.getName()).build();
         repo.saveInstructor(instructor);
         user.setInstructor(instructor);
         return repo.saveUser(user);
@@ -126,13 +126,12 @@ public class UserService {
         return repo.saveUser(user);
     }
 
-    public String saveAndSendToken(String username) {
-        String tokenContent = UUID.randomUUID().toString();
-        Token token = Token.builder().username(username).token(tokenContent).build();
-        return repo.saveToken(token).toString();
+    public String login(String username) {
+        String token = UUID.randomUUID().toString();
+        return repo.saveToken(username, token);
     }
 
-    public void logout(Token token) {
-        repo.deleteToken(token);
+    public void logout(String username) {
+        repo.deleteTokenByUsername(username);
     }
 }

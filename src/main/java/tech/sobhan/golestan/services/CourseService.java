@@ -18,8 +18,9 @@ public class CourseService {
         return repo.findAllCourses();
     }
 
-    public Course create(Course course) {
-        log.info("Course" + course.getTitle() + "created");
+    public Course create(int units, String title) {
+        Course course = Course.builder().units(units).title(title).build();
+        log.info("Course " + course.getTitle() + " created");
         return repo.saveCourse(course);
     }
 
@@ -49,6 +50,6 @@ public class CourseService {
     public void delete(Long courseId) {
         Course course = repo.findCourse(courseId);
         repo.deleteCourse(course);
-        log.info("Course" + course.getTitle() + "deleted");
+        log.info("Course " + course.getTitle() + " deleted");
     }
 }

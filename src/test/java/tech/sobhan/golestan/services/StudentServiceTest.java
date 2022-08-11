@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.test.context.ContextConfiguration;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.enums.Degree;
@@ -24,6 +25,7 @@ import tech.sobhan.golestan.security.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -51,7 +53,7 @@ class StudentServiceTest {
         when(repo.findUserByUsername(anyString())).thenReturn(user);
         when(repo.findStudentByUsername(anyString())).thenReturn(student);
         Course course = repo.saveCourse(Course.builder().title("course").units(3).build());
-        Instructor instructor = repo.saveInstructor(Instructor.builder().rank(Rank.FULL).build());
+        Instructor instructor = repo.saveInstructor(Instructor.builder().rank(Rank.FULL).name("instructor").build());
         CourseSectionRegistration csr1 = createAndSaveCourseSection(term, student, course, instructor, 6.0);
         CourseSectionRegistration csr2 = createAndSaveCourseSection(term, student, course, instructor, 18.0);
         when(repo.findCSRsByStudentAndTerm(any(),any())).thenReturn(List.of(csr1,csr2));
@@ -75,8 +77,9 @@ class StudentServiceTest {
         User user = repo.findUserByUsername("student");
 //        Term term = repo.findAllTerms().get(0);
         Term term = repo.findTerm(69L);
-        StudentAverageDTO response = studentService.seeScoresInSpecifiedTerm(term.getId(), user.getUsername());//todo الان اینجا که داره از این متود این کلاس استفاده میکنه یعنی که باید این کلاس رو هم ماک کنم؟
-        double avg = response.getAverage();
+        EntityModel<StudentAverageDTO> response = studentService.seeScoresInSpecifiedTerm(term.getId(), user.getUsername());
+
+        double avg = Objects.requireNonNull(response.getContent()).getAverage();;
         assertEquals(avg, 12);
     }
 }

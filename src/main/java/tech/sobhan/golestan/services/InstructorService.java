@@ -41,11 +41,11 @@ public class InstructorService {
         List<CourseSection> courseSectionsOfInstructor = repo.findCourseSectionByInstructor(instructor);
         courseSectionsOfInstructor.forEach(cs -> cs.setInstructor(null));
         repo.deleteInstructor(instructor);
-        log.info("Instructor with id" + instructor.getId() + "deleted");
+        log.info("Instructor with id " + instructor.getId() + " deleted");
     }
 
     public CourseSectionRegistration giveMark(Long courseSectionId, Long studentId, Double score) {
-        CourseSection courseSection = repo.findCourseSection(courseSectionId);//todo move to security service
+        CourseSection courseSection = repo.findCourseSection(courseSectionId);
         Student student = repo.findStudent(studentId);
         CourseSectionRegistration courseSectionRegistration = repo
                 .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);

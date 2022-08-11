@@ -34,7 +34,10 @@ public class CourseSectionService {
         return pagination(filteredList, pageNumber, maxInEachPage);
     }
 
-    public List<StudentDTO> listCourseSectionStudents(List<CourseSectionRegistration> courseSectionRegistrations) {
+    public List<StudentDTO> listCourseSectionStudents(Long courseSectionId) {
+        CourseSection cs = repo.findCourseSection(courseSectionId);
+        List<CourseSectionRegistration> courseSectionRegistrations = repo
+                .findCourseSectionRegistrationByCourseSection(cs);
         return courseSectionRegistrations.stream()
                 .map(csr -> getStudentDetails(csr, repo))
                 .collect(Collectors.toList());
@@ -49,7 +52,7 @@ public class CourseSectionService {
 
     @Value("${defaultMaxInEachPage}")
     private static Integer defaultMaxInEachPage;
-    private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {//todo clean it
+    private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber == null) {
             return maxInEachPage == null ? filteredList :
                     filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
@@ -60,7 +63,7 @@ public class CourseSectionService {
         }
     }
 
-    private List<CourseSection> filterList(Term term, String instructorName, String courseName) {//todo clean it
+    private List<CourseSection> filterList(Term term, String instructorName, String courseName) {
         if(instructorName == null) {
             return courseName == null ? list(term) : repo.findCourseSectionByCourseName(courseName);
         } else {
@@ -70,12 +73,23 @@ public class CourseSectionService {
     }
 
     private List<CourseSection> list(Term term) {
+
         return repo.findCourseSectionByTerm(term);
     }
 
-    public CourseSection create(CourseSection courseSection) {
+
+
+    public CourseSection create(Long courseId, Long instructorId, Long termId) {
+        CourseSection courseSection = buildCourseSection(courseId, instructorId, termId);
         log.info("CourseSection " + courseSection + "created");
         return repo.saveCourseSection(courseSection);
+    }
+
+    private CourseSection buildCourseSection(Long courseId, Long instructorId, Long termId) {
+        Course course = repo.findCourse(courseId);
+        Instructor instructor = repo.findInstructor(instructorId);
+        Term term = repo.findTerm(termId);
+        return CourseSection.builder().instructor(instructor).course(course).term(term).build();
     }
 
     public CourseSectionDTO read(Long id) {
@@ -113,8 +127,9 @@ public class CourseSectionService {
         }
     }
 
-    public void delete(CourseSection courseSection) {
-        log.info("CourseSection " + courseSection + "deleted");
-        repo.deleteCourseSection(courseSection);
+    public void delete(Long courseSectionId) {
+        CourseSection cs = repo.findCourseSection(courseSectionId);
+        log.info("CourseSection " + cs + " deleted");
+        repo.deleteCourseSection(cs);
     }
 }

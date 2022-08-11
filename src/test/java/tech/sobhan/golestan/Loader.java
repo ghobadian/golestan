@@ -6,21 +6,20 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
-import tech.sobhan.golestan.business.exceptions.notFound.UserNotFoundException;
+import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.enums.Degree;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
-import tech.sobhan.golestan.models.Token;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
-import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.security.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static tech.sobhan.golestan.constants.ApiPaths.COURSE_SECTION_CREATE_PATH;
 
 
 @Component
@@ -45,15 +44,13 @@ public class Loader {
     }
 
     private void loadAdmin() {
-        try{
-            repo.findUserByUsername("admin");
-        }catch (UserNotFoundException e) {
+        if(!repo.userExistsByUsername("admin")) {
             User admin = User.builder().username("admin").password("admin").name("admin").phone("1234")
                     .nationalId("12345465489").admin(true).active(true).build();
             admin.setPassword(passwordEncoder.hash(admin.getPassword()));
             repo.saveUser(admin);
         }
-        repo.saveToken(Token.builder().username("admin").token("admin").build());
+        repo.saveToken("admin","admin");
     }
 
     @SneakyThrows
@@ -62,8 +59,8 @@ public class Loader {
             Course course = repo.findAllCourses().get(i);
             Instructor instructor = repo.findAllInstructors().get(i);
             Term term = repo.findAllTerms().get(i);
-            repo.saveToken(Token.builder().username("instructor"+i).token("instructor"+i).build());
-            mockMvc.perform(post("/courseSections")
+            repo.saveToken("instructor"+i, "instructor"+i);
+            mockMvc.perform(post(COURSE_SECTION_CREATE_PATH)
                     .header("token", "instructor" + i)
                     .param("courseId", String.valueOf(course.getId()))
                     .param("instructorId", String.valueOf(instructor.getId()))
@@ -141,7 +138,7 @@ public class Loader {
                     .param("name", "instructor" + i)
                     .param("phone", "0903156879" + i)
                     .param("nationalId", "546879412" + i));
-            repo.saveToken(Token.builder().username("instructor" + i).token("instructor" + i).build());
+            repo.saveToken("instructor" + i, "instructor" + i);
         }
         User instructor = repo.findUserByUsername("instructor3");
         assertEquals(instructor.getPassword() , passwordEncoder.hash("instructor3"));
@@ -156,7 +153,7 @@ public class Loader {
                     .param("name", "student"+ i)
                     .param("phone", "0901254125" + i)
                     .param("nationalId", "541254687" + i));
-            repo.saveToken(Token.builder().username("student" + i).token("student" + i).build());
+            repo.saveToken("student" + i, "student" + i);
         }
         assertEquals(11, repo.findAllUsers().size());
     }

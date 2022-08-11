@@ -8,8 +8,8 @@ import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class Repo {
     private final TermRepository termRepository;
     private final CourseSectionRepository courseSectionRepository;
     private final CourseSectionRegistrationRepository courseSectionRegistrationRepository;
-    private final TokenRepository tokenRepository;
+    private final Map<String,String> tokenRepository;
 
     public User findUser(Long id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
@@ -174,21 +174,7 @@ public class Repo {
     }
 
     public List<CourseSection> findCourseSectionByInstructorName(String instructorName) {
-        List<CourseSection> allCourseSections = findAllCourseSections();//todo چطور بهینه کنم؟
-        List<CourseSection> output = new ArrayList<>();
-        for (CourseSection courseSection : allCourseSections) {
-            Long currentCourseSectionInstructorId = courseSection.getInstructor().getId();
-            String currentCourseSectionInstructorName;
-            try{
-                currentCourseSectionInstructorName = findUserByInstructor(currentCourseSectionInstructorId).getName();
-            }catch (UserNotFoundException u) {
-                continue;
-            }
-            if(instructorName.equals(currentCourseSectionInstructorName)) {
-                output.add(courseSection);
-            }
-        }
-        return output;
+        return courseSectionRepository.findByInstructorName(instructorName);
     }
 
     public List<CourseSection> findCourseSectionByCourseName(String courseTitle) {
@@ -196,7 +182,7 @@ public class Repo {
     }
 
     public List<CourseSection> findCourseSectionByInstructorNameAndCourseName(String instructorName, String courseName) {
-        return courseSectionRepository.findByCourse_TitleAndInstructorUserName(instructorName, courseName);
+        return courseSectionRepository.findByCourse_TitleAndInstructorName(instructorName, courseName);
     }
 
     public List<User> findAllUsers() {
@@ -257,24 +243,26 @@ public class Repo {
         return courseSectionRegistrationRepository.findByStudent(student);
     }
 
-    public Token saveToken(Token token) {
-        return tokenRepository.save(token);
+    public String saveToken(String username, String token) {
+        tokenRepository.put(username, token);
+        return token;
     }
 
-    public void deleteToken(Token token) {
-        tokenRepository.delete(token);
+    public void deleteTokenByUsername(String username) {
+        tokenRepository.remove(username);
     }
 
     public boolean userExistsByToken(String token) {
-        return tokenRepository.existsByToken(token);
+        return tokenRepository.containsValue(token);
     }
 
-    public Token findTokenByToken(String token) {
-        return tokenRepository.findByToken(token);
+    public String findUsernameByToken(String token) {
+        return tokenRepository.keySet().stream().filter(key -> tokenRepository.get(key).equals(token)).findFirst()
+                .orElseThrow(TokenNotFoundException::new);
     }
 
     public boolean tokenExistsByUsername(String username) {
-        return tokenRepository.existsByUsername(username);
+        return tokenRepository.containsKey(username);
     }
 
     public boolean courseExistsByTitle(String title) {

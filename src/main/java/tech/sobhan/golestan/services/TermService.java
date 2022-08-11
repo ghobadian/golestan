@@ -20,7 +20,7 @@ public class TermService {
 
     public Term create(String title, boolean open) {
         Term term = Term.builder().title(title).open(open).build();
-        log.info("Term with title:" + title + "created");
+        log.info("Term with title: " + title + " created");
         return repo.saveTerm(term);
     }
 
@@ -50,6 +50,6 @@ public class TermService {
     public void delete(Long id) {
         Term term = repo.findTerm(id);
         repo.deleteTerm(term);
-        log.info("Term with title:" + term.getTitle() + "deleted");
+        log.info("Term with title: " + term.getTitle() + " deleted");
     }
 }

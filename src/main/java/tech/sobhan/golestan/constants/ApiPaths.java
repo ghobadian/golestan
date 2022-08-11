@@ -8,7 +8,7 @@ public class ApiPaths {
     public static final String USER_UPDATE_PATH = "/management/user/";
     public static final String USER_DELETE_PATH = "/management/users/{id}";
     public static final String COURSE_LIST_PATH = "/courses";
-    public static final String COURSE_CREATE_PATH = "/management/courses";//todo don't forget about indexing
+    public static final String COURSE_CREATE_PATH = "/management/courses";
     public static final String COURSE_READ_PATH = "/courses/{id}";
     public static final String COURSE_UPDATE_PATH = "/management/courses/{id}";
     public static final String COURSE_DELETE_PATH = "/management/courses/{id}";

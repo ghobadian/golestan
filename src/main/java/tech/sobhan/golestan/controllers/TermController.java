@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.models.Term;
+import tech.sobhan.golestan.services.TermService;
 import tech.sobhan.golestan.services.security.TermSecurityService;
 
 import java.util.List;
@@ -13,24 +14,28 @@ import static tech.sobhan.golestan.constants.ApiPaths.*;
 @RestController
 @RequiredArgsConstructor
 public class TermController {
-    private final TermSecurityService service;
+    private final TermService service;
+    private final TermSecurityService securityService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(TERM_LIST_PATH)
     private List<Term> list(@RequestHeader String token) {
-        return service.list(token);
+        securityService.list(token);
+        return service.list();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(TERM_CREATE_PATH)
     private Term create(@RequestParam String title, boolean open, @RequestHeader String token) {
-        return service.create(title, open, token);
+        securityService.create(title, token);
+        return service.create(title, open);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(TERM_READ_PATH)
     private Term read(@PathVariable Long id, @RequestHeader String token) {
-        return service.read(id, token);
+        securityService.read(token);
+        return service.read(id);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -39,12 +44,14 @@ public class TermController {
                           @RequestParam(required = false) Boolean open,
                           @PathVariable Long id,
                           @RequestHeader String token) {
-        return service.update(title, open, id, token);
+        securityService.update(token);
+        return service.update(title, open, id);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(TERM_DELETE_PATH)
     private void delete(@PathVariable Long id, @RequestHeader String token) {
-        service.delete(id, token);
+        securityService.delete(token);
+        service.delete(id);
     }
 }

@@ -2,6 +2,7 @@ package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
@@ -22,18 +23,26 @@ import java.util.stream.Collectors;
 public class StudentService {
     private final Repo repo;
 
-public CourseSectionRegistration signUpSection(Student student, CourseSection courseSection) {
+    public CourseSectionRegistration signUpSection(Student student, CourseSection courseSection) {
         CourseSectionRegistration csr = CourseSectionRegistration.builder()
                 .student(student).courseSection(courseSection).build();
         return repo.saveCourseSectionRegistration(csr);
     }
 
-    public StudentAverageDTO seeScoresInSpecifiedTerm(Long termId, String username) {
+    public CourseSectionRegistration signUpSection(Long courseSectionId, String token) {
+        Long studentId = repo.findStudentByUsername(repo.findUsernameByToken(token)).getId();
+        return signUpSection(repo.findStudent(studentId), repo.findCourseSection(courseSectionId));
+    }
+
+
+
+    public EntityModel<StudentAverageDTO> seeScoresInSpecifiedTerm(Long termId, String token) {
+        String username = repo.findUsernameByToken(token);
         Student student = repo.findStudentByUsername(username);
         Term term = repo.findTerm(termId);
         List<CourseSectionRegistration> csrs = repo.findCSRsByStudentAndTerm(student, term);
         List<CourseSectionDTO2> courseSections = csrs.stream().map(this::getCourseSectionDetails).collect(Collectors.toList());
-        return StudentAverageDTO.builder().average(findAverage(csrs)).courseSections(courseSections).build();//todo emtiazi
+        return EntityModel.of(StudentAverageDTO.builder().average(findAverage(csrs)).courseSections(courseSections).build());
     }
 
     public CourseSectionDTO2 getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration) {
@@ -62,7 +71,8 @@ public CourseSectionRegistration signUpSection(Student student, CourseSection co
     }
 
 
-    public SummeryDTO seeSummery(String username) {
+    public SummeryDTO seeSummery(String token) {
+        String username = repo.findUsernameByToken(token);
         Student student = repo.findStudentByUsername(username);
         AtomicReference<Double> totalSum = new AtomicReference<>((double) 0);
         List<Term> terms = repo.findAllTerms();
@@ -93,6 +103,6 @@ public CourseSectionRegistration signUpSection(Student student, CourseSection co
         List<CourseSectionRegistration> csrs = repo.findCourseSectionRegistrationByStudent(student);
         csrs.forEach(csr -> csr.setStudent(null));
         repo.deleteStudent(student);
-        log.info("Student with id" + studentId + "created");
+        log.info("Student with id " + studentId + " created");
     }
 }

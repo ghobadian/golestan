@@ -4,9 +4,11 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import tech.sobhan.golestan.dao.Repo;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static tech.sobhan.golestan.constants.ApiPaths.SEE_SCORES_IN_TERM_PATH;
 
 @WebAppConfiguration
 @SpringBootTest
@@ -64,16 +67,20 @@ public class IntegrationTest {
         Instructor instructor = repo.findAllInstructors().get(0);
         CourseSection  courseSection = repo.findAllCourseSections().get(0);
         CourseSectionDTO2 sth = CourseSectionDTO2.builder().courseUnits(5).id(courseSection.getId())
+                .courseName(courseSection.getCourse().getTitle())
                 .instructor(InstructorDTO.builder().rank(instructor
                         .getRank()).name("instructor0").build()).build();
-        StudentAverageDTO expectedResponse = StudentAverageDTO.builder().average(19.75).courseSections(List.of(sth)).build();
-//        String expectedResponse = "[{\"average\":19.75},{\"course_section_id\":"+courseSection.getId()+"," +
-//                "\"course_name\":\"BodyBuilding0\",\"course_units\":5," +
-//                "\"instructor\":\""+instructor+"\",\"score\":19.75}]";
-        mockMvc.perform(get("/student/see_scores/")
+        StudentAverageDTO expectedResponse = StudentAverageDTO.builder()
+                .average(19.75).courseSections(List.of(sth)).build();
+        MvcResult response = mockMvc.perform(get(SEE_SCORES_IN_TERM_PATH)
                 .header("token", "student0")
-                .param("termId", String.valueOf(term.getId())));
-//                .andExpect(expectedResponse);//todo اینجا چیکار کنم؟
+                .param("termId", String.valueOf(term.getId())))
+                .andReturn();
+        JSONObject json = new JSONObject(response.getResponse().getContentAsString());
+        assertEquals(expectedResponse.getAverage(), json.get("average"));
+        JSONArray jArray = (JSONArray) json.get("courseSections");
+        JSONObject dto = (JSONObject) jArray.get(0);
+        assertEquals(expectedResponse.getCourseSections().get(0).getCourseName(), dto.get("courseName"));
     }
 
     @SneakyThrows

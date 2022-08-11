@@ -1,5 +1,6 @@
 package tech.sobhan.golestan.models.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import tech.sobhan.golestan.enums.Rank;
 
@@ -17,7 +18,8 @@ public class Instructor {
     @GeneratedValue
     private Long id;
     private Rank rank;
-    @OneToOne
-    @JoinColumn(name = "user", unique = true)
+    private String name;
+    @OneToOne(mappedBy = "instructor")
+    @JsonIgnore
     private User user;
 }

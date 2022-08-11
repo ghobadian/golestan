@@ -57,30 +57,43 @@ public class ErrorChecker {
 
     public void checkIsAdmin(String token) {
         checkIsUser(token);
-        String username = repo.findTokenByToken(token).getUsername();
+        String username = repo.findUsernameByToken(token);
         if(isNotAdmin(username)) throw new ForbiddenException();
     }
 
     public void checkIsInstructor(String token) {
         checkIsUser(token);
-        String username = repo.findTokenByToken(token).getUsername();
+        String username = repo.findUsernameByToken(token);
         if(!isInstructor(username)) throw new ForbiddenException();
     }
 
     public void checkIsInstructorOfCourseSectionOrAdmin(String token, CourseSection courseSection) {
         checkIsUser(token);
-        String username = repo.findTokenByToken(token).getUsername();
+        String username = repo.findUsernameByToken(token);
         if(isInstructor(username) && isNotAdmin(username)) throw new ForbiddenException();
         if(isInstructor(username) && isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
+    }
+
+    public void checkIsInstructorOfCourseSectionOrAdmin(String token, Long courseSectionId) {
+        CourseSection cs = repo.findCourseSection(courseSectionId);
+        checkIsInstructorOfCourseSectionOrAdmin(token, cs);
+    }
+
+    public void checkIsInstructorOfCourseSection(String token, Long courseId, Long instructorId, Long termId) {
+        CourseSection courseSection = CourseSection.builder().course(repo.findCourse(courseId))
+                .instructor(repo.findInstructor(instructorId))
+                .term(repo.findTerm(termId)).build();
+        checkIsInstructorOfCourseSection(token, courseSection);
     }
 
     public void checkIsInstructorOfCourseSection(String token, Long courseSectionId) {
         CourseSection courseSection = repo.findCourseSection(courseSectionId);
         checkIsInstructorOfCourseSection(token, courseSection);
     }
+
     public void checkIsInstructorOfCourseSection(String token, CourseSection courseSection) {
         checkIsInstructor(token);
-        String username = repo.findTokenByToken(token).getUsername();
+        String username = repo.findUsernameByToken(token);
         if(isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
     }
 
@@ -90,6 +103,13 @@ public class ErrorChecker {
 
     public void checkPhoneNumber(String phone) {
         if(!phone.matches("\\d{11}")) throw new InvalidPhoneNumberException();
+    }
+
+    public void checkCourseSectionExists(Long courseId, Long instructorId, Long termId) {
+        CourseSection courseSection = CourseSection.builder().course(repo.findCourse(courseId))
+                .instructor(repo.findInstructor(instructorId)).term(repo.findTerm(termId)).build();
+        Term term = repo.findTerm(termId);
+        checkCourseSectionExists(term, courseSection);
     }
 
     public void checkCourseSectionExists(Term term, CourseSection courseSection) {
@@ -110,6 +130,19 @@ public class ErrorChecker {
     public void checkCourseSectionRegistrationExists(CourseSection courseSection, Student student) {
         if(repo.csrExistsByCourseSectionAndStudent(courseSection, student))
             throw new CourseSectionRegistrationDuplicationException();
+    }
+
+    public void checkCourseSectionRegistrationExists(Long courseSectionId, Long studentId) {
+        checkCourseSectionRegistrationExists(repo.findCourseSection(courseSectionId), repo.findStudent(studentId));
+    }
+
+    public void checkCourseSectionRegistrationExists(Long courseSectionId, String token) {
+        Long studentId = repo.findStudentByUsername(repo.findUsernameByToken(token)).getId();
+        checkCourseSectionRegistrationExists(courseSectionId, studentId);
+    }
+
+    public void checkCourseSectionIsNotEmpty(Long courseSectionId) {
+        checkCourseSectionIsNotEmpty(repo.findCourseSection(courseSectionId));
     }
 
     public void checkCourseSectionIsNotEmpty(CourseSection courseSection) {

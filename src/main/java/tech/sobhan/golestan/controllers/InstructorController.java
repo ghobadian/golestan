@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
+import tech.sobhan.golestan.services.InstructorService;
 import tech.sobhan.golestan.services.security.InstructorSecurityService;
 
 import java.util.List;
@@ -16,30 +17,35 @@ import static tech.sobhan.golestan.constants.ApiPaths.*;
 @RestController
 @RequiredArgsConstructor
 public class InstructorController {
-    private final InstructorSecurityService service;
+    private final InstructorService service;
+    private final InstructorSecurityService securityService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_LIST_PATH)
-    private List<Instructor> list(@RequestHeader String token) {//todo send also the user
-        return service.list(token);
+    private List<Instructor> list(@RequestHeader String token) {
+        securityService.list(token);
+        return service.list();
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_READ_PATH)
     private Instructor read(@PathVariable Long id, @RequestHeader String token) {
-        return service.read(id, token);
+        securityService.read(token);
+        return service.read(id);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(INSTRUCTOR_DELETE_PATH)
     private void delete(@PathVariable Long instructorId, @RequestHeader String token) {
-        service.delete(instructorId, token);
+        securityService.delete(token);
+        service.delete(instructorId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(INSTRUCTOR_UPDATE_PATH)
     private Instructor update(@RequestParam Rank rank, @PathVariable Long instructorId, @RequestHeader String token) {
-        return service.update(rank, instructorId, token);
+        securityService.update(token);
+        return service.update(rank, instructorId);
     }
 
     @PostMapping(GIVE_SINGLE_MARK_PATH)
@@ -47,7 +53,8 @@ public class InstructorController {
                                               @PathVariable Long studentId,
                                               @RequestParam Double score,
                                               @RequestHeader String token) {
-        return service.giveMark(token, courseSectionId, studentId, score);
+        securityService.giveMark(token, courseSectionId);
+        return service.giveMark(courseSectionId, studentId, score);
     }
 
     @PostMapping(GIVE_MULTIPLE_MARK_PATH)
@@ -55,6 +62,7 @@ public class InstructorController {
                                     @RequestParam JSONArray studentIds,
                                     @RequestParam JSONArray scores,
                                     @RequestHeader String token) {
-        return service.giveMultipleMarks(token, courseSectionId, studentIds, scores);
+        securityService.giveMultipleMarks(token, courseSectionId);
+        return service.giveMultipleMarks(courseSectionId, studentIds, scores);
     }
 }
