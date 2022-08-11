@@ -53,7 +53,7 @@ class StudentServiceTest {
         when(repo.findUserByUsername(anyString())).thenReturn(user);
         when(repo.findStudentByUsername(anyString())).thenReturn(student);
         Course course = repo.saveCourse(Course.builder().title("course").units(3).build());
-        Instructor instructor = repo.saveInstructor(Instructor.builder().rank(Rank.FULL).name("instructor").build());
+        Instructor instructor = repo.saveInstructor(Instructor.builder().rank(Rank.FULL).user(User.builder().name("instructor").build()).build());
         CourseSectionRegistration csr1 = createAndSaveCourseSection(term, student, course, instructor, 6.0);
         CourseSectionRegistration csr2 = createAndSaveCourseSection(term, student, course, instructor, 18.0);
         when(repo.findCSRsByStudentAndTerm(any(),any())).thenReturn(List.of(csr1,csr2));

@@ -174,7 +174,7 @@ public class Repo {
     }
 
     public List<CourseSection> findCourseSectionByInstructorName(String instructorName) {
-        return courseSectionRepository.findByInstructorName(instructorName);
+        return courseSectionRepository.findByInstructorUserName(instructorName);
     }
 
     public List<CourseSection> findCourseSectionByCourseName(String courseTitle) {
@@ -182,7 +182,7 @@ public class Repo {
     }
 
     public List<CourseSection> findCourseSectionByInstructorNameAndCourseName(String instructorName, String courseName) {
-        return courseSectionRepository.findByCourse_TitleAndInstructorName(instructorName, courseName);
+        return courseSectionRepository.findByCourse_TitleAndInstructorUserName(courseName, instructorName);
     }
 
     public List<User> findAllUsers() {

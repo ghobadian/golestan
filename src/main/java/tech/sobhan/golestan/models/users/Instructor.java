@@ -18,7 +18,6 @@ public class Instructor {
     @GeneratedValue
     private Long id;
     private Rank rank;
-    private String name;
     @OneToOne(mappedBy = "instructor")
     @JsonIgnore
     private User user;

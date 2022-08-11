@@ -111,7 +111,7 @@ public class UserService {
 
     private User addRoleInstructor(Map<String, String> requestedBody, User user) {
         Instructor instructor = Instructor.builder().rank(Rank.valueOf(requestedBody.get("rank").toUpperCase()))
-                .name(user.getName()).build();
+                .user(user).build();
         repo.saveInstructor(instructor);
         user.setInstructor(instructor);
         return repo.saveUser(user);

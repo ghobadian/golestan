@@ -17,7 +17,7 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, Lo
 
     List<CourseSection> findByCourse_Title(String courseTitle);
 
-    List<CourseSection> findByCourse_TitleAndInstructorName(String course_title, String instructor_user_name);
+    List<CourseSection> findByCourse_TitleAndInstructorUserName(String course_title, String instructor_user_name);
 
-    List<CourseSection> findByInstructorName(String instructor_name);
+    List<CourseSection> findByInstructorUserName(String instructor_user_name);
 }
