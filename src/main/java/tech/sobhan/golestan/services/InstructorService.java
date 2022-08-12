@@ -2,8 +2,7 @@ package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.enums.Rank;
@@ -64,12 +63,8 @@ public class InstructorService {
 
     private void giveSingleMark(Long courseSectionId, JSONArray studentIds, JSONArray scores,
                                 List<CourseSectionRegistration> response, int i){
-        try{
-            Long studentId = Long.parseLong(String.valueOf(studentIds.get(i)));
-            Double score = Double.parseDouble(String.valueOf(scores.get(i)));
-            response.add(giveMark(courseSectionId, studentId, score));
-        }catch (JSONException j){
-            j.printStackTrace();
-        }
+        Long studentId = Long.parseLong(String.valueOf(studentIds.get(i)));
+        Double score = Double.parseDouble(String.valueOf(scores.get(i)));
+        response.add(giveMark(courseSectionId, studentId, score));
     }
 }

@@ -1,7 +1,7 @@
 package tech.sobhan.golestan.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.enums.Rank;
