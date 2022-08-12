@@ -70,8 +70,7 @@ public class StudentService {
 
 
     public SummeryDTO seeSummery(String token) {
-        String username = repo.findUsernameByToken(token);
-        Student student = repo.findStudentByUsername(username);
+        Student student = repo.findStudentByToken(token);
         AtomicReference<Double> totalSum = new AtomicReference<>((double) 0);
         List<Term> terms = repo.findAllTerms();
         List<TermDTO> allTermDetails = new ArrayList<>();

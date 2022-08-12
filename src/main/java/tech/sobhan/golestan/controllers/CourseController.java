@@ -19,9 +19,9 @@ public class CourseController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_LIST_PATH)
-    private List<Course> list(@RequestHeader String token) {
+    private List<Course> list(@RequestHeader String token, @RequestParam int page, @RequestParam int number) {
         securityService.list(token);
-        return service.list();
+        return service.list(page, number);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

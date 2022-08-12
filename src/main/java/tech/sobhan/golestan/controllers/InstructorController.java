@@ -22,9 +22,9 @@ public class InstructorController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(INSTRUCTOR_LIST_PATH)
-    private List<Instructor> list(@RequestHeader String token) {
+    private List<Instructor> list(@RequestHeader String token, @RequestParam int page, @RequestParam int number) {
         securityService.list(token);
-        return service.list();
+        return service.list(page, number);
     }
 
     @ResponseStatus(HttpStatus.OK)

@@ -8,7 +8,6 @@ import org.springframework.test.context.ContextConfiguration;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -23,10 +22,10 @@ class CourseServiceTest {
     private Repo repo;
 
     @Test
-    void list() {//todo use h2 for docker
-        List<Course> courses = new ArrayList<>();
-        courses.add(Course.builder().units(5).title("course5").build());
-        courses.add(Course.builder().units(2).title("course2").build());
+    void list() {
+        Course c1 = Course.builder().units(5).title("course5").build();
+        Course c2 = Course.builder().units(2).title("course2").build();
+        List<Course> courses = List.of(c1, c2);
         when(repo.findAllCourses()).thenReturn(courses);
         assertArrayEquals(courseService.list().toArray(), courses.toArray());
     }

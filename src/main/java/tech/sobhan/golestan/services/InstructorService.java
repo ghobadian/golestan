@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
+import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
-import tech.sobhan.golestan.dao.Repo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,8 @@ import java.util.stream.IntStream;
 public class InstructorService {
     private final Repo repo;
 
-    public List<Instructor> list() {
-        return repo.findAllInstructors();
+    public List<Instructor> list(int page, int number) {
+        return repo.findAllInstructors(page, number);
     }
 
     public Instructor read(Long instructorId) {
@@ -58,29 +58,18 @@ public class InstructorService {
         int numberOfScores = scores.length();
         if(numberOfScores != numberOfStudents) throw new RuntimeException("sizes are not the same");
         List<CourseSectionRegistration> response = new ArrayList<>();
-        IntStream.range(0,numberOfStudents).forEach(i -> {
-            Long studentId = parseId(studentIds, i);
-            Double score = parseScore(scores, i);
-            response.add(giveMark(courseSectionId, studentId, score));
-        });
+        IntStream.range(0,numberOfStudents).forEach(i -> giveSingleMark(courseSectionId, studentIds, scores, response, i));
         return response;
     }
 
-    private Double parseScore(JSONArray scores, int i) {
+    private void giveSingleMark(Long courseSectionId, JSONArray studentIds, JSONArray scores,
+                                List<CourseSectionRegistration> response, int i){
         try{
-            return Double.parseDouble(String.valueOf(scores.get(i)));
-        }catch (JSONException j) {
+            Long studentId = Long.parseLong(String.valueOf(studentIds.get(i)));
+            Double score = Double.parseDouble(String.valueOf(scores.get(i)));
+            response.add(giveMark(courseSectionId, studentId, score));
+        }catch (JSONException j){
             j.printStackTrace();
-            return null;
-        }
-    }
-
-    private Long parseId(JSONArray studentIds, int i)  {
-        try{
-            return Long.parseLong(String.valueOf(studentIds.get(i)));
-        }catch (JSONException j) {
-            j.printStackTrace();
-            return null;
         }
     }
 }

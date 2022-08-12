@@ -9,7 +9,7 @@ import tech.sobhan.golestan.business.exceptions.PageNumberException;
 @RequiredArgsConstructor
 public class PaginationErrorChecker {
     @Value("${defaultMaxInEachPage}")
-    private static Integer defaultMaxInEachPage;//todo fix two responses when advising exception
+    private static Integer defaultMaxInEachPage;
 
     public static void checkPaginationErrors(int size, Integer pageNumber, Integer maxInEachPage) {
         if(pageNumber ==null)

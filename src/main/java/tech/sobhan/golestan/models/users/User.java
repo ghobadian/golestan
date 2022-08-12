@@ -9,7 +9,9 @@ import javax.persistence.*;
 @Data @Builder
 @ToString(of = {"username", "name", "phone", "nationalId"})
 @EqualsAndHashCode(of = "username")
-@Entity @Table(name = "users", indexes = @Index(columnList = "username"))
+@Entity
+@Table(name = "users", indexes = {@Index(columnList = "username"),
+        @Index(columnList = "admin"), @Index(columnList = "name")})
 public class User {
     @Id 
     @GeneratedValue

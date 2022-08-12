@@ -2,9 +2,7 @@ package tech.sobhan.golestan.models;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @Builder
@@ -13,6 +11,7 @@ import javax.persistence.Id;
 @EqualsAndHashCode(of = {"title", "units"})
 @ToString(of = {"title", "units"})
 @Entity
+@Table(indexes = @Index(columnList = "title"))
 public class Course {
     @Id 
     @GeneratedValue

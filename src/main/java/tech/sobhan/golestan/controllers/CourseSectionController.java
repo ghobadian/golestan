@@ -34,8 +34,8 @@ public class CourseSectionController {
     @GetMapping(LIST_COURSE_SECTION_STUDENTS_PATH)
     public List<StudentDTO> listStudentsOfSpecifiedCourseSection(@RequestParam Long courseSectionId,
                                                                  @RequestHeader String token) {
-        securityService.listCourseSectionStudents(courseSectionId, token);
-        return service.listCourseSectionStudents(courseSectionId);
+        securityService.listStudentsByCourseSection(courseSectionId, token);
+        return service.listStudentsByCourseSection(courseSectionId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

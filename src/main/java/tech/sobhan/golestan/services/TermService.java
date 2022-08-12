@@ -14,8 +14,8 @@ import java.util.List;
 public class TermService {
     private final Repo repo;
 
-    public List<Term> list() {
-        return repo.findAllTerms();
+    public List<Term> list(int page, int number) {
+        return repo.findAllTerms(page, number);
     }
 
     public Term create(String title, boolean open) {

@@ -55,7 +55,7 @@ public class IntegrationTest {
 
     @SneakyThrows
     @Test
-    public void projectIntegrationScenario() {
+    public void projectIntegrationScenario( ) {
         signUpCourseSection();
         giveMarkToStudent();
         seeScoresInTerm();

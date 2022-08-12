@@ -12,7 +12,7 @@ public class CourseSectionSecurityService {
         errorChecker.checkIsUser(token);
     }
 
-    public void listCourseSectionStudents(Long courseSectionId, String token) {
+    public void listStudentsByCourseSection(Long courseSectionId, String token) {
         errorChecker.checkIsInstructorOfCourseSectionOrAdmin(token, courseSectionId);
     }
 

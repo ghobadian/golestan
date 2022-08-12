@@ -27,14 +27,14 @@ public class CourseSectionService {
     private final Repo repo;
 
     public List<CourseSection> list(Long termId, String instructorName,
-                       String courseName, Integer pageNumber, Integer maxInEachPage) {
+                       String courseName, int page, int number) {
         Term term = repo.findTerm(termId);
         List<CourseSection> filteredList = filterList(term, instructorName, courseName);
-        checkPaginationErrors(filteredList.size(), pageNumber, maxInEachPage);
-        return pagination(filteredList, pageNumber, maxInEachPage);
+        checkPaginationErrors(filteredList.size(), page, number);
+        return pagination(filteredList, page, number);
     }
 
-    public List<StudentDTO> listCourseSectionStudents(Long courseSectionId) {
+    public List<StudentDTO> listStudentsByCourseSection(Long courseSectionId) {
         CourseSection cs = repo.findCourseSection(courseSectionId);
         List<CourseSectionRegistration> courseSectionRegistrations = repo
                 .findCourseSectionRegistrationByCourseSection(cs);

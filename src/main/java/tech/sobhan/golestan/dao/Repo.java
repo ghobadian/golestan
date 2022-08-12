@@ -1,9 +1,14 @@
 package tech.sobhan.golestan.dao;
 
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import tech.sobhan.golestan.business.exceptions.notFound.*;
-import tech.sobhan.golestan.models.*;
+import tech.sobhan.golestan.models.Course;
+import tech.sobhan.golestan.models.CourseSection;
+import tech.sobhan.golestan.models.CourseSectionRegistration;
+import tech.sobhan.golestan.models.Term;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
@@ -82,8 +87,12 @@ public class Repo {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
+    public List<Instructor> findAllInstructors(int page, int size) {
+        return instructorRepository.findAll(PageRequest.of(page, size)).toList();
+    }
+
     public List<Instructor> findAllInstructors() {
-        return instructorRepository.findAll();
+        return Lists.newArrayList(instructorRepository.findAll());
     }
 
     public List<CourseSection> findCourseSectionByInstructor(Instructor instructor) {
@@ -101,7 +110,7 @@ public class Repo {
     }
 
     public List<Student> findAllStudents() {
-        return studentRepository.findAll();
+        return Lists.newArrayList(studentRepository.findAll());
     }
 
     public Student findStudentByUsername(String username) {
@@ -130,7 +139,11 @@ public class Repo {
     }
 
     public List<Term> findAllTerms() {
-        return termRepository.findAll();
+        return Lists.newArrayList(termRepository.findAll());
+    }
+
+    public List<Term> findAllTerms(int page, int number) {
+        return termRepository.findAll(PageRequest.of(page, number)).toList();
     }
 
     public User findUserByStudent(Long id) {
@@ -154,11 +167,11 @@ public class Repo {
     }
 
     public List<Course> findAllCourses() {
-        return courseRepository.findAll();
+        return Lists.newArrayList(courseRepository.findAll());
     }
 
     public List<CourseSection> findAllCourseSections() {
-        return courseSectionRepository.findAll();
+        return Lists.newArrayList(courseSectionRepository.findAll());
     }
 
     public Course saveCourse(Course course) {
@@ -186,7 +199,11 @@ public class Repo {
     }
 
     public List<User> findAllUsers() {
-        return userRepository.findAll();
+        return Lists.newArrayList(userRepository.findAll());
+    }
+
+    public List<User> findAllUsers(int page, int number) {
+        return userRepository.findAll(PageRequest.of(page, number)).toList();
     }
 
     public void deleteAll() {
@@ -217,7 +234,7 @@ public class Repo {
     }
 
     public void deleteUsersWithAdminPrivilege() {
-        userRepository.deleteAllInBatch(userRepository.findByAdminTrue());
+        userRepository.deleteAllByAdmin(true);
     }
 
     public List<CourseSectionRegistration> findCSRsByStudentAndTerm(Student student, Term term) {
@@ -283,5 +300,14 @@ public class Repo {
 
     public boolean instructorExistsById(Long instructorId) {
         return instructorRepository.existsById(instructorId);
+    }
+
+    public Student findStudentByToken(String token) {
+        String username = findUsernameByToken(token);
+        return findStudentByUsername(username);
+    }
+
+    public List<Course> findAllCourses(int page, int number) {
+        return courseRepository.findAll(PageRequest.of(page, number)).toList();
     }
 }

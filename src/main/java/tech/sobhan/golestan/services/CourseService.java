@@ -18,6 +18,10 @@ public class CourseService {
         return repo.findAllCourses();
     }
 
+    public List<Course> list(int page, int number) {
+        return repo.findAllCourses(page, number);
+    }
+
     public Course create(int units, String title) {
         Course course = Course.builder().units(units).title(title).build();
         log.info("Course " + course.getTitle() + " created");

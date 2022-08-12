@@ -19,9 +19,9 @@ public class TermController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(TERM_LIST_PATH)
-    private List<Term> list(@RequestHeader String token) {
+    private List<Term> list(@RequestHeader String token, @RequestParam int page, @RequestParam int number) {
         securityService.list(token);
-        return service.list();
+        return service.list(page, number);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

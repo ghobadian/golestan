@@ -1,6 +1,6 @@
 package tech.sobhan.golestan.dao;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CourseSectionRegistrationRepository extends JpaRepository<CourseSectionRegistration, Long> {
+public interface CourseSectionRegistrationRepository extends PagingAndSortingRepository<CourseSectionRegistration, Long> {
     Optional<CourseSectionRegistration> findByCourseSectionAndStudent(CourseSection courseSection, Student student);
 
     List<CourseSectionRegistration> findByStudent(Student student);

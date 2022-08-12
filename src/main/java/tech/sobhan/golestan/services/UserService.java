@@ -24,8 +24,8 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public List<User> list() {
-        return repo.findAllUsers();
+    public List<User> list(int page, int number) {
+        return repo.findAllUsers(page, number);
     }
 
     public User create(String username, String password, String name, String phone, String nationalId) {
@@ -107,7 +107,6 @@ public class UserService {
         }
         throw new RuntimeException();
     }
-
 
     private User addRoleInstructor(Map<String, String> requestedBody, User user) {
         Instructor instructor = Instructor.builder().rank(Rank.valueOf(requestedBody.get("rank").toUpperCase()))

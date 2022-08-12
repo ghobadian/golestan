@@ -23,9 +23,9 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(USER_LIST_PATH)
-    private List<User> list(@RequestHeader String token) {
+    private List<User> list(@RequestHeader String token, @RequestParam int page, @RequestParam int number) {
         securityService.list(token);
-        return service.list();
+        return service.list(page, number);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
