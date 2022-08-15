@@ -22,4 +22,10 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     List<User> findByAdminTrue();
 
     boolean existsByInstructorId(Long instructorId);
+
+    boolean existsByPhone(String phone);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByNationalId(String nationalId);
 }

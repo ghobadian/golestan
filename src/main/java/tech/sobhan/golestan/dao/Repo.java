@@ -48,15 +48,15 @@ public class Repo {
     }
 
     public boolean userExistsByPhone(String phone) {
-        return userRepository.findByPhone(phone).isPresent();
+        return userRepository.existsByPhone(phone);
     }
 
     public boolean userExistsByUsername(String username) {
-        return userRepository.findByUsername(username).isPresent();
+        return userRepository.existsByUsername(username);
     }
 
     public boolean userExistsByNationalId(String nationalId) {
-        return userRepository.findByNationalId(nationalId).isPresent();
+        return userRepository.existsByNationalId(nationalId);
     }
 
     public List<CourseSection> findCourseSectionByTerm(Term term) {
@@ -209,11 +209,11 @@ public class Repo {
     }
 
     public boolean termExistsByTitle(String title) {
-        return termRepository.findByTitle(title).isPresent();
+        return termRepository.existsByTitle(title);
     }
 
     public boolean csrExistsByCourseSectionAndStudent(CourseSection courseSection, Student student) {
-        return courseSectionRegistrationRepository.findByCourseSectionAndStudent(courseSection, student).isPresent();
+        return courseSectionRegistrationRepository.existsByCourseSectionAndStudent(courseSection, student);
     }
 
     public boolean userExistsByAdminPrivilege() {

@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface CourseSectionRegistrationRepository extends PagingAndSortingRepository<CourseSectionRegistration, Long> {
     Optional<CourseSectionRegistration> findByCourseSectionAndStudent(CourseSection courseSection, Student student);
 
+    boolean existsByCourseSectionAndStudent(CourseSection courseSection, Student student);
+
     List<CourseSectionRegistration> findByStudent(Student student);
 
     List<CourseSectionRegistration> findByCourseSection(CourseSection courseSection);
