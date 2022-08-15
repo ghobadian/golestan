@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-
 @SpringBootTest
 @ContextConfiguration(classes = {StudentService.class, PasswordEncoder.class})
 class StudentServiceTest {

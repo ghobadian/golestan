@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static tech.sobhan.golestan.constants.ApiPaths.COURSE_SECTION_CREATE_PATH;
 
-
 @Component
 @RequiredArgsConstructor
 public class Loader {

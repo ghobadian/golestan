@@ -68,7 +68,6 @@ public class StudentService {
         return sum / courseSectionRegistrations.size();
     }
 
-
     public SummeryDTO seeSummery(String token) {
         Student student = repo.findStudentByToken(token);
         AtomicReference<Double> totalSum = new AtomicReference<>((double) 0);

@@ -108,8 +108,6 @@ public class Repo {
         return instructorRepository.save(instructor);
     }
 
-
-
     public List<Instructor> findAllInstructors(int page, int size) {
         return instructorRepository.findAll(PageRequest.of(page, size)).toList();
     }
@@ -139,8 +137,6 @@ public class Repo {
     public List<CourseSectionRegistration> findCSRByStudent(Student student) {
         return courseSectionRegistrationRepository.findByStudent(student);
     }
-
-
 
     public List<Term> findAllTerms() {
         return Lists.newArrayList(termRepository.findAll());
@@ -207,7 +203,6 @@ public class Repo {
         studentRepository.deleteAll();
         instructorRepository.deleteAll();
     }
-
 
     public boolean courseSectionExistsByTerm(Term term, CourseSection courseSection) {
         return courseSectionRepository.existsByIdAndTerm(courseSection.getId(), term);

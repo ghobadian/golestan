@@ -121,7 +121,6 @@ public class ErrorChecker {
                 repo.userExistsByNationalId(nationalId)) throw new UserDuplicationException();
     }
 
-
     public void checkTermExists(String title) {
         if (repo.termExistsByTitle(title)) throw new TermDuplicationException();
     }
@@ -152,7 +151,6 @@ public class ErrorChecker {
     public void checkNationalId(String nationalId) {
         if (!nationalId.matches("\\d{10}")) throw new InvalidNationalIdException();
     }
-
 
     public void checkTokenExistsByUsername(String username) {
         if (repo.tokenExistsByUsername(username)) throw new TokenDuplicationException();

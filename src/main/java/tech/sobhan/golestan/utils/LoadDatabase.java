@@ -10,7 +10,6 @@ import tech.sobhan.golestan.security.PasswordEncoder;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-
 @Configuration
 @RequiredArgsConstructor
 public class LoadDatabase {
