@@ -39,14 +39,14 @@ public class StudentService {
         Student student = repo.findStudentByUsername(username);
         Term term = repo.findTerm(termId);
         List<CourseSectionRegistration> csrs = repo.findCSRsByStudentAndTerm(student, term);
-        List<CourseSectionDTO2> courseSections = csrs.stream().map(this::getCourseSectionDetails).collect(Collectors.toList());
+        List<CourseSectionDTO> courseSections = csrs.stream().map(this::getCourseSectionDetails).collect(Collectors.toList());
         return EntityModel.of(StudentAverageDTO.builder().average(findAverage(csrs)).courseSections(courseSections).build());
     }
 
-    public CourseSectionDTO2 getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration) {
+    public CourseSectionDTO getCourseSectionDetails(CourseSectionRegistration courseSectionRegistration) {
         CourseSection courseSection = courseSectionRegistration.getCourseSection();
         Course course = courseSection.getCourse();
-        return CourseSectionDTO2.builder().id(courseSection.getId()).courseName(course.getTitle())
+        return CourseSectionDTO.builder().id(courseSection.getId()).courseName(course.getTitle())
                 .courseUnits(course.getUnits()).instructor(getInstructorDTO(courseSection)).build();
     }
 

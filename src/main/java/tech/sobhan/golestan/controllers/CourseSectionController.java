@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tech.sobhan.golestan.models.CourseSection;
-import tech.sobhan.golestan.models.dto.CourseSectionDTO;
+import tech.sobhan.golestan.models.dto.CourseSectionDTOLight;
 import tech.sobhan.golestan.models.dto.StudentDTO;
 import tech.sobhan.golestan.services.CourseSectionService;
 import tech.sobhan.golestan.services.security.CourseSectionSecurityService;
@@ -50,7 +50,7 @@ public class CourseSectionController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(COURSE_SECTION_READ_PATH)
-    private CourseSectionDTO read(@PathVariable Long id, @RequestHeader String token) {
+    private CourseSectionDTOLight read(@PathVariable Long id, @RequestHeader String token) {
         securityService.read(token);
         return service.read(id);
     }

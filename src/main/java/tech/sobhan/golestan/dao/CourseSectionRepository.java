@@ -16,10 +16,10 @@ public interface CourseSectionRepository extends PagingAndSortingRepository<Cour
 
     List<CourseSection> findByInstructor(Instructor instructor);
 
+    boolean existsByIdAndTerm(Long id, Term term);
+
     List<CourseSection> findAllByTermAndInstructor_User_NameAndCourse_Title(Term term,
                                                                             String instructor_user_name,
                                                                             String course_title,
                                                                             PageRequest pageRequest);
-    //todo اینطوری کار میده؟
-    //todo اینجا اگه مثلا یکی از ورودی ها نال باشه اکسپشن پرتاب میکنه؟
 }

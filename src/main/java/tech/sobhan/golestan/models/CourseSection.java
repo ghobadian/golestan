@@ -9,8 +9,8 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = "id")
-@ToString(exclude = "id")
+@EqualsAndHashCode
+@ToString
 @Entity
 public class CourseSection {
     @Id 

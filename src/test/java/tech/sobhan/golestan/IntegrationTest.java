@@ -15,7 +15,7 @@ import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
-import tech.sobhan.golestan.models.dto.CourseSectionDTO2;
+import tech.sobhan.golestan.models.dto.CourseSectionDTO;
 import tech.sobhan.golestan.models.dto.InstructorDTO;
 import tech.sobhan.golestan.models.dto.StudentAverageDTO;
 import tech.sobhan.golestan.models.users.Instructor;
@@ -66,7 +66,7 @@ public class IntegrationTest {
         Term term = repo.findAllTerms().get(0);
         Instructor instructor = repo.findAllInstructors().get(0);
         CourseSection  courseSection = repo.findAllCourseSections().get(0);
-        CourseSectionDTO2 sth = CourseSectionDTO2.builder().courseUnits(5).id(courseSection.getId())
+        CourseSectionDTO sth = CourseSectionDTO.builder().courseUnits(5).id(courseSection.getId())
                 .courseName(courseSection.getCourse().getTitle())
                 .instructor(InstructorDTO.builder().rank(instructor
                         .getRank()).name("instructor0").build()).build();

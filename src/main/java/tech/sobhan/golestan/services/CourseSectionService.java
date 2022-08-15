@@ -9,7 +9,7 @@ import tech.sobhan.golestan.models.Course;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.Term;
-import tech.sobhan.golestan.models.dto.CourseSectionDTO;
+import tech.sobhan.golestan.models.dto.CourseSectionDTOLight;
 import tech.sobhan.golestan.models.dto.StudentDTO;
 import tech.sobhan.golestan.models.users.Instructor;
 import tech.sobhan.golestan.models.users.Student;
@@ -60,10 +60,10 @@ public class CourseSectionService {
         return CourseSection.builder().instructor(instructor).course(course).term(term).build();
     }
 
-    public CourseSectionDTO read(Long id) {
+    public CourseSectionDTOLight read(Long id) {
         CourseSection courseSection = repo.findCourseSection(id);
         int numberOfStudents = repo.findNumberOfStudentsInCourseSection(courseSection);
-        return CourseSectionDTO.builder().courseSection(courseSection).numberOfStudents(numberOfStudents).build();
+        return CourseSectionDTOLight.builder().courseSection(courseSection).numberOfStudents(numberOfStudents).build();
     }
 
     public CourseSection update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {

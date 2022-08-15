@@ -210,7 +210,7 @@ public class Repo {
 
 
     public boolean courseSectionExistsByTerm(Term term, CourseSection courseSection) {
-        return courseSectionRepository.findByTerm(term).stream().anyMatch(cs -> cs.equals(courseSection));
+        return courseSectionRepository.existsByIdAndTerm(courseSection.getId(), term);
     }
 
     public boolean termExistsByTitle(String title) {

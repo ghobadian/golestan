@@ -11,5 +11,5 @@ import java.util.List;
 @Builder
 public class StudentAverageDTO {
     private Double average;
-    private List<CourseSectionDTO2> courseSections;
+    private List<CourseSectionDTO> courseSections;
 }
