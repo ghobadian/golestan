@@ -36,13 +36,13 @@ public class TermService {
     }
 
     private void changeOpen(Boolean open, Term term) {
-        if(open != null) {
+        if (open != null) {
             term.setOpen(open);
         }
     }
 
     private void changeTitle(String title, Term term) {
-        if(title !=null) {
+        if (title !=null) {
             term.setTitle(title);
         }
     }

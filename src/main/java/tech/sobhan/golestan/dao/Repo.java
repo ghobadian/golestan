@@ -34,7 +34,7 @@ public class Repo {
     }
 
     public User getUserByUsername(String username) {
-        if(username == null) throw new UserNotFoundException();
+        if (username == null) throw new UserNotFoundException();
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
@@ -64,12 +64,12 @@ public class Repo {
     }
 
     public Instructor findInstructor(Long id) {
-        if(id == null) throw new InstructorNotFoundException();
+        if (id == null) throw new InstructorNotFoundException();
         return instructorRepository.findById(id).orElseThrow(InstructorNotFoundException::new);
     }
 
     public Course findCourse(Long id) {
-        if(id == null) throw new CourseNotFoundException();
+        if (id == null) throw new CourseNotFoundException();
         return courseRepository.findById(id).orElseThrow(CourseNotFoundException::new);
     }
 
@@ -78,7 +78,7 @@ public class Repo {
     }
 
     public Term findTerm(Long id) {
-        if(id == null) throw new TermNotFoundException();
+        if (id == null) throw new TermNotFoundException();
         return termRepository.findById(id).orElseThrow(TermNotFoundException::new);
     }
 
@@ -87,7 +87,7 @@ public class Repo {
     }
 
     public CourseSection findCourseSection(Long id) {
-        if(id == null) throw new CourseSectionNotFoundException();
+        if (id == null) throw new CourseSectionNotFoundException();
         return courseSectionRepository.findById(id).orElseThrow(CourseSectionNotFoundException::new);
     }
 
@@ -100,8 +100,8 @@ public class Repo {
         courseSectionRepository.delete(specifiedCourseSection);
     }
 
-    public Student saveStudent(Student student) {
-        return studentRepository.save(student);
+    public void saveStudent(Student student) {
+        studentRepository.save(student);
     }
 
     public Instructor saveInstructor(Instructor instructor) {

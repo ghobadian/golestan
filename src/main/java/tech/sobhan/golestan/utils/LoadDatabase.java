@@ -23,7 +23,7 @@ public class LoadDatabase {
 
     @PostConstruct
     private void loadAdmin() {
-        if(adminExists()){
+        if (adminExists()) {
             updateAdminsPasswordsBasedOnConfig();
         }else{
             createNewAdmin();

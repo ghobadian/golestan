@@ -40,13 +40,13 @@ public class CourseService {
     }
 
     private void updateUnits(Integer units, Course course) {
-        if(units !=null) {
+        if (units !=null) {
             course.setUnits(units);
         }
     }
 
     private void updateTitle(String title, Course course) {
-        if(title !=null) {
+        if (title !=null) {
             course.setTitle(title);
         }
     }

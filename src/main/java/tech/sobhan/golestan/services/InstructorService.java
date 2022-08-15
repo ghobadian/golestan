@@ -55,14 +55,14 @@ public class InstructorService {
     public List<CourseSectionRegistration> giveMultipleMarks(Long courseSectionId, JSONArray studentIds, JSONArray scores) {
         int numberOfStudents = studentIds.length();
         int numberOfScores = scores.length();
-        if(numberOfScores != numberOfStudents) throw new RuntimeException("sizes are not the same");
+        if (numberOfScores != numberOfStudents) throw new RuntimeException("sizes are not the same");
         List<CourseSectionRegistration> response = new ArrayList<>();
         IntStream.range(0,numberOfStudents).forEach(i -> giveSingleMark(courseSectionId, studentIds, scores, response, i));
         return response;
     }
 
     private void giveSingleMark(Long courseSectionId, JSONArray studentIds, JSONArray scores,
-                                List<CourseSectionRegistration> response, int i){
+                                List<CourseSectionRegistration> response, int i) {
         Long studentId = Long.parseLong(String.valueOf(studentIds.get(i)));
         Double score = Double.parseDouble(String.valueOf(scores.get(i)));
         response.add(giveMark(courseSectionId, studentId, score));

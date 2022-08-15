@@ -44,7 +44,7 @@ public class Loader {
     }
 
     private void loadAdmin() {
-        if(!repo.userExistsByUsername("admin")) {
+        if (!repo.userExistsByUsername("admin")) {
             User admin = User.builder().username("admin").password("admin").name("admin").phone("1234")
                     .nationalId("12345465489").admin(true).active(true).build();
             admin.setPassword(passwordEncoder.hash(admin.getPassword()));

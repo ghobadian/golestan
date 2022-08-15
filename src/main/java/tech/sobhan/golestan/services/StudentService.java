@@ -53,7 +53,7 @@ public class StudentService {
     private InstructorDTO getInstructorDTO(CourseSection courseSection) {
         Long instructorId = courseSection.getInstructor().getId();
         String instructorName = "";
-        if(repo.userExistsByInstructor(instructorId)) {
+        if (repo.userExistsByInstructor(instructorId)) {
             instructorName = repo.findUserByInstructor(instructorId).getName();
         }
         return InstructorDTO.builder().name(instructorName)

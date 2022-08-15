@@ -75,21 +75,21 @@ public class CourseSectionService {
     }
 
     private void updateInstructor(Long instructorId, CourseSection courseSection) {
-        if(repo.instructorExistsById(instructorId)) {
+        if (repo.instructorExistsById(instructorId)) {
             Instructor instructor = repo.findInstructor(instructorId);
             courseSection.setInstructor(instructor);
         }
     }
 
     private void updateCourse(Long courseId, CourseSection courseSection) {
-        if(repo.courseExistsById(courseId)) {
+        if (repo.courseExistsById(courseId)) {
             Course course = repo.findCourse(courseId);
             courseSection.setCourse(course);
         }
     }
 
     private void updateTerm(Long termId, CourseSection courseSection) {
-        if(repo.termExistsById(termId)) {
+        if (repo.termExistsById(termId)) {
             Term term = repo.findTerm(termId);
             courseSection.setTerm(term);
         }

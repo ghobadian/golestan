@@ -41,36 +41,36 @@ public class ErrorChecker {
     }
 
     public void checkIsUser(String username, String password) {
-        if(!isUser(username, password)) throw new UnauthorisedException();
+        if (!isUser(username, password)) throw new UnauthorisedException();
         checkIsActive(username);
     }
 
     public void checkIsUser(String token) {
-        if(!isUser(token)) throw new UnauthorisedException();
+        if (!isUser(token)) throw new UnauthorisedException();
     }
 
     private void checkIsActive(String username) {
         User user = repo.getUserByUsername(username);
-        if(!user.isActive()) throw new UserNotActiveException();
+        if (!user.isActive()) throw new UserNotActiveException();
     }
 
     public void checkIsAdmin(String token) {
         checkIsUser(token);
         String username = repo.findUsernameByToken(token);
-        if(isNotAdmin(username)) throw new ForbiddenException();
+        if (isNotAdmin(username)) throw new ForbiddenException();
     }
 
     public void checkIsInstructor(String token) {
         checkIsUser(token);
         String username = repo.findUsernameByToken(token);
-        if(!isInstructor(username)) throw new ForbiddenException();
+        if (!isInstructor(username)) throw new ForbiddenException();
     }
 
     public void checkIsInstructorOfCourseSectionOrAdmin(String token, CourseSection courseSection) {
         checkIsUser(token);
         String username = repo.findUsernameByToken(token);
-        if(isInstructor(username) && isNotAdmin(username)) throw new ForbiddenException();
-        if(isInstructor(username) && isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
+        if (isInstructor(username) && isNotAdmin(username)) throw new ForbiddenException();
+        if (isInstructor(username) && isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
     }
 
     public void checkIsInstructorOfCourseSectionOrAdmin(String token, Long courseSectionId) {
@@ -93,15 +93,15 @@ public class ErrorChecker {
     public void checkIsInstructorOfCourseSection(String token, CourseSection courseSection) {
         checkIsInstructor(token);
         String username = repo.findUsernameByToken(token);
-        if(isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
+        if (isNotInstructorOfCourseSection(username, courseSection)) throw new ForbiddenException();
     }
 
     public void checkCourseExistsByTitle(String title) {
-        if(repo.courseExistsByTitle(title)) throw new CourseDuplicationException();
+        if (repo.courseExistsByTitle(title)) throw new CourseDuplicationException();
     }
 
     public void checkPhoneNumber(String phone) {
-        if(!phone.matches("\\d{11}")) throw new InvalidPhoneNumberException();
+        if (!phone.matches("\\d{11}")) throw new InvalidPhoneNumberException();
     }
 
     public void checkCourseSectionExists(Long courseId, Long instructorId, Long termId) {
@@ -112,22 +112,22 @@ public class ErrorChecker {
     }
 
     public void checkCourseSectionExists(Term term, CourseSection courseSection) {
-        if(repo.courseSectionExistsByTerm(term, courseSection)) throw new CourseSectionDuplicationException();
+        if (repo.courseSectionExistsByTerm(term, courseSection)) throw new CourseSectionDuplicationException();
     }
 
     public void checkUserExists(String username, String phone, String nationalId) {
-        if(repo.userExistsByUsername(username) ||
+        if (repo.userExistsByUsername(username) ||
                 repo.userExistsByPhone(phone) ||
                 repo.userExistsByNationalId(nationalId)) throw new UserDuplicationException();
     }
 
 
     public void checkTermExists(String title) {
-        if(repo.termExistsByTitle(title)) throw new TermDuplicationException();
+        if (repo.termExistsByTitle(title)) throw new TermDuplicationException();
     }
 
     public void checkCourseSectionRegistrationExists(CourseSection courseSection, Student student) {
-        if(repo.csrExistsByCourseSectionAndStudent(courseSection, student))
+        if (repo.csrExistsByCourseSectionAndStudent(courseSection, student))
             throw new CourseSectionRegistrationDuplicationException();
     }
 
@@ -145,16 +145,16 @@ public class ErrorChecker {
     }
 
     public void checkCourseSectionIsNotEmpty(CourseSection courseSection) {
-        if(!repo.findCourseSectionRegistrationByCourseSection(courseSection).isEmpty())
+        if (!repo.findCourseSectionRegistrationByCourseSection(courseSection).isEmpty())
             throw new CourseSectionRegistrationNotEmptyException();
     }
 
     public void checkNationalId(String nationalId) {
-        if(!nationalId.matches("\\d{10}")) throw new InvalidNationalIdException();
+        if (!nationalId.matches("\\d{10}")) throw new InvalidNationalIdException();
     }
 
 
     public void checkTokenExistsByUsername(String username) {
-        if(repo.tokenExistsByUsername(username)) throw new TokenDuplicationException();
+        if (repo.tokenExistsByUsername(username)) throw new TokenDuplicationException();
     }
 }

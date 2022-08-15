@@ -50,25 +50,25 @@ public class UserService {
     }
 
     private void updatePhoneNumber(String phone, User user) {
-        if(phone !=null && !repo.userExistsByPhone(phone)) {
+        if (phone !=null && !repo.userExistsByPhone(phone)) {
             user.setPhone(phone);
         }
     }
 
     private void updatePassword(String newPassword, User user) {
-        if(newPassword !=null) {
+        if (newPassword !=null) {
             user.setPassword(passwordEncoder.hash(newPassword));
         }
     }
 
     private void updateUsername(String newUsername, String username, User user) {
-        if(newUsername !=null && !repo.userExistsByUsername(username)) {
+        if (newUsername !=null && !repo.userExistsByUsername(username)) {
             user.setUsername(newUsername);
         }
     }
 
     private void updateName(String name, User user) {
-        if(name !=null) {
+        if (name !=null) {
             user.setName(name);
         }
     }
@@ -82,7 +82,7 @@ public class UserService {
     }
 
     private void deleteStudentOfUser(User user) {
-        if(user.getInstructor() != null) {
+        if (user.getInstructor() != null) {
             Long instructorId = user.getInstructor().getId();
             user.setInstructor(null);
             instructorService.delete(instructorId);
@@ -90,7 +90,7 @@ public class UserService {
     }
 
     private void deleteInstructorOfUser(User user) {
-        if(user.getStudent() != null) {
+        if (user.getStudent() != null) {
             Long studentId = user.getStudent().getId();
             user.setStudent(null);
             studentService.delete(studentId);
