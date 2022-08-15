@@ -27,7 +27,8 @@ public class CourseSectionService {
     public List<CourseSection> list(Long termId, String instructorName,
                        String courseName, int page, int number) {
         Term term = repo.findTerm(termId);
-        return repo.findAllByTermAndCourseTitleAndInstructorUserName(term, instructorName, courseName, PageRequest.of(page, number));
+        return repo.findCourseSectionsByTermAndInstructorNameAndCourseTitle(term, instructorName, courseName,
+                PageRequest.of(page, number));
     }
 
     public List<StudentDTO> listStudentsByCourseSection(Long courseSectionId) {

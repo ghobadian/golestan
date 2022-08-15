@@ -33,6 +33,32 @@ public class Repo {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
+    public User getUserByUsername(String username) {
+        if(username == null) throw new UserNotFoundException();
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public Student findStudentByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        return user.getStudent();
+    }
+
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public boolean userExistsByPhone(String phone) {
+        return userRepository.findByPhone(phone).isPresent();
+    }
+
+    public boolean userExistsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean userExistsByNationalId(String nationalId) {
+        return userRepository.findByNationalId(nationalId).isPresent();
+    }
+
     public List<CourseSection> findCourseSectionByTerm(Term term) {
         return courseSectionRepository.findByTerm(term);
     }
@@ -82,10 +108,7 @@ public class Repo {
         return instructorRepository.save(instructor);
     }
 
-    public User getUserByUsername(String username) {
-        if(username == null) throw new UserNotFoundException();
-        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-    }
+
 
     public List<Instructor> findAllInstructors(int page, int size) {
         return instructorRepository.findAll(PageRequest.of(page, size)).toList();
@@ -113,30 +136,11 @@ public class Repo {
         return Lists.newArrayList(studentRepository.findAll());
     }
 
-    public Student findStudentByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        return user.getStudent();
-    }
-
     public List<CourseSectionRegistration> findCSRByStudent(Student student) {
         return courseSectionRegistrationRepository.findByStudent(student);
     }
 
-    public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-    }
 
-    public boolean userExistsByPhone(String phone) {
-        return userRepository.findByPhone(phone).isPresent();
-    }
-
-    public boolean userExistsByUsername(String username) {
-        return userRepository.findByUsername(username).isPresent();
-    }
-
-    public boolean userExistsByNationalId(String nationalId) {
-        return userRepository.findByNationalId(nationalId).isPresent();
-    }
 
     public List<Term> findAllTerms() {
         return Lists.newArrayList(termRepository.findAll());
@@ -299,9 +303,9 @@ public class Repo {
         return courseRepository.findAll(PageRequest.of(page, number)).toList();
     }
 
-    public List<CourseSection> findAllByTermAndCourseTitleAndInstructorUserName(Term term, String instructorName, String courseName, PageRequest pageRequest) {
-        return courseSectionRepository.findAllByTermAndCourse_TitleAndInstructorUserName(term, instructorName, courseName, pageRequest);
+    public List<CourseSection> findCourseSectionsByTermAndInstructorNameAndCourseTitle(Term term, String instructorName,
+                                                                                       String courseName, PageRequest pageRequest) {
+        return courseSectionRepository
+                .findAllByTermAndInstructor_User_NameAndCourse_Title(term, instructorName, courseName, pageRequest);
     }
-
-
 }

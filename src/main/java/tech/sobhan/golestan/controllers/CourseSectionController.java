@@ -24,9 +24,9 @@ public class CourseSectionController {
     private List<CourseSection> list(@RequestParam Long termId,
                                      @RequestHeader String token,
                                      @RequestParam(required = false) String instructorName,
+                                     @RequestParam(required = false) String courseName,
                                      @RequestParam(required = false) Integer pageNumber,
-                                     @RequestParam(required = false) Integer maxInEachPage,
-                                     @RequestParam(required = false) String courseName) {
+                                     @RequestParam(required = false) Integer maxInEachPage) {
         securityService.list(token);
         return service.list(termId, instructorName, courseName, pageNumber, maxInEachPage);
     }

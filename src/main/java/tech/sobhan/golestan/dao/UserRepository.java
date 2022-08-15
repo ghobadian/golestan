@@ -9,8 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
-    void deleteAllByAdmin(boolean admin);
-
     Optional<User> findByUsername(String username);
 
     Optional<User> findByStudentId(Long studentId);
