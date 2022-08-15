@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = "id")
+@ToString
 @EqualsAndHashCode(of = "title")
 @Entity
 @Table(indexes = @Index(columnList = "title"))

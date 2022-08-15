@@ -13,7 +13,6 @@ import tech.sobhan.golestan.models.users.User;
 @Component
 @RequiredArgsConstructor
 public class ErrorChecker {
-    private static PaginationErrorChecker paginationErrorChecker;
     private final Repo repo;
     private final PasswordEncoder passwordEncoder;
 

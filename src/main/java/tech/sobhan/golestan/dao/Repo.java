@@ -310,4 +310,8 @@ public class Repo {
     public List<Course> findAllCourses(int page, int number) {
         return courseRepository.findAll(PageRequest.of(page, number)).toList();
     }
+
+    public List<CourseSection> findAllByTermAndCourseTitleAndInstructorUserName(Term term, String instructorName, String courseName, PageRequest pageRequest) {
+        return courseSectionRepository.findAllByTermAndCourse_TitleAndInstructorUserName(term, instructorName, courseName, pageRequest);
+    }
 }

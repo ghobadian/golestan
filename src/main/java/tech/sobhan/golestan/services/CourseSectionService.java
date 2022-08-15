@@ -2,7 +2,7 @@ package tech.sobhan.golestan.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.Course;
@@ -18,8 +18,6 @@ import tech.sobhan.golestan.models.users.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static tech.sobhan.golestan.security.PaginationErrorChecker.checkPaginationErrors;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,9 +27,7 @@ public class CourseSectionService {
     public List<CourseSection> list(Long termId, String instructorName,
                        String courseName, int page, int number) {
         Term term = repo.findTerm(termId);
-        List<CourseSection> filteredList = filterList(term, instructorName, courseName);
-        checkPaginationErrors(filteredList.size(), page, number);
-        return pagination(filteredList, page, number);
+        return repo.findAllByTermAndCourseTitleAndInstructorUserName(term, instructorName, courseName, PageRequest.of(page, number));
     }
 
     public List<StudentDTO> listStudentsByCourseSection(Long courseSectionId) {
@@ -49,35 +45,6 @@ public class CourseSectionService {
         return StudentDTO.builder().id(student.getId()).name(user.getName())
                 .number(user.getPhone()).score(csr.getScore()).build();
     }
-
-    @Value("${defaultMaxInEachPage}")
-    private static Integer defaultMaxInEachPage;
-    private List<CourseSection> pagination(List<CourseSection> filteredList, Integer pageNumber, Integer maxInEachPage) {
-        if(pageNumber == null) {
-            return maxInEachPage == null ? filteredList :
-                    filteredList.subList(0, maxInEachPage> filteredList.size() ? filteredList.size() : maxInEachPage);
-        }else{
-            return maxInEachPage == null ?
-                    filteredList.subList((pageNumber - 1)  * defaultMaxInEachPage, (pageNumber)  * defaultMaxInEachPage) :
-                    filteredList.subList((pageNumber - 1)  * maxInEachPage, (pageNumber)  * maxInEachPage);
-        }
-    }
-
-    private List<CourseSection> filterList(Term term, String instructorName, String courseName) {
-        if(instructorName == null) {
-            return courseName == null ? list(term) : repo.findCourseSectionByCourseName(courseName);
-        } else {
-            return courseName == null ? repo.findCourseSectionByInstructorName(instructorName) :
-                    repo.findCourseSectionByInstructorNameAndCourseName(instructorName, courseName);
-        }
-    }
-
-    private List<CourseSection> list(Term term) {
-
-        return repo.findCourseSectionByTerm(term);
-    }
-
-
 
     public CourseSection create(Long courseId, Long instructorId, Long termId) {
         CourseSection courseSection = buildCourseSection(courseId, instructorId, termId);

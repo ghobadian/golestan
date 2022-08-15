@@ -3,7 +3,6 @@ package tech.sobhan.golestan.services.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.sobhan.golestan.security.ErrorChecker;
-import tech.sobhan.golestan.services.CourseService;
 
 @Service
 @RequiredArgsConstructor
