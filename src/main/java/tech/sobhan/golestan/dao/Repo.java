@@ -186,18 +186,6 @@ public class Repo {
         return courseSectionRegistrationRepository.countByCourseSection(courseSection);
     }
 
-    public List<CourseSection> findCourseSectionByInstructorName(String instructorName) {
-        return courseSectionRepository.findByInstructorUserName(instructorName);
-    }
-
-    public List<CourseSection> findCourseSectionByCourseName(String courseTitle) {
-        return courseSectionRepository.findByCourse_Title(courseTitle);
-    }
-
-    public List<CourseSection> findCourseSectionByInstructorNameAndCourseName(String instructorName, String courseName) {
-        return courseSectionRepository.findByCourse_TitleAndInstructorUserName(courseName, instructorName);
-    }
-
     public List<User> findAllUsers() {
         return Lists.newArrayList(userRepository.findAll());
     }
@@ -233,8 +221,8 @@ public class Repo {
         return !userRepository.findByAdminTrue().isEmpty();
     }
 
-    public void deleteUsersWithAdminPrivilege() {
-        userRepository.deleteAllByAdmin(true);
+    public List<User> findUserByAdminPrivilege() {
+        return userRepository.findByAdminTrue();
     }
 
     public List<CourseSectionRegistration> findCSRsByStudentAndTerm(Student student, Term term) {
@@ -314,4 +302,6 @@ public class Repo {
     public List<CourseSection> findAllByTermAndCourseTitleAndInstructorUserName(Term term, String instructorName, String courseName, PageRequest pageRequest) {
         return courseSectionRepository.findAllByTermAndCourse_TitleAndInstructorUserName(term, instructorName, courseName, pageRequest);
     }
+
+
 }

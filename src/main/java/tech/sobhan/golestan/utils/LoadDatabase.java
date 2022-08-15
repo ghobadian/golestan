@@ -8,6 +8,7 @@ import tech.sobhan.golestan.models.users.User;
 import tech.sobhan.golestan.security.PasswordEncoder;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 
 @Configuration
@@ -22,16 +23,29 @@ public class LoadDatabase {
 
     @PostConstruct
     private void loadAdmin() {
-        deleteAllAdmins(repo);
-        User admin = User.builder().username(adminUsername).password((adminPassword)).name("admin").phone("1234")
+        if(adminExists()){
+            updateAdminsPasswordsBasedOnConfig();
+        }else{
+            createNewAdmin();
+        }
+    }
+
+    private boolean adminExists() {
+        return repo.userExistsByAdminPrivilege();
+    }
+
+    private void createNewAdmin() {
+        User admin = User.builder().username(adminUsername).password(passwordEncoder.hash(adminPassword)).name("admin").phone("1234")
                 .nationalId("1234").admin(true).active(true).build();
-        admin.setPassword(passwordEncoder.hash(admin.getPassword()));
         repo.saveUser(admin);
     }
 
-    private void deleteAllAdmins(Repo repo) {
-        if(repo.userExistsByAdminPrivilege()) {
-            repo.deleteUsersWithAdminPrivilege();
-        }
+    private void updateAdminsPasswordsBasedOnConfig() {
+        List<User> admins = repo.findUserByAdminPrivilege();
+        admins.forEach(admin -> {
+            admin.setPassword(adminPassword);
+            admin.setUsername(adminUsername);
+            repo.saveUser(admin);
+        });
     }
 }
