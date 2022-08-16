@@ -9,7 +9,6 @@ import tech.sobhan.golestan.enums.Rank;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Instructor;
-import tech.sobhan.golestan.models.users.Student;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,20 +35,17 @@ public class InstructorService {
     }
 
     public void delete(Long instructorId) {
-        Instructor instructor = repo.findInstructor(instructorId);
-        List<CourseSection> courseSectionsOfInstructor = repo.findCourseSectionByInstructor(instructor);
+        List<CourseSection> courseSectionsOfInstructor = repo.findCourseSectionByInstructorId(instructorId);
         courseSectionsOfInstructor.forEach(cs -> cs.setInstructor(null));
-        repo.deleteInstructor(instructor);
-        log.info("Instructor with id " + instructor.getId() + " deleted");
+        repo.deleteInstructor(instructorId);
+        log.info("Instructor with id " + instructorId + " deleted");
     }
 
     public CourseSectionRegistration giveMark(Long courseSectionId, Long studentId, Double score) {
-        CourseSection courseSection = repo.findCourseSection(courseSectionId);
-        Student student = repo.findStudent(studentId);
-        CourseSectionRegistration courseSectionRegistration = repo
-                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);
-        courseSectionRegistration.setScore(score);
-        return repo.saveCourseSectionRegistration(courseSectionRegistration);
+        CourseSectionRegistration csr = repo
+                .findCourseSectionRegistrationByCourseSectionIdAndStudentId(courseSectionId, studentId);
+        csr.setScore(score);
+        return repo.saveCourseSectionRegistration(csr);
     }
 
     public List<CourseSectionRegistration> giveMultipleMarks(Long courseSectionId, JSONArray studentIds, JSONArray scores) {

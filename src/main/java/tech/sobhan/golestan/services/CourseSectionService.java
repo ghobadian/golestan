@@ -32,9 +32,8 @@ public class CourseSectionService {
     }
 
     public List<StudentDTO> listStudentsByCourseSection(Long courseSectionId) {
-        CourseSection cs = repo.findCourseSection(courseSectionId);
         List<CourseSectionRegistration> courseSectionRegistrations = repo
-                .findCourseSectionRegistrationByCourseSection(cs);
+                .findCourseSectionRegistrationByCourseSectionId(courseSectionId);
         return courseSectionRegistrations.stream()
                 .map(csr -> getStudentDetails(csr, repo))
                 .collect(Collectors.toList());
@@ -61,9 +60,8 @@ public class CourseSectionService {
     }
 
     public CourseSectionDTOLight read(Long id) {
-        CourseSection courseSection = repo.findCourseSection(id);
-        int numberOfStudents = repo.findNumberOfStudentsInCourseSection(courseSection);
-        return CourseSectionDTOLight.builder().courseSection(courseSection).numberOfStudents(numberOfStudents).build();
+        int numberOfStudents = repo.findNumberOfStudentsInCourseSection(id);
+        return CourseSectionDTOLight.builder().courseSection(repo.findCourseSection(id)).numberOfStudents(numberOfStudents).build();
     }
 
     public CourseSection update(Long termId, Long courseId, Long instructorId, Long courseSectionId) {

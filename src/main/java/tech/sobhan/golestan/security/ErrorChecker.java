@@ -7,7 +7,6 @@ import tech.sobhan.golestan.business.exceptions.duplication.*;
 import tech.sobhan.golestan.dao.Repo;
 import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.Term;
-import tech.sobhan.golestan.models.users.Student;
 import tech.sobhan.golestan.models.users.User;
 
 @Component
@@ -125,26 +124,20 @@ public class ErrorChecker {
         if (repo.termExistsByTitle(title)) throw new TermDuplicationException();
     }
 
-    public void checkCourseSectionRegistrationExists(CourseSection courseSection, Student student) {
-        if (repo.csrExistsByCourseSectionAndStudent(courseSection, student))
-            throw new CourseSectionRegistrationDuplicationException();
-    }
-
     public void checkCourseSectionRegistrationExists(Long courseSectionId, Long studentId) {
-        checkCourseSectionRegistrationExists(repo.findCourseSection(courseSectionId), repo.findStudent(studentId));
+        if (repo.csrExistsByCourseSectionIdAndStudentId(courseSectionId, studentId))
+            throw new CourseSectionRegistrationDuplicationException();
+
     }
 
     public void checkCourseSectionRegistrationExists(Long courseSectionId, String token) {
-        Long studentId = repo.findStudentByUsername(repo.findUsernameByToken(token)).getId();
+        String studentUsername = repo.findUsernameByToken(token);
+        Long studentId = repo.findStudentByUsername(studentUsername).getId();
         checkCourseSectionRegistrationExists(courseSectionId, studentId);
     }
 
     public void checkCourseSectionIsNotEmpty(Long courseSectionId) {
-        checkCourseSectionIsNotEmpty(repo.findCourseSection(courseSectionId));
-    }
-
-    public void checkCourseSectionIsNotEmpty(CourseSection courseSection) {
-        if (!repo.findCourseSectionRegistrationByCourseSection(courseSection).isEmpty())
+        if (!repo.findCourseSectionRegistrationByCourseSectionId(courseSectionId).isEmpty())
             throw new CourseSectionRegistrationNotEmptyException();
     }
 

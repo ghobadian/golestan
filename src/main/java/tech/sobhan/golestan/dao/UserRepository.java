@@ -15,10 +15,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 
     Optional<User> findByInstructorId(Long instructor_id);
 
-    Optional<User> findByPhone(String phone);
-
-    Optional<User> findByNationalId(String nationalId);
-
     List<User> findByAdminTrue();
 
     boolean existsByInstructorId(Long instructorId);

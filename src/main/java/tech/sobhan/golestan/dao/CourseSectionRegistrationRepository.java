@@ -2,7 +2,6 @@ package tech.sobhan.golestan.dao;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
-import tech.sobhan.golestan.models.CourseSection;
 import tech.sobhan.golestan.models.CourseSectionRegistration;
 import tech.sobhan.golestan.models.users.Student;
 
@@ -11,13 +10,13 @@ import java.util.Optional;
 
 @Repository
 public interface CourseSectionRegistrationRepository extends PagingAndSortingRepository<CourseSectionRegistration, Long> {
-    Optional<CourseSectionRegistration> findByCourseSectionAndStudent(CourseSection courseSection, Student student);
+    Optional<CourseSectionRegistration> findByCourseSectionIdAndStudentId(Long courseSection_id, Long student_id);
 
-    boolean existsByCourseSectionAndStudent(CourseSection courseSection, Student student);
+    boolean existsByCourseSectionIdAndStudentId(Long courseSection_id, Long student_id);
 
     List<CourseSectionRegistration> findByStudent(Student student);
 
-    List<CourseSectionRegistration> findByCourseSection(CourseSection courseSection);
+    int countByCourseSectionId(Long courseSection_id);
 
-    int countByCourseSection(CourseSection courseSection);
+    List<CourseSectionRegistration> findByCourseSectionId(Long courseSectionId);
 }

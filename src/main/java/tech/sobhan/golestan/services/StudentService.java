@@ -37,8 +37,7 @@ public class StudentService {
     public EntityModel<StudentAverageDTO> seeScoresInSpecifiedTerm(Long termId, String token) {
         String username = repo.findUsernameByToken(token);
         Student student = repo.findStudentByUsername(username);
-        Term term = repo.findTerm(termId);
-        List<CourseSectionRegistration> csrs = repo.findCSRsByStudentAndTerm(student, term);
+        List<CourseSectionRegistration> csrs = repo.findCSRsByStudentAndTerm(student, repo.findTerm(termId));
         List<CourseSectionDTO> courseSections = csrs.stream().map(this::getCourseSectionDetails).collect(Collectors.toList());
         return EntityModel.of(StudentAverageDTO.builder().average(findAverage(csrs)).courseSections(courseSections).build());
     }

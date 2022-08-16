@@ -91,11 +91,6 @@ public class Repo {
         return courseSectionRepository.findById(id).orElseThrow(CourseSectionNotFoundException::new);
     }
 
-    public List<CourseSectionRegistration> findCourseSectionRegistrationByCourseSection(CourseSection courseSection) {
-        return courseSectionRegistrationRepository
-                .findByCourseSection(courseSection);
-    }
-
     public void deleteCourseSection(CourseSection specifiedCourseSection) {
         courseSectionRepository.delete(specifiedCourseSection);
     }
@@ -116,17 +111,14 @@ public class Repo {
         return Lists.newArrayList(instructorRepository.findAll());
     }
 
-    public List<CourseSection> findCourseSectionByInstructor(Instructor instructor) {
-        return courseSectionRepository.findByInstructor(instructor);
+    public void deleteInstructor(Long instructorId) {
+        instructorRepository.deleteById(instructorId);
     }
 
-    public void deleteInstructor(Instructor instructor) {
-        instructorRepository.delete(instructor);
-    }
-
-    public CourseSectionRegistration findCourseSectionRegistrationByCourseSectionAndStudent(CourseSection courseSection, Student student) {
+    public CourseSectionRegistration findCourseSectionRegistrationByCourseSectionIdAndStudentId(Long courseSectionId,
+                                                                                                Long studentId) {
         return courseSectionRegistrationRepository
-                .findByCourseSectionAndStudent(courseSection, student)
+                .findByCourseSectionIdAndStudentId(courseSectionId, studentId)
                 .orElseThrow(CourseSectionRegistrationNotFoundException::new);
     }
 
@@ -182,8 +174,8 @@ public class Repo {
         courseRepository.delete(course);
     }
 
-    public int findNumberOfStudentsInCourseSection(CourseSection courseSection) {
-        return courseSectionRegistrationRepository.countByCourseSection(courseSection);
+    public int findNumberOfStudentsInCourseSection(Long courseSectionId) {
+        return courseSectionRegistrationRepository.countByCourseSectionId(courseSectionId);
     }
 
     public List<User> findAllUsers() {
@@ -210,10 +202,6 @@ public class Repo {
 
     public boolean termExistsByTitle(String title) {
         return termRepository.existsByTitle(title);
-    }
-
-    public boolean csrExistsByCourseSectionAndStudent(CourseSection courseSection, Student student) {
-        return courseSectionRegistrationRepository.existsByCourseSectionAndStudent(courseSection, student);
     }
 
     public boolean userExistsByAdminPrivilege() {
@@ -302,5 +290,17 @@ public class Repo {
                                                                                        String courseName, PageRequest pageRequest) {
         return courseSectionRepository
                 .findAllByTermAndInstructor_User_NameAndCourse_Title(term, instructorName, courseName, pageRequest);
+    }
+
+    public boolean csrExistsByCourseSectionIdAndStudentId(Long courseSectionId, Long studentId) {
+        return courseSectionRegistrationRepository.existsByCourseSectionIdAndStudentId(courseSectionId, studentId);
+    }
+
+    public List<CourseSectionRegistration> findCourseSectionRegistrationByCourseSectionId(Long courseSectionId) {
+        return courseSectionRegistrationRepository.findByCourseSectionId(courseSectionId);
+    }
+
+    public List<CourseSection> findCourseSectionByInstructorId(Long instructorId) {
+        return courseSectionRepository.findByInstructorId(instructorId);
     }
 }

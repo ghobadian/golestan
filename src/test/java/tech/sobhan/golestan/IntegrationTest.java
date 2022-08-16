@@ -92,7 +92,7 @@ public class IntegrationTest {
                 .param("courseSectionId", String.valueOf(courseSection.getId()))
                 .param("score", String.valueOf(19.75)));
         CourseSectionRegistration courseSectionRegistration = repo
-                .findCourseSectionRegistrationByCourseSectionAndStudent(courseSection, student);
+                .findCourseSectionRegistrationByCourseSectionIdAndStudentId(courseSection.getId(), student.getId());
         assertEquals(courseSectionRegistration.getScore(), 19.75);
     }
 
@@ -103,7 +103,7 @@ public class IntegrationTest {
                 .header("token", "student0")
                 .param("courseSectionId", String.valueOf(courseSection.getId())));
         CourseSectionRegistration courseSectionRegistration = repo
-                .findCourseSectionRegistrationByCourseSection(courseSection).get(0);
+                .findCourseSectionRegistrationByCourseSectionId(courseSection.getId()).get(0);
         Student student = repo.findStudentByUsername("student0");
         assertEquals(courseSectionRegistration.getStudent().getId(), student.getId());
     }
@@ -124,7 +124,7 @@ public class IntegrationTest {
                 .param("scores", String.valueOf(expectedScores))
                 .header("token", "instructor0"));
         List<CourseSectionRegistration> courseSectionRegistrations = repo
-                .findCourseSectionRegistrationByCourseSection(courseSection);
+                .findCourseSectionRegistrationByCourseSectionId(courseSection.getId());
         JSONArray actualScores = new JSONArray(courseSectionRegistrations
                 .stream()
                 .map(CourseSectionRegistration::getScore).collect(Collectors.toList()));
