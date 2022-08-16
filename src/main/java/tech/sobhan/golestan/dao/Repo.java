@@ -39,8 +39,7 @@ public class Repo {
     }
 
     public Student findStudentByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        return user.getStudent();
+        return studentRepository.findByUserUsername(username).orElseThrow(StudentNotFoundException::new);
     }
 
     public User findUserByUsername(String username) {
