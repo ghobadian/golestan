@@ -1,16 +1,15 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
 @Builder
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class CourseSectionDTO {
-    private Long id;
-    private String courseName;
-    private int courseUnits;
-    private InstructorDTO instructor;
-    private Double score;
+    private final Long id;
+    private final String courseName;
+    private final int courseUnits;
+    private final InstructorDTO instructor;
+    private final Double score;
 }

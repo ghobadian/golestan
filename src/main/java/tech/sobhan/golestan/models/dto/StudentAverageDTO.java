@@ -1,15 +1,14 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
 @Builder
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class StudentAverageDTO {
-    private Double average;
-    private List<CourseSectionDTO> courseSections;
+    private final Double average;
+    private final List<CourseSectionDTO> courseSections;
 }

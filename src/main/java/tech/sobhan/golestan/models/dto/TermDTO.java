@@ -1,15 +1,14 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
 @Builder
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class TermDTO {
-    private Long termId;
-    private String termTitle;
-    private Double studentAverage;
+    private final Long termId;
+    private final String termTitle;
+    private final Double studentAverage;
 
 }

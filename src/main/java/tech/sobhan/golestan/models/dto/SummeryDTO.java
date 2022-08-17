@@ -1,15 +1,14 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
 @Builder
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class SummeryDTO {
-    private List<TermDTO> termDetails;
-    private double totalAverage;
+    private final List<TermDTO> termDetails;
+    private final double totalAverage;
 }

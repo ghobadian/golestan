@@ -1,15 +1,14 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
 @Builder
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class StudentDTO {
-    private Long id;
-    private String name;
-    private String number;
-    private Double score;
+    private final Long id;
+    private final String name;
+    private final String number;
+    private final Double score;
 }

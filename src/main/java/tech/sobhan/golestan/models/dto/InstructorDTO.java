@@ -1,18 +1,16 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import tech.sobhan.golestan.enums.Rank;
 
-@Component
-@Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class InstructorDTO {
-    private String name;
-    private Rank rank;
+    private final String name;
+    private final Rank rank;
 }

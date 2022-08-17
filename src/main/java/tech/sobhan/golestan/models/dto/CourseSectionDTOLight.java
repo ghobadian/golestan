@@ -1,14 +1,13 @@
 package tech.sobhan.golestan.models.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import tech.sobhan.golestan.models.CourseSection;
 
-@Data
-@AllArgsConstructor
 @Builder
+@Getter
+@RequiredArgsConstructor
+@ToString
 public class CourseSectionDTOLight {
-    private CourseSection courseSection;
-    private int numberOfStudents;
+    private final CourseSection courseSection;
+    private final int numberOfStudents;
 }
